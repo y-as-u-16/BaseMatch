@@ -40,9 +40,7 @@ struct MyTeamRepository {
         let displayOrder = (activeTeams.map(\.displayOrder).max() ?? -1) + 1
 
         if shouldBeDefault {
-            for team in activeTeams where team.isDefault {
-                team.isDefault = false
-            }
+            clearDefaultFlags(in: activeTeams)
         }
 
         let team = MyTeam(
@@ -54,5 +52,24 @@ struct MyTeamRepository {
         context.insert(team)
         try context.save()
         return team
+    }
+
+    func setDefaultMyTeam(id: String) throws {
+        let activeTeams = try myTeams()
+        guard let target = activeTeams.first(where: { $0.id == id }) else {
+            throw AppError.validation("チームが見つかりません")
+        }
+
+        clearDefaultFlags(in: activeTeams)
+        target.isDefault = true
+        target.updatedAt = Date()
+        try context.save()
+    }
+
+    /// デフォルトは常に1件だけ。新たに立てる前に既存を落とす。
+    private func clearDefaultFlags(in teams: [MyTeam]) {
+        for team in teams where team.isDefault {
+            team.isDefault = false
+        }
     }
 }

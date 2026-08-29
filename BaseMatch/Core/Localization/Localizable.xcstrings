@@ -619,6 +619,18 @@
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "デフォルト" } }
       }
     },
+    "myTeam.setDefaultHint" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tap a team to make it the default. New games start with it selected." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "タップするとデフォルトになります。試合作成時に最初から選ばれます。" } }
+      }
+    },
+    "myTeam.setDefaultAccessibility" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Make default" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "デフォルトにする" } }
+      }
+    },
     "myTeam.createdMessage" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Team added" } },

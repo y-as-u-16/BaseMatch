@@ -155,6 +155,8 @@ enum L10n {
     static var noMyTeamsForGameTitle: String { t("myTeam.empty.title") }
     static var noMyTeamsForGameSubtitle: String { t("myTeam.empty.subtitle") }
     static var defaultMyTeamBadge: String { t("myTeam.defaultBadge") }
+    static var setDefaultMyTeamHint: String { t("myTeam.setDefaultHint") }
+    static var setDefaultMyTeamAccessibility: String { t("myTeam.setDefaultAccessibility") }
     static var myTeamCreatedMessage: String { t("myTeam.createdMessage") }
     static var unknownMyTeamLabel: String { t("myTeam.unknown") }
     static var defaultPlayerName: String { t("common.defaultPlayerName") }

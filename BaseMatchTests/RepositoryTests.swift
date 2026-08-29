@@ -70,6 +70,40 @@ struct MyTeamRepositoryTests {
 
         #expect(team.colorKey == nil)
     }
+
+    @Test("デフォルトを切り替えると他のチームは外れる")
+    func setDefaultMovesTheFlag() throws {
+        let repository = MyTeamRepository(context: try makeContext())
+        let first = try repository.createMyTeam(name: "A")
+        let second = try repository.createMyTeam(name: "B")
+
+        try repository.setDefaultMyTeam(id: second.id)
+
+        #expect(!first.isDefault)
+        #expect(second.isDefault)
+        #expect(try repository.defaultMyTeam()?.id == second.id)
+    }
+
+    @Test("既にデフォルトのチームを指定しても状態は変わらない")
+    func setDefaultOnCurrentDefaultKeepsIt() throws {
+        let repository = MyTeamRepository(context: try makeContext())
+        let only = try repository.createMyTeam(name: "A")
+
+        try repository.setDefaultMyTeam(id: only.id)
+
+        #expect(only.isDefault)
+        #expect(try repository.myTeams().filter(\.isDefault).count == 1)
+    }
+
+    @Test("存在しない ID を指定すると失敗する")
+    func setDefaultWithUnknownIdThrows() throws {
+        let repository = MyTeamRepository(context: try makeContext())
+        _ = try repository.createMyTeam(name: "A")
+
+        #expect(throws: AppError.self) {
+            try repository.setDefaultMyTeam(id: "not-exist")
+        }
+    }
 }
 
 @Suite("GameRepository")
