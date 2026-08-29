@@ -158,6 +158,7 @@ struct PlateAppearanceInputView: View {
                         isSelected: selected == option,
                         action: { selected = option }
                     )
+                    .accessibilityIdentifier("chip-\(option.detail.rawValue)")
                 }
             }
         }

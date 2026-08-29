@@ -179,6 +179,7 @@ private struct GameDetailActionBar: View {
                     .background(Capsule(style: .continuous).fill(colors.primary.gradient))
                     .adaptiveInteractiveGlass(in: .capsule)
             }
+            .accessibilityIdentifier("addPlateAppearance")
 
             NavigationLink(value: GameRoute.pitchingInput(gameId: gameId)) {
                 Label(L10n.addPitchingButton, systemImage: "chart.line.uptrend.xyaxis")

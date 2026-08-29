@@ -10,22 +10,29 @@ enum DemoDataSeeder {
         CommandLine.arguments.contains("-seedDemoData")
     }
 
+    /// 掲載画像は言語ごとに差し替えるため、名前も表示言語に合わせる。
+    /// UI 文言ではないので String Catalog には載せない。
+    private static var isEnglish: Bool {
+        Bundle.main.preferredLocalizations.first?.hasPrefix("en") ?? false
+    }
+
     static func seed(context: ModelContext) throws {
         try clearAll(context: context)
 
-        let team = MyTeam(name: "イーストサイド", isDefault: true, displayOrder: 0)
+        let names = isEnglish ? DemoNames.english : DemoNames.japanese
+        let team = MyTeam(name: names.myTeam, isDefault: true, displayOrder: 0)
         context.insert(team)
 
         let calendar = Calendar.current
         let today = Date()
 
-        // 直近ほど画面に出るため、新しい試合から並べる
+        // カレンダーの初期選択日は当日。掲載画像でカードを見せるため当日に1試合置く。
         let plans: [GamePlan] = [
-            .init(dayOffset: -2, opponent: "グリーンズ", home: 6, away: 2, venue: "総合運動公園"),
-            .init(dayOffset: -9, opponent: "ブルーシャークス", home: 3, away: 5, venue: "河川敷グラウンド"),
-            .init(dayOffset: -16, opponent: "レッドウィングス", home: 7, away: 4, venue: "市民球場"),
-            .init(dayOffset: -38, opponent: "ゴールデンベアーズ", home: 5, away: 5, venue: "市民球場"),
-            .init(dayOffset: -45, opponent: "シルバーホークス", home: 8, away: 1, venue: "東部球場"),
+            .init(dayOffset: 0, opponent: names.opponents[0], home: 6, away: 2, venue: names.venues[0]),
+            .init(dayOffset: -9, opponent: names.opponents[1], home: 3, away: 5, venue: names.venues[1]),
+            .init(dayOffset: -16, opponent: names.opponents[2], home: 7, away: 4, venue: names.venues[2]),
+            .init(dayOffset: -38, opponent: names.opponents[3], home: 5, away: 5, venue: names.venues[2]),
+            .init(dayOffset: -45, opponent: names.opponents[4], home: 8, away: 1, venue: names.venues[3]),
         ]
 
         for plan in plans {
@@ -43,7 +50,7 @@ enum DemoDataSeeder {
             )
             context.insert(game)
 
-            for pa in plan.plateAppearances {
+            for pa in plan.plateAppearances(batters: names.batters) {
                 context.insert(
                     PlateAppearance(
                         gameId: game.id,
@@ -57,7 +64,7 @@ enum DemoDataSeeder {
                 )
             }
 
-            for pitch in plan.pitchingAppearances {
+            for pitch in plan.pitchingAppearances(pitchers: names.pitchers) {
                 context.insert(
                     PitchingAppearance(
                         gameId: game.id,
@@ -87,6 +94,31 @@ enum DemoDataSeeder {
     }
 }
 
+/// 架空の名前だけを使う（App Review Guideline 2.3.9）。
+private struct DemoNames {
+    let myTeam: String
+    let opponents: [String]
+    let venues: [String]
+    let batters: [String]
+    let pitchers: [String]
+
+    static let japanese = DemoNames(
+        myTeam: "イーストサイド",
+        opponents: ["グリーンズ", "ブルーシャークス", "レッドウィングス", "ゴールデンベアーズ", "シルバーホークス"],
+        venues: ["総合運動公園", "河川敷グラウンド", "市民球場", "東部球場"],
+        batters: ["田中", "佐藤", "鈴木", "高橋"],
+        pitchers: ["山本", "中村"]
+    )
+
+    static let english = DemoNames(
+        myTeam: "East Side",
+        opponents: ["Greens", "Blue Sharks", "Red Wings", "Golden Bears", "Silver Hawks"],
+        venues: ["Riverside Park", "Northgate Field", "City Stadium", "East Park"],
+        batters: ["Miller", "Carter", "Brooks", "Hayes"],
+        pitchers: ["Reed", "Palmer"]
+    )
+}
+
 private struct GamePlan {
     let dayOffset: Int
     let opponent: String
@@ -95,79 +127,80 @@ private struct GamePlan {
     let venue: String
 
     /// 打率が .300〜.400 台に収まるよう、安打と凡打を混ぜる。
-    var plateAppearances: [PA] {
+    /// batters は [1番, 2番, 3番, 4番] の並び。
+    func plateAppearances(batters: [String]) -> [PA] {
         switch dayOffset {
-        case -2:
+        case 0:
             [
-                PA("田中", 1, .hit, .double, 2),
-                PA("田中", 3, .out, .fly, 0),
-                PA("田中", 6, .out, .ground, 0),
-                PA("佐藤", 1, .hit, .hr, 3),
-                PA("佐藤", 4, .out, .k, 0),
-                PA("鈴木", 2, .walk, .bb, 0),
-                PA("鈴木", 5, .hit, .single, 0),
-                PA("高橋", 3, .out, .fly, 0),
+                PA(batters[0], 1, .hit, .double, 2),
+                PA(batters[0], 3, .out, .fly, 0),
+                PA(batters[0], 6, .out, .ground, 0),
+                PA(batters[1], 1, .hit, .hr, 3),
+                PA(batters[1], 4, .out, .k, 0),
+                PA(batters[2], 2, .walk, .bb, 0),
+                PA(batters[2], 5, .hit, .single, 0),
+                PA(batters[3], 3, .out, .fly, 0),
             ]
         case -9:
             [
-                PA("田中", 2, .out, .ground, 0),
-                PA("田中", 5, .hit, .single, 1),
-                PA("佐藤", 2, .out, .k, 0),
-                PA("佐藤", 7, .out, .line, 0),
-                PA("鈴木", 3, .out, .fly, 0),
-                PA("鈴木", 6, .hit, .double, 1),
-                PA("高橋", 4, .walk, .hbp, 0),
-                PA("高橋", 7, .out, .k, 0),
+                PA(batters[0], 2, .out, .ground, 0),
+                PA(batters[0], 5, .hit, .single, 1),
+                PA(batters[1], 2, .out, .k, 0),
+                PA(batters[1], 7, .out, .line, 0),
+                PA(batters[2], 3, .out, .fly, 0),
+                PA(batters[2], 6, .hit, .double, 1),
+                PA(batters[3], 4, .walk, .hbp, 0),
+                PA(batters[3], 7, .out, .k, 0),
             ]
         case -16:
             [
-                PA("田中", 1, .hit, .triple, 2),
-                PA("田中", 4, .out, .dp, 0),
-                PA("佐藤", 3, .hit, .single, 1),
-                PA("佐藤", 6, .out, .fly, 0),
-                PA("鈴木", 1, .out, .k, 0),
-                PA("鈴木", 5, .hit, .double, 2),
-                PA("高橋", 2, .out, .sacFly, 1),
-                PA("高橋", 6, .out, .ground, 0),
+                PA(batters[0], 1, .hit, .triple, 2),
+                PA(batters[0], 4, .out, .dp, 0),
+                PA(batters[1], 3, .hit, .single, 1),
+                PA(batters[1], 6, .out, .fly, 0),
+                PA(batters[2], 1, .out, .k, 0),
+                PA(batters[2], 5, .hit, .double, 2),
+                PA(batters[3], 2, .out, .sacFly, 1),
+                PA(batters[3], 6, .out, .ground, 0),
             ]
         case -38:
             [
-                PA("田中", 3, .hit, .single, 1),
-                PA("田中", 6, .out, .k, 0),
-                PA("佐藤", 2, .out, .ground, 0),
-                PA("佐藤", 5, .hit, .hr, 2),
-                PA("鈴木", 4, .out, .line, 0),
-                PA("高橋", 6, .out, .fly, 0),
+                PA(batters[0], 3, .hit, .single, 1),
+                PA(batters[0], 6, .out, .k, 0),
+                PA(batters[1], 2, .out, .ground, 0),
+                PA(batters[1], 5, .hit, .hr, 2),
+                PA(batters[2], 4, .out, .line, 0),
+                PA(batters[3], 6, .out, .fly, 0),
             ]
         default:
             [
-                PA("田中", 2, .hit, .double, 1),
-                PA("田中", 6, .out, .fly, 0),
-                PA("佐藤", 1, .hit, .single, 2),
-                PA("佐藤", 5, .out, .ground, 0),
-                PA("鈴木", 3, .out, .k, 0),
-                PA("鈴木", 7, .out, .fly, 0),
-                PA("高橋", 4, .out, .sacBunt, 0),
+                PA(batters[0], 2, .hit, .double, 1),
+                PA(batters[0], 6, .out, .fly, 0),
+                PA(batters[1], 1, .hit, .single, 2),
+                PA(batters[1], 5, .out, .ground, 0),
+                PA(batters[2], 3, .out, .k, 0),
+                PA(batters[2], 7, .out, .fly, 0),
+                PA(batters[3], 4, .out, .sacBunt, 0),
             ]
         }
     }
 
     /// 防御率が 2.00〜4.00 に収まる配分。
-    var pitchingAppearances: [Pitch] {
+    func pitchingAppearances(pitchers: [String]) -> [Pitch] {
         switch dayOffset {
-        case -2:
-            [Pitch("山本", outs: 21, runs: 2, earnedRuns: 2, hits: 5, walks: 1, strikeouts: 8, homeRuns: 0)]
+        case 0:
+            [Pitch(pitchers[0], outs: 21, runs: 2, earnedRuns: 2, hits: 5, walks: 1, strikeouts: 8, homeRuns: 0)]
         case -9:
             [
-                Pitch("山本", outs: 15, runs: 4, earnedRuns: 3, hits: 7, walks: 2, strikeouts: 4, homeRuns: 1),
-                Pitch("中村", outs: 6, runs: 1, earnedRuns: 1, hits: 2, walks: 0, strikeouts: 3, homeRuns: 0),
+                Pitch(pitchers[0], outs: 15, runs: 4, earnedRuns: 3, hits: 7, walks: 2, strikeouts: 4, homeRuns: 1),
+                Pitch(pitchers[1], outs: 6, runs: 1, earnedRuns: 1, hits: 2, walks: 0, strikeouts: 3, homeRuns: 0),
             ]
         case -16:
-            [Pitch("中村", outs: 21, runs: 4, earnedRuns: 3, hits: 8, walks: 3, strikeouts: 6, homeRuns: 1)]
+            [Pitch(pitchers[1], outs: 21, runs: 4, earnedRuns: 3, hits: 8, walks: 3, strikeouts: 6, homeRuns: 1)]
         case -38:
-            [Pitch("山本", outs: 19, runs: 5, earnedRuns: 4, hits: 9, walks: 2, strikeouts: 5, homeRuns: 1)]
+            [Pitch(pitchers[0], outs: 19, runs: 5, earnedRuns: 4, hits: 9, walks: 2, strikeouts: 5, homeRuns: 1)]
         default:
-            [Pitch("中村", outs: 21, runs: 1, earnedRuns: 0, hits: 3, walks: 1, strikeouts: 9, homeRuns: 0)]
+            [Pitch(pitchers[1], outs: 21, runs: 1, earnedRuns: 0, hits: 3, walks: 1, strikeouts: 9, homeRuns: 0)]
         }
     }
 }

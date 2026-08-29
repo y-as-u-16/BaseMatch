@@ -327,6 +327,7 @@ private struct SelectedDateGameSection: View {
                         GameRecordCard(game: game, title: cardTitle(for: game))
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("gameCard")
                     .listItemTransition()
                 }
             }
