@@ -177,7 +177,7 @@ private struct GameDetailActionBar: View {
                     .foregroundStyle(colors.onPrimary)
                     .padding(.horizontal, 18)
                     .background(Capsule(style: .continuous).fill(colors.primary.gradient))
-                    .glassEffect(.regular.interactive(), in: .capsule)
+                    .adaptiveInteractiveGlass(in: .capsule)
             }
 
             NavigationLink(value: GameRoute.pitchingInput(gameId: gameId)) {
@@ -186,7 +186,7 @@ private struct GameDetailActionBar: View {
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .foregroundStyle(colors.primary)
                     .padding(.horizontal, 18)
-                    .glassEffect(.regular.interactive(), in: .capsule)
+                    .adaptiveInteractiveGlass(in: .capsule)
             }
         }
         .buttonStyle(.plain)

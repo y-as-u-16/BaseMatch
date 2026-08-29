@@ -20,9 +20,11 @@ struct RootView: View {
             }
         }
         .provideAppColors(colorScheme)
-        .environment(\.locale, Locale(identifier: "ja_JP"))
         .task {
             if store == nil {
+                if DemoDataSeeder.isRequested {
+                    try? DemoDataSeeder.seed(context: modelContext)
+                }
                 let store = AppStore(context: modelContext)
                 store.load()
                 self.store = store
@@ -41,7 +43,7 @@ struct SplashView: View {
 
     var body: some View {
         ZStack {
-            AppTheme.heroMesh(for: colorScheme)
+            HeroBackground(colorScheme: colorScheme)
                 .ignoresSafeArea()
 
             Image("SplashLogo")
@@ -68,18 +70,37 @@ struct MainTabView: View {
     @State private var selection: AppTab = .home
 
     var body: some View {
-        TabView(selection: $selection) {
-            Tab(L10n.navHome, systemImage: "house", value: AppTab.home) {
+        tabs
+            .tint(colors.primary)
+            .sensoryFeedback(.selection, trigger: selection)
+    }
+
+    @ViewBuilder
+    private var tabs: some View {
+        if #available(iOS 18, *) {
+            TabView(selection: $selection) {
+                Tab(L10n.navHome, systemImage: "house", value: AppTab.home) {
+                    HomeView(selection: $selection)
+                }
+                Tab(L10n.navRecord, systemImage: "baseball", value: AppTab.record) {
+                    GamesView()
+                }
+                Tab(L10n.navStats, systemImage: "chart.bar", value: AppTab.stats) {
+                    StatsView(selection: $selection)
+                }
+            }
+        } else {
+            TabView(selection: $selection) {
                 HomeView(selection: $selection)
-            }
-            Tab(L10n.navRecord, systemImage: "baseball", value: AppTab.record) {
+                    .tabItem { Label(L10n.navHome, systemImage: "house") }
+                    .tag(AppTab.home)
                 GamesView()
-            }
-            Tab(L10n.navStats, systemImage: "chart.bar", value: AppTab.stats) {
+                    .tabItem { Label(L10n.navRecord, systemImage: "baseball") }
+                    .tag(AppTab.record)
                 StatsView(selection: $selection)
+                    .tabItem { Label(L10n.navStats, systemImage: "chart.bar") }
+                    .tag(AppTab.stats)
             }
         }
-        .tint(colors.primary)
-        .sensoryFeedback(.selection, trigger: selection)
     }
 }

@@ -667,10 +667,28 @@
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "まだチームが登録されていません。" } }
       }
     },
+    "settings.aboutSection" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "About" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "このアプリについて" } }
+      }
+    },
+    "settings.privacyPolicy" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Privacy Policy" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "プライバシーポリシー" } }
+      }
+    },
     "settings.tooltipOpen" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Open settings" } },
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "設定を開く" } }
+      }
+    },
+    "settings.version" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Version" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "バージョン" } }
       }
     },
     "stats.metric.hits" : {

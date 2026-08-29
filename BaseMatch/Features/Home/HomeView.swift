@@ -102,7 +102,7 @@ struct HomeHero: View {
         .frame(maxWidth: .infinity)
         .background(alignment: .bottom) {
             ZStack {
-                AppTheme.heroMesh(for: colorScheme)
+                HeroBackground(colorScheme: colorScheme)
                 BallparkLines(
                     lineColor: .white.opacity(0.16),
                     accentColor: .white.opacity(0.07)
@@ -172,7 +172,7 @@ private struct SeasonPill: View {
             .foregroundStyle(.white.opacity(0.9))
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
-            .glassEffect(.regular, in: .capsule)
+            .adaptiveGlass(in: .capsule)
     }
 }
 
@@ -192,7 +192,7 @@ private struct HeroScoreboard: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 8)
-        .glassEffect(.regular, in: .rect(cornerRadius: AppTheme.heroCornerRadius, style: .continuous))
+        .adaptiveGlass(in: .rect(cornerRadius: AppTheme.heroCornerRadius, style: .continuous))
     }
 
     private func statChip(label: String, value: String) -> some View {

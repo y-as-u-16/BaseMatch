@@ -34,7 +34,7 @@ struct PrimaryPanel<Content: View>: View {
             .padding(EdgeInsets(top: 22, leading: 20, bottom: 20, trailing: 20))
             .frame(maxWidth: .infinity, alignment: .leading)
             .background {
-                AppTheme.heroMesh(for: colorScheme)
+                HeroBackground(colorScheme: colorScheme)
                     .overlay(.black.opacity(colorScheme == .dark ? 0.1 : 0))
             }
             .clipShape(.rect(cornerRadius: AppTheme.heroCornerRadius, style: .continuous))
@@ -107,9 +107,15 @@ struct EmptyStateView: View {
             }
         } actions: {
             if let actionLabel, let action {
-                Button(actionLabel, action: action)
-                    .buttonStyle(.glassProminent)
-                    .tint(colors.primary)
+                if #available(iOS 26, *) {
+                    Button(actionLabel, action: action)
+                        .buttonStyle(.glassProminent)
+                        .tint(colors.primary)
+                } else {
+                    Button(actionLabel, action: action)
+                        .buttonStyle(PrimaryActionButtonStyle(height: 44))
+                        .fixedSize(horizontal: true, vertical: false)
+                }
             }
         }
     }
@@ -151,7 +157,7 @@ struct SecondaryActionButtonStyle: ButtonStyle {
             .font(.headline)
             .foregroundStyle(isEnabled ? (foreground ?? colors.primary) : Color(.tertiaryLabel))
             .frame(maxWidth: .infinity, minHeight: height)
-            .glassEffect(.regular.interactive(), in: .capsule)
+            .adaptiveInteractiveGlass(in: .capsule)
             .contentShape(.capsule)
             .scaleEffect(configuration.isPressed ? 0.96 : 1)
             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
@@ -319,7 +325,7 @@ private struct GlassCapsuleButtonStyle: ButtonStyle {
                         .fill(isEnabled ? AnyShapeStyle(accent.gradient) : AnyShapeStyle(Color(.tertiarySystemFill)))
                 }
             }
-            .glassEffect(.regular.interactive(), in: .capsule)
+            .adaptiveInteractiveGlass(in: .capsule)
             .contentShape(.capsule)
             .scaleEffect(configuration.isPressed ? 0.96 : 1)
             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
