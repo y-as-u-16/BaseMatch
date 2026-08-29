@@ -291,6 +291,8 @@ private struct SelectedDateGameSection: View {
     let selectedDate: Date
     let games: [Game]
 
+    @State private var gameToDelete: Game?
+
     private static let dayFormat = Date.FormatStyle(date: .omitted)
         .year()
         .month(.defaultDigits)
@@ -329,10 +331,33 @@ private struct SelectedDateGameSection: View {
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("gameCard")
                     .listItemTransition()
+                    .contextMenu {
+                        Button(L10n.deleteButton, systemImage: "trash", role: .destructive) {
+                            gameToDelete = game
+                        }
+                    }
                 }
             }
         }
         .animation(.smooth, value: selectedDate)
+        .confirmationDialog(
+            L10n.deleteGameTitle,
+            isPresented: .init(
+                get: { gameToDelete != nil },
+                set: { if !$0 { gameToDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(L10n.deleteButton, role: .destructive) {
+                if let target = gameToDelete {
+                    store.deleteGame(id: target.id)
+                }
+                gameToDelete = nil
+            }
+            Button(L10n.cancelButton, role: .cancel) { gameToDelete = nil }
+        } message: {
+            Text(L10n.deleteGameMessage)
+        }
     }
 
     private func cardTitle(for game: Game) -> String {

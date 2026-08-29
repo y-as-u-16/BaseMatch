@@ -183,6 +183,27 @@ struct GameRepository {
         try context.save()
     }
 
+    /// 子レコードは `gameId` の手動外部キーで繋がっており `@Relationship` が無い。
+    /// deleteRule を書く場所が無いため、ここで明示的に消す。
+    func deleteGame(id: String) throws {
+        guard let game = try game(id: id) else { return }
+
+        try context.delete(model: PlateAppearance.self, where: #Predicate { $0.gameId == id })
+        try context.delete(model: PitchingAppearance.self, where: #Predicate { $0.gameId == id })
+        context.delete(game)
+        try context.save()
+    }
+
+    func deletePlateAppearance(id: String) throws {
+        try context.delete(model: PlateAppearance.self, where: #Predicate { $0.id == id })
+        try context.save()
+    }
+
+    func deletePitchingAppearance(id: String) throws {
+        try context.delete(model: PitchingAppearance.self, where: #Predicate { $0.id == id })
+        try context.save()
+    }
+
     private func validateGame(
         myTeamId: String,
         awayTeamName: String,
