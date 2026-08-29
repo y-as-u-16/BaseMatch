@@ -33,6 +33,7 @@ enum AppTheme {
         )
     }
 
+    @available(iOS 18, *)
     static func heroMesh(for colorScheme: ColorScheme) -> MeshGradient {
         let isDark = colorScheme == .dark
         let deep = isDark ? Color(hex: 0x0F2618) : fieldGreen

@@ -27,6 +27,23 @@ struct SettingsView: View {
                     Text(L10n.settingsMyTeamEmpty)
                 }
             }
+
+            // App Review Guideline 5.1.1(i) がアプリ内からのアクセスを必須としている。
+            Section(L10n.settingsAboutSection) {
+                Link(destination: Self.privacyPolicyURL) {
+                    HStack {
+                        Label(L10n.settingsPrivacyPolicy, systemImage: "hand.raised")
+                            .foregroundStyle(colors.onSurface)
+                        Spacer(minLength: 8)
+                        Image(systemName: "arrow.up.right")
+                            .font(.footnote)
+                            .foregroundStyle(colors.onSurfaceTertiary)
+                    }
+                }
+                .tint(colors.primary)
+
+                LabeledContent(L10n.settingsVersion, value: Self.appVersion)
+            }
         }
         .listStyle(.insetGrouped)
         .navigationTitle(L10n.settingsTitle)
@@ -40,6 +57,16 @@ struct SettingsView: View {
         .sheet(isPresented: $isCreateTeamPresented) {
             CreateMyTeamSheet()
         }
+    }
+
+    private static let privacyPolicyURL = URL(
+        string: "https://github.com/y-as-u-16/BaseMatch/blob/main/PRIVACY.md"
+    )!
+
+    private static var appVersion: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "-"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "-"
+        return "\(version) (\(build))"
     }
 }
 

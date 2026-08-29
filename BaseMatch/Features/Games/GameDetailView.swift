@@ -177,8 +177,9 @@ private struct GameDetailActionBar: View {
                     .foregroundStyle(colors.onPrimary)
                     .padding(.horizontal, 18)
                     .background(Capsule(style: .continuous).fill(colors.primary.gradient))
-                    .glassEffect(.regular.interactive(), in: .capsule)
+                    .adaptiveInteractiveGlass(in: .capsule)
             }
+            .accessibilityIdentifier("addPlateAppearance")
 
             NavigationLink(value: GameRoute.pitchingInput(gameId: gameId)) {
                 Label(L10n.addPitchingButton, systemImage: "chart.line.uptrend.xyaxis")
@@ -186,7 +187,7 @@ private struct GameDetailActionBar: View {
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .foregroundStyle(colors.primary)
                     .padding(.horizontal, 18)
-                    .glassEffect(.regular.interactive(), in: .capsule)
+                    .adaptiveInteractiveGlass(in: .capsule)
             }
         }
         .buttonStyle(.plain)

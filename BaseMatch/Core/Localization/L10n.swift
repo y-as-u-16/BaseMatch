@@ -175,6 +175,9 @@ enum L10n {
     static var settingsMyTeamSection: String { t("settings.myTeamSection") }
     static var settingsMyTeamEmpty: String { t("settings.myTeamEmpty") }
     static var settingsTooltipOpen: String { t("settings.tooltipOpen") }
+    static var settingsAboutSection: String { t("settings.aboutSection") }
+    static var settingsPrivacyPolicy: String { t("settings.privacyPolicy") }
+    static var settingsVersion: String { t("settings.version") }
 
     // Stats mini metric labels
     static var statsHitsLabel: String { t("stats.metric.hits") }

@@ -3,9 +3,7 @@ import SwiftData
 
 @Model
 final class MyTeam {
-    #Unique<MyTeam>([\.id])
-
-    var id: String = ""
+    @Attribute(.unique) var id: String = ""
     var name: String = ""
     var colorKey: String?
     var isDefault: Bool = false
@@ -37,9 +35,7 @@ final class MyTeam {
 
 @Model
 final class Game {
-    #Unique<Game>([\.id])
-
-    var id: String = ""
+    @Attribute(.unique) var id: String = ""
     var date: Date = Date()
     var location: String?
     var myTeamId: String = ""
@@ -82,9 +78,7 @@ final class Game {
 
 @Model
 final class PlateAppearance {
-    #Unique<PlateAppearance>([\.id])
-
-    var id: String = ""
+    @Attribute(.unique) var id: String = ""
     var gameId: String = ""
     var batterName: String = "自分"
     var inning: Int?
@@ -126,9 +120,7 @@ final class PlateAppearance {
 
 @Model
 final class PitchingAppearance {
-    #Unique<PitchingAppearance>([\.id])
-
-    var id: String = ""
+    @Attribute(.unique) var id: String = ""
     var gameId: String = ""
     var pitcherName: String = "自分"
     var outsPitched: Int = 0

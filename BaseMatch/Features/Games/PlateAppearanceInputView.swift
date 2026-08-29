@@ -158,6 +158,7 @@ struct PlateAppearanceInputView: View {
                         isSelected: selected == option,
                         action: { selected = option }
                     )
+                    .accessibilityIdentifier("chip-\(option.detail.rawValue)")
                 }
             }
         }
@@ -208,7 +209,7 @@ private struct PrimaryPanelBackground: ViewModifier {
         content
             .padding(EdgeInsets(top: verticalPadding, leading: 20, bottom: verticalPadding - 2, trailing: 20))
             .background {
-                AppTheme.heroMesh(for: colorScheme)
+                HeroBackground(colorScheme: colorScheme)
                     .overlay(.black.opacity(colorScheme == .dark ? 0.1 : 0))
             }
             .clipShape(.rect(cornerRadius: AppTheme.heroCornerRadius, style: .continuous))
