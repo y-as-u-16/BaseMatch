@@ -1,0 +1,1 @@
+Log at-bats and pitching each game, and BaseMatch calculates AVG, OBP, SLG, OPS, ERA, and WHIP automatically. Review games on a calendar and track every player's stats.
