@@ -186,6 +186,13 @@ final class AppStore {
         }
     }
 
+    func setDefaultMyTeam(id: String) {
+        perform {
+            try myTeamRepository.setDefaultMyTeam(id: id)
+            myTeams = try myTeamRepository.myTeams()
+        }
+    }
+
     var seasonSummary: SeasonSummary {
         SeasonSummary.from(
             games: games,
