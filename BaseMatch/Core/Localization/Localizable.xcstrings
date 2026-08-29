@@ -619,6 +619,42 @@
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "デフォルト" } }
       }
     },
+    "common.delete" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "削除" } }
+      }
+    },
+    "game.delete.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete this game?" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "この試合を削除しますか？" } }
+      }
+    },
+    "game.delete.message" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The at-bats and pitching records for this game are deleted too. This cannot be undone." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "この試合の打席・投球記録もあわせて削除されます。取り消せません。" } }
+      }
+    },
+    "plateAppearance.delete.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete this at-bat?" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "この打席を削除しますか？" } }
+      }
+    },
+    "pitching.delete.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete this pitching record?" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "この投球記録を削除しますか？" } }
+      }
+    },
+    "common.deleteCannotUndo" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This cannot be undone." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "取り消せません。" } }
+      }
+    },
     "myTeam.setDefaultHint" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Tap a team to make it the default. New games start with it selected." } },

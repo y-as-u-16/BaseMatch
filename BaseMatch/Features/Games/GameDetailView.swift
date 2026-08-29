@@ -3,8 +3,13 @@ import SwiftUI
 struct GameDetailView: View {
     @Environment(AppStore.self) private var store
     @Environment(\.appColors) private var colors
+    @Environment(\.dismiss) private var dismiss
 
     private let gameId: String
+
+    @State private var isDeleteGamePresented = false
+    @State private var plateAppearanceToDelete: PlateAppearance?
+    @State private var pitchingToDelete: PitchingAppearance?
 
     init(gameId: String) {
         self.gameId = gameId
@@ -26,14 +31,75 @@ struct GameDetailView: View {
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarBackground(colors.groupedBackground, for: .navigationBar)
         .toolbar {
-            if let game = store.game(id: gameId), game.status != .final_ {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink(value: GameRoute.edit(gameId: game.id)) {
-                        Image(systemName: "pencil")
+            if let game = store.game(id: gameId) {
+                if game.status != .final_ {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        NavigationLink(value: GameRoute.edit(gameId: game.id)) {
+                            Image(systemName: "pencil")
+                        }
+                        .accessibilityLabel(L10n.editGameTitle)
                     }
-                    .accessibilityLabel(L10n.editGameTitle)
+                }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .destructive) {
+                        isDeleteGamePresented = true
+                    } label: {
+                        Image(systemName: "trash")
+                    }
+                    .accessibilityLabel(L10n.deleteGameTitle)
+                    .accessibilityIdentifier("deleteGame")
                 }
             }
+        }
+        .confirmationDialog(
+            L10n.deleteGameTitle,
+            isPresented: $isDeleteGamePresented,
+            titleVisibility: .visible
+        ) {
+            Button(L10n.deleteButton, role: .destructive) {
+                store.deleteGame(id: gameId)
+                dismiss()
+            }
+            Button(L10n.cancelButton, role: .cancel) {}
+        } message: {
+            Text(L10n.deleteGameMessage)
+        }
+        .confirmationDialog(
+            L10n.deletePlateAppearanceTitle,
+            isPresented: .init(
+                get: { plateAppearanceToDelete != nil },
+                set: { if !$0 { plateAppearanceToDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(L10n.deleteButton, role: .destructive) {
+                if let target = plateAppearanceToDelete {
+                    store.deletePlateAppearance(id: target.id)
+                }
+                plateAppearanceToDelete = nil
+            }
+            Button(L10n.cancelButton, role: .cancel) { plateAppearanceToDelete = nil }
+        } message: {
+            Text(L10n.deleteCannotUndo)
+        }
+        .confirmationDialog(
+            L10n.deletePitchingTitle,
+            isPresented: .init(
+                get: { pitchingToDelete != nil },
+                set: { if !$0 { pitchingToDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(L10n.deleteButton, role: .destructive) {
+                if let target = pitchingToDelete {
+                    store.deletePitchingAppearance(id: target.id)
+                }
+                pitchingToDelete = nil
+            }
+            Button(L10n.cancelButton, role: .cancel) { pitchingToDelete = nil }
+        } message: {
+            Text(L10n.deleteCannotUndo)
         }
     }
 
@@ -77,6 +143,12 @@ struct GameDetailView: View {
                     trailingTint: resultTint(for: appearance.resultType),
                     showsDivider: index < appearances.count - 1
                 )
+                // RecordSection は List ではなく VStack のため swipeActions が使えない。
+                .contextMenu {
+                    Button(L10n.deleteButton, systemImage: "trash", role: .destructive) {
+                        plateAppearanceToDelete = appearance
+                    }
+                }
             }
         }
     }
@@ -102,6 +174,11 @@ struct GameDetailView: View {
                     trailingTint: colors.secondary,
                     showsDivider: index < appearances.count - 1
                 )
+                .contextMenu {
+                    Button(L10n.deleteButton, systemImage: "trash", role: .destructive) {
+                        pitchingToDelete = appearance
+                    }
+                }
             }
         }
     }

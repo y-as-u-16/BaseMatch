@@ -135,6 +135,79 @@ struct GameRepositoryTests {
         #expect(try games.games().count == 1)
     }
 
+    @Test("試合を削除すると紐づく打席・投球記録も消える")
+    func deleteGameRemovesChildRecords() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let target = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+        let other = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "別")
+
+        _ = try games.addPlateAppearance(
+            gameId: target.id, batterName: "田中", resultType: .hit, resultDetail: .single
+        )
+        _ = try games.addPitchingAppearance(
+            gameId: target.id, pitcherName: "山本", outsPitched: 3,
+            runs: 0, earnedRuns: 0, hitsAllowed: 0, walks: 0, strikeouts: 1, homeRunsAllowed: 0
+        )
+        // 別試合の記録は巻き添えで消えてはいけない。
+        _ = try games.addPlateAppearance(
+            gameId: other.id, batterName: "佐藤", resultType: .out, resultDetail: .k
+        )
+
+        try games.deleteGame(id: target.id)
+
+        #expect(try games.games().map(\.id) == [other.id])
+        #expect(try games.plateAppearances().allSatisfy { $0.gameId == other.id })
+        #expect(try games.pitchingAppearances().isEmpty)
+    }
+
+    @Test("打席記録だけを削除しても試合は残る")
+    func deletePlateAppearanceKeepsGame() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let game = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+        let first = try games.addPlateAppearance(
+            gameId: game.id, batterName: "田中", resultType: .hit, resultDetail: .single
+        )
+        _ = try games.addPlateAppearance(
+            gameId: game.id, batterName: "佐藤", resultType: .out, resultDetail: .k
+        )
+
+        try games.deletePlateAppearance(id: first.id)
+
+        #expect(try games.plateAppearances().count == 1)
+        #expect(try games.games().count == 1)
+    }
+
+    @Test("投球記録だけを削除しても試合は残る")
+    func deletePitchingAppearanceKeepsGame() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let game = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+        let pitching = try games.addPitchingAppearance(
+            gameId: game.id, pitcherName: "山本", outsPitched: 9,
+            runs: 1, earnedRuns: 1, hitsAllowed: 3, walks: 1, strikeouts: 5, homeRunsAllowed: 0
+        )
+
+        try games.deletePitchingAppearance(id: pitching.id)
+
+        #expect(try games.pitchingAppearances().isEmpty)
+        #expect(try games.games().count == 1)
+    }
+
+    @Test("存在しない ID の削除は何も壊さない")
+    func deletingUnknownIdIsNoOp() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        _ = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+
+        try games.deleteGame(id: "not-exist")
+        try games.deletePlateAppearance(id: "not-exist")
+        try games.deletePitchingAppearance(id: "not-exist")
+
+        #expect(try games.games().count == 1)
+    }
+
     @Test("空の球場名は nil として保存される")
     func blankLocationBecomesNil() throws {
         let (games, teams) = try makeRepositories()

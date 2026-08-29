@@ -154,6 +154,13 @@ enum L10n {
     static var selectMyTeamRequired: String { t("myTeam.validation.selectRequired") }
     static var noMyTeamsForGameTitle: String { t("myTeam.empty.title") }
     static var noMyTeamsForGameSubtitle: String { t("myTeam.empty.subtitle") }
+    static var deleteButton: String { t("common.delete") }
+    static var deleteCannotUndo: String { t("common.deleteCannotUndo") }
+    static var deleteGameTitle: String { t("game.delete.title") }
+    static var deleteGameMessage: String { t("game.delete.message") }
+    static var deletePlateAppearanceTitle: String { t("plateAppearance.delete.title") }
+    static var deletePitchingTitle: String { t("pitching.delete.title") }
+
     static var defaultMyTeamBadge: String { t("myTeam.defaultBadge") }
     static var setDefaultMyTeamHint: String { t("myTeam.setDefaultHint") }
     static var setDefaultMyTeamAccessibility: String { t("myTeam.setDefaultAccessibility") }

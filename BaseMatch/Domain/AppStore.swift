@@ -173,6 +173,29 @@ final class AppStore {
         }
     }
 
+    func deleteGame(id: String) {
+        perform {
+            try gameRepository.deleteGame(id: id)
+            games = try gameRepository.games()
+            plateAppearances = try gameRepository.plateAppearances()
+            pitchingAppearances = try gameRepository.pitchingAppearances()
+        }
+    }
+
+    func deletePlateAppearance(id: String) {
+        perform {
+            try gameRepository.deletePlateAppearance(id: id)
+            plateAppearances = try gameRepository.plateAppearances()
+        }
+    }
+
+    func deletePitchingAppearance(id: String) {
+        perform {
+            try gameRepository.deletePitchingAppearance(id: id)
+            pitchingAppearances = try gameRepository.pitchingAppearances()
+        }
+    }
+
     @discardableResult
     func createMyTeam(name: String, colorKey: String? = nil, isDefault: Bool = false) -> MyTeam? {
         perform {
