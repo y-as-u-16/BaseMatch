@@ -45,6 +45,9 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
+          # Gemfile.lock の BUNDLED WITH に引きずられないよう明示する。
+          # bundler 1.x は Ruby 3.2 で削除された String#untaint を呼び失敗する。
+          bundler: latest
           bundler-cache: true
 
       - name: Show Xcode version
