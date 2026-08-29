@@ -5,19 +5,65 @@ struct PlateAppearanceInputView: View {
     @Environment(\.appColors) private var colors
     @Environment(\.dismiss) private var dismiss
 
-    private let gameId: String
+    private let gameId: String?
+    private let editRecordId: String?
 
     @State private var batterName = L10n.defaultPlayerName
     @State private var inning = 1
     @State private var rbi = 0
     @State private var selected: PlateAppearanceResultOption?
     @State private var alertMessage: String?
+    @State private var isPopulated = false
 
     init(gameId: String) {
         self.gameId = gameId
+        self.editRecordId = nil
+    }
+
+    init(editRecordId: String) {
+        self.gameId = nil
+        self.editRecordId = editRecordId
+    }
+
+    private var isEditMode: Bool { editRecordId != nil }
+
+    private var editingRecord: PlateAppearance? {
+        editRecordId.flatMap { store.plateAppearance(id: $0) }
     }
 
     var body: some View {
+        Group {
+            if isEditMode, editingRecord == nil {
+                notFoundBody
+            } else {
+                formBody
+            }
+        }
+        .navigationTitle(isEditMode ? L10n.editPlateAppearanceTitle : L10n.plateAppearanceInputTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+        // ホームの toolbarBackground(.hidden) が push 先まで伝播する。.automatic だと打ち消せないため .visible を使う。
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarBackground(colors.groupedBackground, for: .navigationBar)
+        .onAppear(perform: populateIfNeeded)
+        .alert(alertMessage ?? "", isPresented: isAlertPresented) {
+            Button(L10n.cancelButton, role: .cancel) {}
+        }
+    }
+
+    private var notFoundBody: some View {
+        VStack {
+            if store.isLoaded {
+                ContentUnavailableView(L10n.recordNotFound, systemImage: "questionmark.folder")
+            } else {
+                ProgressView()
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(colors.groupedBackground)
+    }
+
+    private var formBody: some View {
         ScrollView {
             VStack(spacing: 20) {
                 summaryHeader
@@ -44,16 +90,7 @@ struct PlateAppearanceInputView: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .background(colors.groupedBackground)
-        .navigationTitle(L10n.plateAppearanceInputTitle)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.hidden, for: .tabBar)
-        // ホームの toolbarBackground(.hidden) が push 先まで伝播する。.automatic だと打ち消せないため .visible を使う。
-        .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarBackground(colors.groupedBackground, for: .navigationBar)
         .safeAreaInset(edge: .bottom) { saveBar }
-        .alert(alertMessage ?? "", isPresented: isAlertPresented) {
-            Button(L10n.cancelButton, role: .cancel) {}
-        }
     }
 
     private var isAlertPresented: Binding<Bool> {
@@ -177,6 +214,15 @@ struct PlateAppearanceInputView: View {
         .background(.bar)
     }
 
+    private func populateIfNeeded() {
+        guard !isPopulated, let record = editingRecord else { return }
+        isPopulated = true
+        batterName = record.batterName
+        inning = record.inning ?? 1
+        rbi = record.rbi ?? 0
+        selected = PlateAppearanceResultOption.all.first { $0.detail == record.resultDetail }
+    }
+
     private func save() {
         guard let selected else { return }
         let name = batterName.trimmed
@@ -185,14 +231,25 @@ struct PlateAppearanceInputView: View {
             return
         }
 
-        store.addPlateAppearance(
-            gameId: gameId,
-            batterName: name,
-            resultType: selected.type,
-            resultDetail: selected.detail,
-            inning: inning,
-            rbi: rbi
-        )
+        if let editRecordId {
+            store.updatePlateAppearance(
+                id: editRecordId,
+                batterName: name,
+                resultType: selected.type,
+                resultDetail: selected.detail,
+                inning: inning,
+                rbi: rbi
+            )
+        } else if let gameId {
+            store.addPlateAppearance(
+                gameId: gameId,
+                batterName: name,
+                resultType: selected.type,
+                resultDetail: selected.detail,
+                inning: inning,
+                rbi: rbi
+            )
+        }
         dismiss()
     }
 }

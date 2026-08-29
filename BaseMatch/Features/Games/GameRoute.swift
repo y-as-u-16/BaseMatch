@@ -7,6 +7,8 @@ enum GameRoute: Hashable {
     case detail(gameId: String)
     case plateAppearanceInput(gameId: String)
     case pitchingInput(gameId: String)
+    case plateAppearanceEdit(recordId: String)
+    case pitchingEdit(recordId: String)
 
     @ViewBuilder
     func destination() -> some View {
@@ -21,6 +23,10 @@ enum GameRoute: Hashable {
             PlateAppearanceInputView(gameId: gameId)
         case let .pitchingInput(gameId):
             PitchingInputView(gameId: gameId)
+        case let .plateAppearanceEdit(recordId):
+            PlateAppearanceInputView(editRecordId: recordId)
+        case let .pitchingEdit(recordId):
+            PitchingInputView(editRecordId: recordId)
         }
     }
 }

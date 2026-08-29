@@ -106,15 +106,7 @@ struct GameRepository {
         guard !gameId.trimmed.isEmpty else {
             throw AppError.validation("試合が指定されていません")
         }
-        guard !batterName.trimmed.isEmpty else {
-            throw AppError.validation("選手名を入力してください")
-        }
-        if let inning, inning <= 0 {
-            throw AppError.validation("イニングは1以上で入力してください")
-        }
-        if let rbi, rbi < 0 {
-            throw AppError.validation("打点は0以上で入力してください")
-        }
+        try validatePlateAppearance(batterName: batterName, inning: inning, rbi: rbi)
         guard try game(id: gameId) != nil else {
             throw AppError.notFound("試合が見つかりません")
         }
@@ -147,16 +139,11 @@ struct GameRepository {
         guard !gameId.trimmed.isEmpty else {
             throw AppError.validation("試合が指定されていません")
         }
-        guard !pitcherName.trimmed.isEmpty else {
-            throw AppError.validation("選手名を入力してください")
-        }
-        guard outsPitched > 0 else {
-            throw AppError.validation("投球回は1アウト以上で入力してください")
-        }
-        for value in [runs, earnedRuns, hitsAllowed, walks, strikeouts, homeRunsAllowed]
-        where value < 0 {
-            throw AppError.validation("0以上の値を入力してください")
-        }
+        try validatePitchingAppearance(
+            pitcherName: pitcherName, outsPitched: outsPitched, runs: runs,
+            earnedRuns: earnedRuns, hitsAllowed: hitsAllowed, walks: walks,
+            strikeouts: strikeouts, homeRunsAllowed: homeRunsAllowed
+        )
         guard try game(id: gameId) != nil else {
             throw AppError.notFound("試合が見つかりません")
         }
@@ -183,6 +170,69 @@ struct GameRepository {
         try context.save()
     }
 
+    func updatePlateAppearance(
+        id: String,
+        batterName: String,
+        resultType: PlateAppearanceResultType,
+        resultDetail: PlateAppearanceResultDetail,
+        inning: Int?,
+        rbi: Int?
+    ) throws {
+        try validatePlateAppearance(batterName: batterName, inning: inning, rbi: rbi)
+
+        var descriptor = FetchDescriptor<PlateAppearance>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        guard let record = try context.fetch(descriptor).first else {
+            throw AppError.notFound("打席記録が見つかりません")
+        }
+
+        record.batterName = batterName.trimmed
+        record.resultType = resultType
+        record.resultDetail = resultDetail
+        record.inning = inning
+        record.rbi = rbi
+        try context.save()
+    }
+
+    func updatePitchingAppearance(
+        id: String,
+        pitcherName: String,
+        outsPitched: Int,
+        runs: Int,
+        earnedRuns: Int,
+        hitsAllowed: Int,
+        walks: Int,
+        strikeouts: Int,
+        homeRunsAllowed: Int
+    ) throws {
+        try validatePitchingAppearance(
+            pitcherName: pitcherName,
+            outsPitched: outsPitched,
+            runs: runs,
+            earnedRuns: earnedRuns,
+            hitsAllowed: hitsAllowed,
+            walks: walks,
+            strikeouts: strikeouts,
+            homeRunsAllowed: homeRunsAllowed
+        )
+
+        var descriptor = FetchDescriptor<PitchingAppearance>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        guard let record = try context.fetch(descriptor).first else {
+            throw AppError.notFound("投球記録が見つかりません")
+        }
+
+        record.pitcherName = pitcherName.trimmed
+        record.outsPitched = outsPitched
+        record.runs = runs
+        record.earnedRuns = earnedRuns
+        record.hitsAllowed = hitsAllowed
+        record.walks = walks
+        record.strikeouts = strikeouts
+        record.homeRunsAllowed = homeRunsAllowed
+        try context.save()
+    }
+
     /// 子レコードは `gameId` の手動外部キーで繋がっており `@Relationship` が無い。
     /// deleteRule を書く場所が無いため、ここで明示的に消す。
     func deleteGame(id: String) throws {
@@ -202,6 +252,44 @@ struct GameRepository {
     func deletePitchingAppearance(id: String) throws {
         try context.delete(model: PitchingAppearance.self, where: #Predicate { $0.id == id })
         try context.save()
+    }
+
+    private func validatePlateAppearance(
+        batterName: String,
+        inning: Int?,
+        rbi: Int?
+    ) throws {
+        guard !batterName.trimmed.isEmpty else {
+            throw AppError.validation("選手名を入力してください")
+        }
+        if let inning, inning <= 0 {
+            throw AppError.validation("イニングは1以上で入力してください")
+        }
+        if let rbi, rbi < 0 {
+            throw AppError.validation("打点は0以上で入力してください")
+        }
+    }
+
+    private func validatePitchingAppearance(
+        pitcherName: String,
+        outsPitched: Int,
+        runs: Int,
+        earnedRuns: Int,
+        hitsAllowed: Int,
+        walks: Int,
+        strikeouts: Int,
+        homeRunsAllowed: Int
+    ) throws {
+        guard !pitcherName.trimmed.isEmpty else {
+            throw AppError.validation("選手名を入力してください")
+        }
+        guard outsPitched > 0 else {
+            throw AppError.validation("投球回は1アウト以上で入力してください")
+        }
+        for value in [runs, earnedRuns, hitsAllowed, walks, strikeouts, homeRunsAllowed]
+        where value < 0 {
+            throw AppError.validation("0以上の値を入力してください")
+        }
     }
 
     private func validateGame(

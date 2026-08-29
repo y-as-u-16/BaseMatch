@@ -619,6 +619,30 @@
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "デフォルト" } }
       }
     },
+    "common.edit" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "編集" } }
+      }
+    },
+    "plateAppearance.editTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit At Bat" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "打席を編集" } }
+      }
+    },
+    "pitching.editTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit Pitching" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "投球記録を編集" } }
+      }
+    },
+    "record.notFound" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Record not found" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "記録が見つかりません" } }
+      }
+    },
     "common.delete" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } },

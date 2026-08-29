@@ -109,4 +109,8 @@ struct PlateAppearanceResultOption: Hashable, Identifiable, Sendable {
         .init(type: .walk, detail: .hbp),
         .init(type: .error, detail: .e),
     ]
+
+    /// 保存済みレコードから選択状態を復元するときに引く。
+    static let all: [PlateAppearanceResultOption] =
+        hitOptions + outOptions + onBaseOptions
 }
