@@ -48,6 +48,14 @@ final class AppStore {
         pitchingAppearances.filter { $0.gameId == gameId }
     }
 
+    func plateAppearance(id: String) -> PlateAppearance? {
+        plateAppearances.first { $0.id == id }
+    }
+
+    func pitchingAppearance(id: String) -> PitchingAppearance? {
+        pitchingAppearances.first { $0.id == id }
+    }
+
     func teamName(for game: Game) -> String {
         myTeamById[game.myTeamId]?.name ?? L10n.unknownMyTeamLabel
     }
@@ -170,6 +178,54 @@ final class AppStore {
         perform {
             try gameRepository.finalizeGame(id: id)
             games = try gameRepository.games()
+        }
+    }
+
+    func updatePlateAppearance(
+        id: String,
+        batterName: String,
+        resultType: PlateAppearanceResultType,
+        resultDetail: PlateAppearanceResultDetail,
+        inning: Int?,
+        rbi: Int?
+    ) {
+        perform {
+            try gameRepository.updatePlateAppearance(
+                id: id,
+                batterName: batterName,
+                resultType: resultType,
+                resultDetail: resultDetail,
+                inning: inning,
+                rbi: rbi
+            )
+            plateAppearances = try gameRepository.plateAppearances()
+        }
+    }
+
+    func updatePitchingAppearance(
+        id: String,
+        pitcherName: String,
+        outsPitched: Int,
+        runs: Int,
+        earnedRuns: Int,
+        hitsAllowed: Int,
+        walks: Int,
+        strikeouts: Int,
+        homeRunsAllowed: Int
+    ) {
+        perform {
+            try gameRepository.updatePitchingAppearance(
+                id: id,
+                pitcherName: pitcherName,
+                outsPitched: outsPitched,
+                runs: runs,
+                earnedRuns: earnedRuns,
+                hitsAllowed: hitsAllowed,
+                walks: walks,
+                strikeouts: strikeouts,
+                homeRunsAllowed: homeRunsAllowed
+            )
+            pitchingAppearances = try gameRepository.pitchingAppearances()
         }
     }
 

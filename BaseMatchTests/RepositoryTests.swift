@@ -135,6 +135,87 @@ struct GameRepositoryTests {
         #expect(try games.games().count == 1)
     }
 
+    @Test("打席記録を更新できる")
+    func updatePlateAppearance() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let game = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+        let record = try games.addPlateAppearance(
+            gameId: game.id, batterName: "田中", resultType: .out, resultDetail: .k, inning: 1, rbi: 0
+        )
+
+        try games.updatePlateAppearance(
+            id: record.id, batterName: "  佐藤  ", resultType: .hit,
+            resultDetail: .hr, inning: 5, rbi: 3
+        )
+
+        let updated = try #require(try games.plateAppearances().first)
+        #expect(updated.id == record.id)
+        #expect(updated.batterName == "佐藤")
+        #expect(updated.resultType == .hit)
+        #expect(updated.resultDetail == .hr)
+        #expect(updated.inning == 5)
+        #expect(updated.rbi == 3)
+        #expect(try games.plateAppearances().count == 1)
+    }
+
+    @Test("投球記録を更新できる")
+    func updatePitchingAppearance() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let game = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+        let record = try games.addPitchingAppearance(
+            gameId: game.id, pitcherName: "山本", outsPitched: 3,
+            runs: 0, earnedRuns: 0, hitsAllowed: 0, walks: 0, strikeouts: 1, homeRunsAllowed: 0
+        )
+
+        try games.updatePitchingAppearance(
+            id: record.id, pitcherName: "中村", outsPitched: 21,
+            runs: 3, earnedRuns: 2, hitsAllowed: 6, walks: 2, strikeouts: 8, homeRunsAllowed: 1
+        )
+
+        let updated = try #require(try games.pitchingAppearances().first)
+        #expect(updated.pitcherName == "中村")
+        #expect(updated.outsPitched == 21)
+        #expect(updated.earnedRuns == 2)
+        #expect(try games.pitchingAppearances().count == 1)
+    }
+
+    @Test("更新でも入力チェックは効く")
+    func updateValidatesInput() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let game = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+        let record = try games.addPlateAppearance(
+            gameId: game.id, batterName: "田中", resultType: .hit, resultDetail: .single
+        )
+
+        #expect(throws: AppError.self) {
+            try games.updatePlateAppearance(
+                id: record.id, batterName: "   ", resultType: .hit,
+                resultDetail: .single, inning: 1, rbi: 0
+            )
+        }
+        #expect(throws: AppError.self) {
+            try games.updatePlateAppearance(
+                id: record.id, batterName: "田中", resultType: .hit,
+                resultDetail: .single, inning: 0, rbi: 0
+            )
+        }
+    }
+
+    @Test("存在しない記録の更新は失敗する")
+    func updateUnknownRecordThrows() throws {
+        let (games, _) = try makeRepositories()
+
+        #expect(throws: AppError.self) {
+            try games.updatePlateAppearance(
+                id: "not-exist", batterName: "田中", resultType: .hit,
+                resultDetail: .single, inning: 1, rbi: 0
+            )
+        }
+    }
+
     @Test("試合を削除すると紐づく打席・投球記録も消える")
     func deleteGameRemovesChildRecords() throws {
         let (games, teams) = try makeRepositories()

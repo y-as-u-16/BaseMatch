@@ -145,6 +145,9 @@ struct GameDetailView: View {
                 )
                 // RecordSection は List ではなく VStack のため swipeActions が使えない。
                 .contextMenu {
+                    NavigationLink(value: GameRoute.plateAppearanceEdit(recordId: appearance.id)) {
+                        Label(L10n.editButton, systemImage: "pencil")
+                    }
                     Button(L10n.deleteButton, systemImage: "trash", role: .destructive) {
                         plateAppearanceToDelete = appearance
                     }
@@ -175,6 +178,9 @@ struct GameDetailView: View {
                     showsDivider: index < appearances.count - 1
                 )
                 .contextMenu {
+                    NavigationLink(value: GameRoute.pitchingEdit(recordId: appearance.id)) {
+                        Label(L10n.editButton, systemImage: "pencil")
+                    }
                     Button(L10n.deleteButton, systemImage: "trash", role: .destructive) {
                         pitchingToDelete = appearance
                     }

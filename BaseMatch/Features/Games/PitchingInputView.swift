@@ -5,7 +5,8 @@ struct PitchingInputView: View {
     @Environment(\.appColors) private var colors
     @Environment(\.dismiss) private var dismiss
 
-    private let gameId: String
+    private let gameId: String?
+    private let editRecordId: String?
 
     @State private var pitcherName = L10n.defaultPlayerName
     @State private var outsPitched = 3
@@ -16,12 +17,57 @@ struct PitchingInputView: View {
     @State private var strikeouts = 0
     @State private var homeRunsAllowed = 0
     @State private var alertMessage: String?
+    @State private var isPopulated = false
 
     init(gameId: String) {
         self.gameId = gameId
+        self.editRecordId = nil
+    }
+
+    init(editRecordId: String) {
+        self.gameId = nil
+        self.editRecordId = editRecordId
+    }
+
+    private var isEditMode: Bool { editRecordId != nil }
+
+    private var editingRecord: PitchingAppearance? {
+        editRecordId.flatMap { store.pitchingAppearance(id: $0) }
     }
 
     var body: some View {
+        Group {
+            if isEditMode, editingRecord == nil {
+                notFoundBody
+            } else {
+                formBody
+            }
+        }
+        .navigationTitle(isEditMode ? L10n.editPitchingTitle : L10n.pitchingInputTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+        // ホームの toolbarBackground(.hidden) が push 先まで伝播する。.automatic だと打ち消せないため .visible を使う。
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarBackground(colors.groupedBackground, for: .navigationBar)
+        .onAppear(perform: populateIfNeeded)
+        .alert(alertMessage ?? "", isPresented: isAlertPresented) {
+            Button(L10n.cancelButton, role: .cancel) {}
+        }
+    }
+
+    private var notFoundBody: some View {
+        VStack {
+            if store.isLoaded {
+                ContentUnavailableView(L10n.recordNotFound, systemImage: "questionmark.folder")
+            } else {
+                ProgressView()
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(colors.groupedBackground)
+    }
+
+    private var formBody: some View {
         ScrollView {
             VStack(spacing: 20) {
                 summaryHeader
@@ -35,16 +81,7 @@ struct PitchingInputView: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .background(colors.groupedBackground)
-        .navigationTitle(L10n.pitchingInputTitle)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.hidden, for: .tabBar)
-        // ホームの toolbarBackground(.hidden) が push 先まで伝播する。.automatic だと打ち消せないため .visible を使う。
-        .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarBackground(colors.groupedBackground, for: .navigationBar)
         .safeAreaInset(edge: .bottom) { saveBar }
-        .alert(alertMessage ?? "", isPresented: isAlertPresented) {
-            Button(L10n.cancelButton, role: .cancel) {}
-        }
     }
 
     private var isAlertPresented: Binding<Bool> {
@@ -190,18 +227,45 @@ struct PitchingInputView: View {
             return
         }
 
-        store.addPitchingAppearance(
-            gameId: gameId,
-            pitcherName: name,
-            outsPitched: outsPitched,
-            runs: runs,
-            earnedRuns: earnedRuns,
-            hitsAllowed: hitsAllowed,
-            walks: walks,
-            strikeouts: strikeouts,
-            homeRunsAllowed: homeRunsAllowed
-        )
+        if let editRecordId {
+            store.updatePitchingAppearance(
+                id: editRecordId,
+                pitcherName: name,
+                outsPitched: outsPitched,
+                runs: runs,
+                earnedRuns: earnedRuns,
+                hitsAllowed: hitsAllowed,
+                walks: walks,
+                strikeouts: strikeouts,
+                homeRunsAllowed: homeRunsAllowed
+            )
+        } else if let gameId {
+            store.addPitchingAppearance(
+                gameId: gameId,
+                pitcherName: name,
+                outsPitched: outsPitched,
+                runs: runs,
+                earnedRuns: earnedRuns,
+                hitsAllowed: hitsAllowed,
+                walks: walks,
+                strikeouts: strikeouts,
+                homeRunsAllowed: homeRunsAllowed
+            )
+        }
         dismiss()
+    }
+
+    private func populateIfNeeded() {
+        guard !isPopulated, let record = editingRecord else { return }
+        isPopulated = true
+        pitcherName = record.pitcherName
+        outsPitched = record.outsPitched
+        runs = record.runs
+        earnedRuns = record.earnedRuns
+        hitsAllowed = record.hitsAllowed
+        walks = record.walks
+        strikeouts = record.strikeouts
+        homeRunsAllowed = record.homeRunsAllowed
     }
 }
 

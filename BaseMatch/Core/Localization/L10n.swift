@@ -154,6 +154,11 @@ enum L10n {
     static var selectMyTeamRequired: String { t("myTeam.validation.selectRequired") }
     static var noMyTeamsForGameTitle: String { t("myTeam.empty.title") }
     static var noMyTeamsForGameSubtitle: String { t("myTeam.empty.subtitle") }
+    static var editButton: String { t("common.edit") }
+    static var editPlateAppearanceTitle: String { t("plateAppearance.editTitle") }
+    static var editPitchingTitle: String { t("pitching.editTitle") }
+    static var recordNotFound: String { t("record.notFound") }
+
     static var deleteButton: String { t("common.delete") }
     static var deleteCannotUndo: String { t("common.deleteCannotUndo") }
     static var deleteGameTitle: String { t("game.delete.title") }
