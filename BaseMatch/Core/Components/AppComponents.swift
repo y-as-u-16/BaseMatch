@@ -213,7 +213,7 @@ struct CounterRow: View {
                 .contentShape(.capsule)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("\(label)を\(systemImage == "plus" ? "増やす" : "減らす")")
+        .accessibilityLabel(systemImage == "plus" ? L10n.incrementAccessibilityLabel(label) : L10n.decrementAccessibilityLabel(label))
     }
 }
 

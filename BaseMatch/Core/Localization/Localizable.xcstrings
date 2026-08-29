@@ -1,0 +1,852 @@
+{
+  "sourceLanguage" : "ja",
+  "strings" : {
+    "common.defaultPlayerName" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Me" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "自分" } }
+      }
+    },
+    "a11y.increment %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Increase %@" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%@を増やす" } }
+      }
+    },
+    "a11y.decrement %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Decrease %@" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%@を減らす" } }
+      }
+    },
+    "app.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "BaseMatch" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "草野球マッチ" } }
+      }
+    },
+    "nav.home" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Home" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ホーム" } }
+      }
+    },
+    "nav.record" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Games" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "記録" } }
+      }
+    },
+    "nav.stats" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stats" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "成績" } }
+      }
+    },
+    "home.headline" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Record your games" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "試合を記録しよう" } }
+      }
+    },
+    "home.description" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Keep matchups, plate appearances, and pitching stats all in one place." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "対戦カード、打席、ピッチング成績をまとめて残せます。" } }
+      }
+    },
+    "home.seasonSummary.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This Season" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "今季サマリー" } }
+      }
+    },
+    "home.metric.games" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Games" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "試合" } }
+      }
+    },
+    "home.metric.record" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Record" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "勝敗" } }
+      }
+    },
+    "home.metric.runs" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Runs" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "得点" } }
+      }
+    },
+    "home.metric.average" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "AVG" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "打率" } }
+      }
+    },
+    "home.metric.era" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "ERA" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "防御率" } }
+      }
+    },
+    "home.button.recordGame" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Record a Game" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "試合を記録する" } }
+      }
+    },
+    "home.button.viewStats" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View Stats" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "成績を見る" } }
+      }
+    },
+    "home.recentGames.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recent Games" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "直近の試合" } }
+      }
+    },
+    "home.empty.games" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No games yet. Record your first game." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "まだ試合がありません。最初の試合を記録してください。" } }
+      }
+    },
+    "home.seasonSummary.subtitle %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ Season" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%@年の記録" } }
+      }
+    },
+    "home.metric.gamesCount %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld G" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%lld試合" } }
+      }
+    },
+    "home.metric.recordValue %lld %lld %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lldW %2$lldL %3$lldD" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld勝 %2$lld敗 %3$lld分" } }
+      }
+    },
+    "home.metric.runsValue %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld R" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%lld点" } }
+      }
+    },
+    "record.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Games" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "記録" } }
+      }
+    },
+    "record.addGame" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Game" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "試合を追加" } }
+      }
+    },
+    "record.selectedDateGames" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Games on This Day" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "選択日の試合" } }
+      }
+    },
+    "record.noGamesOnDate" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No games on this day" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "この日の試合はありません" } }
+      }
+    },
+    "record.previousMonth" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Previous month" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "前の月" } }
+      }
+    },
+    "record.nextMonth" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Next month" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "次の月" } }
+      }
+    },
+    "game.create.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "New Game" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "試合を作成" } }
+      }
+    },
+    "game.edit.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit Game" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "試合を編集" } }
+      }
+    },
+    "game.field.date" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Game Date" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "試合日" } }
+      }
+    },
+    "game.field.awayTeamName" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opponent Name" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "相手チーム名" } }
+      }
+    },
+    "game.validation.awayTeamNameRequired" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter the opponent name" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "相手チーム名を入力してください" } }
+      }
+    },
+    "game.field.homeScore" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "My Team Runs" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "自チーム得点" } }
+      }
+    },
+    "game.field.awayScore" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opponent Runs" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "相手チーム得点" } }
+      }
+    },
+    "game.validation.scoreRequired" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter a score" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "点数を入力してください" } }
+      }
+    },
+    "game.validation.scoreNonNegative" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter a score of 0 or more" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "0以上の点数を入力してください" } }
+      }
+    },
+    "game.field.locationOptional" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Venue (optional)" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "球場（任意）" } }
+      }
+    },
+    "game.field.inningsCount" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Innings" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "イニング数" } }
+      }
+    },
+    "common.create" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Create" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "作成する" } }
+      }
+    },
+    "common.saveChanges" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "保存する" } }
+      }
+    },
+    "game.updatedMessage" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Game updated" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "試合を更新しました" } }
+      }
+    },
+    "game.detail.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Game Detail" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "試合詳細" } }
+      }
+    },
+    "game.notFound" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Game not found" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "試合が見つかりません" } }
+      }
+    },
+    "game.detail.addPlateAppearance" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "At Bat" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "打席" } }
+      }
+    },
+    "game.detail.addPitching" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pitching" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "投手" } }
+      }
+    },
+    "game.detail.plateAppearances" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Plate Appearances" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "打席記録" } }
+      }
+    },
+    "game.detail.emptyPlateAppearances" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No plate appearances yet" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "まだ打席記録がありません" } }
+      }
+    },
+    "game.detail.pitchingRecords" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pitching Records" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ピッチング記録" } }
+      }
+    },
+    "game.detail.emptyPitching" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No pitching records yet" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "まだピッチング記録がありません" } }
+      }
+    },
+    "game.detail.paSubtitle %@ %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inn. %1$@ / %2$lld RBI" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%1$@回 / 打点 %2$lld" } }
+      }
+    },
+    "game.detail.pitchingOuts %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ IP" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "投球回 %@" } }
+      }
+    },
+    "game.detail.pitchingSubtitle %lld %lld %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld R / %2$lld ER / %3$lld K" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "失点 %1$lld / 自責 %2$lld / 奪三振 %3$lld" } }
+      }
+    },
+    "pa.input.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "At Bat Entry" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "打席入力" } }
+      }
+    },
+    "pa.selectResultMessage" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select the result" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "打席結果を選択してください" } }
+      }
+    },
+    "common.notSelected" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "None" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "未選択" } }
+      }
+    },
+    "validation.playerNameRequired" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter the player name" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "選手名を入力してください" } }
+      }
+    },
+    "pa.field.batterName" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Batter" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "打者名" } }
+      }
+    },
+    "pa.field.inning" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inning" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "イニング" } }
+      }
+    },
+    "pa.field.rbi" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "RBI" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "打点" } }
+      }
+    },
+    "pa.section.hit" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hit" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ヒット" } }
+      }
+    },
+    "pa.section.out" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Out" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アウト" } }
+      }
+    },
+    "pa.section.onBase" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "On Base / Other" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "出塁・その他" } }
+      }
+    },
+    "common.save" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "登録する" } }
+      }
+    },
+    "pa.summary %lld %@ %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inn. %1$lld / %2$@ / %3$lld RBI" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld回 / %2$@ / 打点 %3$lld" } }
+      }
+    },
+    "pitching.input.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pitching Entry" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ピッチング入力" } }
+      }
+    },
+    "pitching.field.pitcherName" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pitcher" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "投手名" } }
+      }
+    },
+    "pitching.field.runs" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Runs" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "失点" } }
+      }
+    },
+    "pitching.field.earnedRuns" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Earned Runs" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "自責点" } }
+      }
+    },
+    "pitching.field.hitsAllowed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hits" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "被安打" } }
+      }
+    },
+    "pitching.field.walksAllowed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Walks" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "与四死球" } }
+      }
+    },
+    "pitching.field.strikeouts" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Strikeouts" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "奪三振" } }
+      }
+    },
+    "pitching.field.homeRunsAllowed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Home Runs" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "被本塁打" } }
+      }
+    },
+    "pitching.field.innings" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Innings Pitched" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "投球回" } }
+      }
+    },
+    "pitching.button.addOneThird" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "+0.1 IP" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "+1/3回" } }
+      }
+    },
+    "pitching.button.addOneInning" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "+1 IP" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "+1回" } }
+      }
+    },
+    "pitching.button.resetOneInning" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reset to 1 IP" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "1回に戻す" } }
+      }
+    },
+    "pitching.input.summary %@ %lld %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ IP / %2$lld R / %3$lld ER" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "投球回 %1$@ / 失点 %2$lld / 自責 %3$lld" } }
+      }
+    },
+    "pitching.outsLabel %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld outs" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%lld アウト" } }
+      }
+    },
+    "stats.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stats" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "成績" } }
+      }
+    },
+    "stats.period.all" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All Time" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "全期間" } }
+      }
+    },
+    "stats.period.monthPlaceholder" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pick a month" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "月を選ぶ" } }
+      }
+    },
+    "stats.empty.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No records yet" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "まだ記録がありません" } }
+      }
+    },
+    "stats.empty.message" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Record your first game and start building your stats." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "最初の試合を記録して、成績を積み上げよう。" } }
+      }
+    },
+    "stats.empty.cta" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Create a Game" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "試合を作成する" } }
+      }
+    },
+    "stats.batting.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Batting" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "打撃成績" } }
+      }
+    },
+    "stats.pitching.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pitching" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ピッチング成績" } }
+      }
+    },
+    "stats.batting.none" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No batting records" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "打撃記録なし" } }
+      }
+    },
+    "stats.pitching.none" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No pitching records" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "投球記録なし" } }
+      }
+    },
+    "common.reload" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reload" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "再読み込み" } }
+      }
+    },
+    "stats.period.month %@ %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%2$lld/%1$@" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%1$@年%2$lld月" } }
+      }
+    },
+    "stats.batting.summary %lld %lld %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld H / %2$lld HR / OPS %3$@" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld安打 / %2$lld本塁打 / OPS %3$@" } }
+      }
+    },
+    "stats.pitching.summary %lld %@ %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld K / WHIP %2$@ / %3$lld G" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld奪三振 / WHIP %2$@ / %3$lld登板" } }
+      }
+    },
+    "myTeam.addButton" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Team" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "チームを追加" } }
+      }
+    },
+    "myTeam.addTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add My Team" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "自チームを追加" } }
+      }
+    },
+    "myTeam.field.name" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Team Name" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "チーム名" } }
+      }
+    },
+    "myTeam.validation.nameRequired" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter the team name" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "チーム名を入力してください" } }
+      }
+    },
+    "myTeam.selectLabel" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "My Team" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "自チーム" } }
+      }
+    },
+    "myTeam.validation.selectRequired" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select your team" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "自チームを選択してください" } }
+      }
+    },
+    "myTeam.empty.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add your team first" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "自チームを追加してください" } }
+      }
+    },
+    "myTeam.empty.subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "You need your own team before you can create a game." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "試合を作成するには、先に自分のチームが必要です。" } }
+      }
+    },
+    "myTeam.defaultBadge" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "デフォルト" } }
+      }
+    },
+    "myTeam.createdMessage" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Team added" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "チームを追加しました" } }
+      }
+    },
+    "myTeam.unknown" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unknown Team" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "不明なチーム" } }
+      }
+    },
+    "common.cancel" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "キャンセル" } }
+      }
+    },
+    "common.add" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "追加" } }
+      }
+    },
+    "common.done" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "完了" } }
+      }
+    },
+    "settings.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "設定" } }
+      }
+    },
+    "settings.myTeamSection" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "My Teams" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "マイチーム" } }
+      }
+    },
+    "settings.myTeamEmpty" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No teams registered yet." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "まだチームが登録されていません。" } }
+      }
+    },
+    "settings.tooltipOpen" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open settings" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "設定を開く" } }
+      }
+    },
+    "stats.metric.hits" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "H" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "安打" } }
+      }
+    },
+    "stats.metric.homeRuns" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "HR" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "本塁打" } }
+      }
+    },
+    "stats.metric.ops" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "OPS" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "OPS" } }
+      }
+    },
+    "stats.metric.strikeouts" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "K" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "奪三振" } }
+      }
+    },
+    "stats.metric.whip" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "WHIP" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "WHIP" } }
+      }
+    },
+    "stats.metric.appearances" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "G" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "登板" } }
+      }
+    },
+    "stats.periodSection" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Period" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "期間" } }
+      }
+    },
+    "innings.short %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld inn." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%lld回" } }
+      }
+    },
+    "innings.whole %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld.0" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%lld回" } }
+      }
+    },
+    "innings.fraction %lld %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld.%2$lld" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld回%2$lld/3" } }
+      }
+    },
+    "result.type.hit" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hit" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ヒット" } }
+      }
+    },
+    "result.type.out" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Out" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アウト" } }
+      }
+    },
+    "result.type.walk" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Walk" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "四死球" } }
+      }
+    },
+    "result.type.error" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Error" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "エラー" } }
+      }
+    },
+    "result.detail.single" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Single" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "単打" } }
+      }
+    },
+    "result.detail.double" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Double" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "二塁打" } }
+      }
+    },
+    "result.detail.triple" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Triple" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "三塁打" } }
+      }
+    },
+    "result.detail.hr" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Home Run" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "本塁打" } }
+      }
+    },
+    "result.detail.k" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Strikeout" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "三振" } }
+      }
+    },
+    "result.detail.ground" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ground Out" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ゴロ" } }
+      }
+    },
+    "result.detail.fly" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fly Out" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "フライ" } }
+      }
+    },
+    "result.detail.line" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Line Out" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ライナー" } }
+      }
+    },
+    "result.detail.dp" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Double Play" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "併殺" } }
+      }
+    },
+    "result.detail.sacBunt" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sac Bunt" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "犠打" } }
+      }
+    },
+    "result.detail.sacFly" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sac Fly" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "犠飛" } }
+      }
+    },
+    "result.detail.other" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Other" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "その他" } }
+      }
+    },
+    "result.detail.bb" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Walk" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "四球" } }
+      }
+    },
+    "result.detail.hbp" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hit By Pitch" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "死球" } }
+      }
+    },
+    "result.detail.e" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Error" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "エラー" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

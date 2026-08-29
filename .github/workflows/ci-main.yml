@@ -1,0 +1,63 @@
+name: Test (main)
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.svg'
+      - '**/*.ico'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Build & Test
+    runs-on: macos-26
+    timeout-minutes: 30
+    env:
+      SCHEME: BaseMatch
+      # シミュレータ向けは署名が自動で解決される。CODE_SIGNING_ALLOWED=NO にすると
+      # .xctest バンドルがロードできず TEST EXECUTE FAILED になるため指定しない。
+      DESTINATION: 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5'
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Build for testing
+        run: |
+          set -o pipefail
+          xcodebuild build-for-testing \
+            -project BaseMatch.xcodeproj \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            | xcbeautify
+
+      - name: Run unit tests
+        run: |
+          set -o pipefail
+          xcodebuild test-without-building \
+            -project BaseMatch.xcodeproj \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -only-testing:BaseMatchTests \
+            -resultBundlePath TestResults.xcresult \
+            | xcbeautify
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults.xcresult
+          retention-days: 7

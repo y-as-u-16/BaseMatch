@@ -7,7 +7,7 @@ struct PlateAppearanceInputView: View {
 
     private let gameId: String
 
-    @State private var batterName = "自分"
+    @State private var batterName = L10n.defaultPlayerName
     @State private var inning = 1
     @State private var rbi = 0
     @State private var selected: PlateAppearanceResultOption?
@@ -66,7 +66,7 @@ struct PlateAppearanceInputView: View {
     private var summaryHeader: some View {
         VStack(spacing: 8) {
             if let selected {
-                Text(selected.detail.label)
+                Text(selected.detail.localizedLabel)
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
                     .contentTransition(.opacity)
@@ -82,7 +82,7 @@ struct PlateAppearanceInputView: View {
 
             Text(L10n.plateAppearanceSummary(
                 inning,
-                selected?.detail.label ?? L10n.notSelectedLabel,
+                selected?.detail.localizedLabel ?? L10n.notSelectedLabel,
                 rbi
             ))
             .font(.footnote)
@@ -152,7 +152,7 @@ struct PlateAppearanceInputView: View {
             ) {
                 ForEach(options) { option in
                     SelectionChip(
-                        title: option.detail.label,
+                        title: option.detail.localizedLabel,
                         systemImage: option.detail.systemImage,
                         tint: tint,
                         isSelected: selected == option,

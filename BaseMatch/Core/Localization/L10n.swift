@@ -1,171 +1,231 @@
 import Foundation
 
-/// 移行元の app_localizations_ja.dart に対応する日本語文言。
-enum L10n {
-    static let appTitle = "草野球マッチ"
+/// 年は桁区切りを付けたくないため、ロケール依存の数値整形を避けて文字列で渡す。
+private func plainNumber(_ value: Int) -> String { String(value) }
 
-    static let navHome = "ホーム"
-    static let navRecord = "記録"
-    static let navStats = "成績"
+private func t(_ key: String.LocalizationValue) -> String {
+    String(localized: key, bundle: .main)
+}
+
+/// UI 文言。原文は日本語で、訳は Localizable.xcstrings が持つ。
+enum L10n {
+    static var appTitle: String { t("app.title") }
+
+    static var navHome: String { t("nav.home") }
+    static var navRecord: String { t("nav.record") }
+    static var navStats: String { t("nav.stats") }
 
     // Home
-    static let homeHeadline = "試合を記録しよう"
-    static let homeDescription = "対戦カード、打席、ピッチング成績をまとめて残せます。"
-    static let seasonSummaryTitle = "今季サマリー"
-    static let seasonGamesMetricLabel = "試合"
-    static let seasonRecordMetricLabel = "勝敗"
-    static let seasonRunsMetricLabel = "得点"
-    static let seasonAverageMetricLabel = "打率"
-    static let seasonEraMetricLabel = "防御率"
-    static let recordGameButton = "試合を記録する"
-    static let viewStatsButton = "成績を見る"
-    static let recentGamesTitle = "直近の試合"
-    static let homeEmptyGames = "まだ試合がありません。最初の試合を記録してください。"
+    static var homeHeadline: String { t("home.headline") }
+    static var homeDescription: String { t("home.description") }
+    static var seasonSummaryTitle: String { t("home.seasonSummary.title") }
+    static var seasonGamesMetricLabel: String { t("home.metric.games") }
+    static var seasonRecordMetricLabel: String { t("home.metric.record") }
+    static var seasonRunsMetricLabel: String { t("home.metric.runs") }
+    static var seasonAverageMetricLabel: String { t("home.metric.average") }
+    static var seasonEraMetricLabel: String { t("home.metric.era") }
+    static var recordGameButton: String { t("home.button.recordGame") }
+    static var viewStatsButton: String { t("home.button.viewStats") }
+    static var recentGamesTitle: String { t("home.recentGames.title") }
+    static var homeEmptyGames: String { t("home.empty.games") }
 
-    static func seasonSummarySubtitle(_ year: Int) -> String { "\(year)年の記録" }
-    static func seasonGamesCount(_ count: Int) -> String { "\(count)試合" }
-    static func seasonRecordLabel(_ wins: Int, _ losses: Int, _ draws: Int) -> String {
-        "\(wins)勝 \(losses)敗 \(draws)分"
+    static func seasonSummarySubtitle(_ year: Int) -> String {
+        t("home.seasonSummary.subtitle \(plainNumber(year))")
     }
-    static func seasonRunsLabel(_ runs: Int) -> String { "\(runs)点" }
+    static func seasonGamesCount(_ count: Int) -> String {
+        t("home.metric.gamesCount \(count)")
+    }
+    static func seasonRecordLabel(_ wins: Int, _ losses: Int, _ draws: Int) -> String {
+        t("home.metric.recordValue \(wins) \(losses) \(draws)")
+    }
+    static func seasonRunsLabel(_ runs: Int) -> String {
+        t("home.metric.runsValue \(runs)")
+    }
 
     // Record / calendar
-    static let recordTitle = "記録"
-    static let addGameButton = "試合を追加"
-    static let selectedDateGamesTitle = "選択日の試合"
-    static let noGamesOnSelectedDate = "この日の試合はありません"
-    static let previousMonthTooltip = "前の月"
-    static let nextMonthTooltip = "次の月"
+    static var recordTitle: String { t("record.title") }
+    static var addGameButton: String { t("record.addGame") }
+    static var selectedDateGamesTitle: String { t("record.selectedDateGames") }
+    static var noGamesOnSelectedDate: String { t("record.noGamesOnDate") }
+    static var previousMonthTooltip: String { t("record.previousMonth") }
+    static var nextMonthTooltip: String { t("record.nextMonth") }
 
     // Create / edit game
-    static let createGameTitle = "試合を作成"
-    static let editGameTitle = "試合を編集"
-    static let gameDateLabel = "試合日"
-    static let awayTeamNameLabel = "相手チーム名"
-    static let awayTeamNameRequired = "相手チーム名を入力してください"
-    static let homeScoreLabel = "自チーム得点"
-    static let awayScoreLabel = "相手チーム得点"
-    static let scoreRequired = "点数を入力してください"
-    static let scoreMustBeNonNegative = "0以上の点数を入力してください"
-    static let locationOptionalLabel = "球場（任意）"
-    static let inningsCountLabel = "イニング数"
-    static let createButton = "作成する"
-    static let saveChangesButton = "保存する"
-    static let gameUpdatedMessage = "試合を更新しました"
+    static var createGameTitle: String { t("game.create.title") }
+    static var editGameTitle: String { t("game.edit.title") }
+    static var gameDateLabel: String { t("game.field.date") }
+    static var awayTeamNameLabel: String { t("game.field.awayTeamName") }
+    static var awayTeamNameRequired: String { t("game.validation.awayTeamNameRequired") }
+    static var homeScoreLabel: String { t("game.field.homeScore") }
+    static var awayScoreLabel: String { t("game.field.awayScore") }
+    static var scoreRequired: String { t("game.validation.scoreRequired") }
+    static var scoreMustBeNonNegative: String { t("game.validation.scoreNonNegative") }
+    static var locationOptionalLabel: String { t("game.field.locationOptional") }
+    static var inningsCountLabel: String { t("game.field.inningsCount") }
+    static var createButton: String { t("common.create") }
+    static var saveChangesButton: String { t("common.saveChanges") }
+    static var gameUpdatedMessage: String { t("game.updatedMessage") }
 
     // Game detail
-    static let gameDetailTitle = "試合詳細"
-    static let gameNotFound = "試合が見つかりません"
-    static let addPlateAppearanceButton = "打席"
-    static let addPitchingButton = "投手"
-    static let plateAppearanceRecordsTitle = "打席記録"
-    static let emptyPlateAppearances = "まだ打席記録がありません"
-    static let pitchingRecordsTitle = "ピッチング記録"
-    static let emptyPitchingAppearances = "まだピッチング記録がありません"
+    static var gameDetailTitle: String { t("game.detail.title") }
+    static var gameNotFound: String { t("game.notFound") }
+    static var addPlateAppearanceButton: String { t("game.detail.addPlateAppearance") }
+    static var addPitchingButton: String { t("game.detail.addPitching") }
+    static var plateAppearanceRecordsTitle: String { t("game.detail.plateAppearances") }
+    static var emptyPlateAppearances: String { t("game.detail.emptyPlateAppearances") }
+    static var pitchingRecordsTitle: String { t("game.detail.pitchingRecords") }
+    static var emptyPitchingAppearances: String { t("game.detail.emptyPitching") }
 
     static func plateAppearanceListSubtitle(_ inning: String, _ rbi: Int) -> String {
-        "\(inning)回 / 打点 \(rbi)"
+        t("game.detail.paSubtitle \(inning) \(rbi)")
     }
-    static func pitchingOutsTitle(_ innings: String) -> String { "投球回 \(innings)" }
+    static func pitchingOutsTitle(_ innings: String) -> String {
+        t("game.detail.pitchingOuts \(innings)")
+    }
     static func pitchingListSubtitle(_ runs: Int, _ earnedRuns: Int, _ strikeouts: Int) -> String {
-        "失点 \(runs) / 自責 \(earnedRuns) / 奪三振 \(strikeouts)"
+        t("game.detail.pitchingSubtitle \(runs) \(earnedRuns) \(strikeouts)")
     }
 
     // Plate appearance input
-    static let plateAppearanceInputTitle = "打席入力"
-    static let selectPlateAppearanceResultMessage = "打席結果を選択してください"
-    static let notSelectedLabel = "未選択"
-    static let playerNameRequired = "選手名を入力してください"
-    static let batterNameLabel = "打者名"
-    static let inningLabel = "イニング"
-    static let rbiLabel = "打点"
-    static let hitSectionTitle = "ヒット"
-    static let outSectionTitle = "アウト"
-    static let onBaseSectionTitle = "出塁・その他"
-    static let saveButton = "登録する"
+    static var plateAppearanceInputTitle: String { t("pa.input.title") }
+    static var selectPlateAppearanceResultMessage: String { t("pa.selectResultMessage") }
+    static var notSelectedLabel: String { t("common.notSelected") }
+    static var playerNameRequired: String { t("validation.playerNameRequired") }
+    static var batterNameLabel: String { t("pa.field.batterName") }
+    static var inningLabel: String { t("pa.field.inning") }
+    static var rbiLabel: String { t("pa.field.rbi") }
+    static var hitSectionTitle: String { t("pa.section.hit") }
+    static var outSectionTitle: String { t("pa.section.out") }
+    static var onBaseSectionTitle: String { t("pa.section.onBase") }
+    static var saveButton: String { t("common.save") }
 
     static func plateAppearanceSummary(_ inning: Int, _ result: String, _ rbi: Int) -> String {
-        "\(inning)回 / \(result) / 打点 \(rbi)"
+        t("pa.summary \(inning) \(result) \(rbi)")
     }
 
     // Pitching input
-    static let pitchingInputTitle = "ピッチング入力"
-    static let pitcherNameLabel = "投手名"
-    static let runsLabel = "失点"
-    static let earnedRunsLabel = "自責点"
-    static let hitsAllowedLabel = "被安打"
-    static let walksAllowedLabel = "与四死球"
-    static let strikeoutsLabel = "奪三振"
-    static let homeRunsAllowedLabel = "被本塁打"
-    static let pitchingInningsLabel = "投球回"
-    static let addOneThirdInningButton = "+1/3回"
-    static let addOneInningButton = "+1回"
-    static let resetOneInningButton = "1回に戻す"
+    static var pitchingInputTitle: String { t("pitching.input.title") }
+    static var pitcherNameLabel: String { t("pitching.field.pitcherName") }
+    static var runsLabel: String { t("pitching.field.runs") }
+    static var earnedRunsLabel: String { t("pitching.field.earnedRuns") }
+    static var hitsAllowedLabel: String { t("pitching.field.hitsAllowed") }
+    static var walksAllowedLabel: String { t("pitching.field.walksAllowed") }
+    static var strikeoutsLabel: String { t("pitching.field.strikeouts") }
+    static var homeRunsAllowedLabel: String { t("pitching.field.homeRunsAllowed") }
+    static var pitchingInningsLabel: String { t("pitching.field.innings") }
+    static var addOneThirdInningButton: String { t("pitching.button.addOneThird") }
+    static var addOneInningButton: String { t("pitching.button.addOneInning") }
+    static var resetOneInningButton: String { t("pitching.button.resetOneInning") }
 
     static func pitchingInputSummary(_ innings: String, _ runs: Int, _ earnedRuns: Int) -> String {
-        "投球回 \(innings) / 失点 \(runs) / 自責 \(earnedRuns)"
+        t("pitching.input.summary \(innings) \(runs) \(earnedRuns)")
     }
-    static func outsLabel(_ outs: Int) -> String { "\(outs) アウト" }
+    static func outsLabel(_ outs: Int) -> String { t("pitching.outsLabel \(outs)") }
 
     // Stats
-    static let statsTitle = "成績"
-    static let statsPeriodAll = "全期間"
-    static let statsPeriodMonthPlaceholder = "月を選ぶ"
-    static let statsEmptyTitle = "まだ記録がありません"
-    static let statsEmptyMessage = "最初の試合を記録して、成績を積み上げよう。"
-    static let statsEmptyCta = "試合を作成する"
-    static let battingStatsTitle = "打撃成績"
-    static let pitchingStatsTitle = "ピッチング成績"
-    static let noBattingStatsLabel = "打撃記録なし"
-    static let noPitchingStatsLabel = "投球記録なし"
-    static let reloadButton = "再読み込み"
+    static var statsTitle: String { t("stats.title") }
+    static var statsPeriodAll: String { t("stats.period.all") }
+    static var statsPeriodMonthPlaceholder: String { t("stats.period.monthPlaceholder") }
+    static var statsEmptyTitle: String { t("stats.empty.title") }
+    static var statsEmptyMessage: String { t("stats.empty.message") }
+    static var statsEmptyCta: String { t("stats.empty.cta") }
+    static var battingStatsTitle: String { t("stats.batting.title") }
+    static var pitchingStatsTitle: String { t("stats.pitching.title") }
+    static var noBattingStatsLabel: String { t("stats.batting.none") }
+    static var noPitchingStatsLabel: String { t("stats.pitching.none") }
+    static var reloadButton: String { t("common.reload") }
 
-    static func statsPeriodMonth(_ year: Int, _ month: Int) -> String { "\(year)年\(month)月" }
+    static func statsPeriodMonth(_ year: Int, _ month: Int) -> String {
+        t("stats.period.month \(plainNumber(year)) \(month)")
+    }
     static func battingStatsSummary(_ hits: Int, _ hr: Int, _ ops: String) -> String {
-        "\(hits)安打 / \(hr)本塁打 / OPS \(ops)"
+        t("stats.batting.summary \(hits) \(hr) \(ops)")
     }
     static func pitchingStatsSummary(_ strikeouts: Int, _ whip: String, _ games: Int) -> String {
-        "\(strikeouts)奪三振 / WHIP \(whip) / \(games)登板"
+        t("stats.pitching.summary \(strikeouts) \(whip) \(games)")
     }
 
     // My team
-    static let addMyTeamButton = "チームを追加"
-    static let addMyTeamTitle = "自チームを追加"
-    static let myTeamNameLabel = "チーム名"
-    static let myTeamNameRequired = "チーム名を入力してください"
-    static let myTeamSelectLabel = "自チーム"
-    static let selectMyTeamRequired = "自チームを選択してください"
-    static let noMyTeamsForGameTitle = "自チームを追加してください"
-    static let noMyTeamsForGameSubtitle = "試合を作成するには、先に自分のチームが必要です。"
-    static let defaultMyTeamBadge = "デフォルト"
-    static let myTeamCreatedMessage = "チームを追加しました"
-    static let unknownMyTeamLabel = "不明なチーム"
-    static let cancelButton = "キャンセル"
-    static let addButton = "追加"
-    static let doneButton = "完了"
+    static var addMyTeamButton: String { t("myTeam.addButton") }
+    static var addMyTeamTitle: String { t("myTeam.addTitle") }
+    static var myTeamNameLabel: String { t("myTeam.field.name") }
+    static var myTeamNameRequired: String { t("myTeam.validation.nameRequired") }
+    static var myTeamSelectLabel: String { t("myTeam.selectLabel") }
+    static var selectMyTeamRequired: String { t("myTeam.validation.selectRequired") }
+    static var noMyTeamsForGameTitle: String { t("myTeam.empty.title") }
+    static var noMyTeamsForGameSubtitle: String { t("myTeam.empty.subtitle") }
+    static var defaultMyTeamBadge: String { t("myTeam.defaultBadge") }
+    static var myTeamCreatedMessage: String { t("myTeam.createdMessage") }
+    static var unknownMyTeamLabel: String { t("myTeam.unknown") }
+    static var defaultPlayerName: String { t("common.defaultPlayerName") }
+
+    static func incrementAccessibilityLabel(_ label: String) -> String {
+        t("a11y.increment \(label)")
+    }
+    static func decrementAccessibilityLabel(_ label: String) -> String {
+        t("a11y.decrement \(label)")
+    }
+
+    static var cancelButton: String { t("common.cancel") }
+    static var addButton: String { t("common.add") }
+    static var doneButton: String { t("common.done") }
 
     // Settings
-    static let settingsTitle = "設定"
-    static let settingsMyTeamSection = "マイチーム"
-    static let settingsMyTeamEmpty = "まだチームが登録されていません。"
-    static let settingsTooltipOpen = "設定を開く"
+    static var settingsTitle: String { t("settings.title") }
+    static var settingsMyTeamSection: String { t("settings.myTeamSection") }
+    static var settingsMyTeamEmpty: String { t("settings.myTeamEmpty") }
+    static var settingsTooltipOpen: String { t("settings.tooltipOpen") }
 
     // Stats mini metric labels
-    static let statsHitsLabel = "安打"
-    static let statsHomeRunsLabel = "本塁打"
-    static let statsOpsLabel = "OPS"
-    static let statsStrikeoutsLabel = "奪三振"
-    static let statsWhipLabel = "WHIP"
-    static let statsAppearancesLabel = "登板"
-    static let statsPeriodSectionLabel = "期間"
+    static var statsHitsLabel: String { t("stats.metric.hits") }
+    static var statsHomeRunsLabel: String { t("stats.metric.homeRuns") }
+    static var statsOpsLabel: String { t("stats.metric.ops") }
+    static var statsStrikeoutsLabel: String { t("stats.metric.strikeouts") }
+    static var statsWhipLabel: String { t("stats.metric.whip") }
+    static var statsAppearancesLabel: String { t("stats.metric.appearances") }
+    static var statsPeriodSectionLabel: String { t("stats.periodSection") }
 
-    static func inningsShort(_ innings: Int) -> String { "\(innings)回" }
+    static func inningsShort(_ innings: Int) -> String { t("innings.short \(innings)") }
 
-    /// アウト数から「3回」「1回1/3」形式へ。
+    /// 日本語は「3回」「1回1/3」、英語は "3.0"/"1.1" と書式そのものが変わるため
+    /// 完成形の文字列ではなくキーを言語側で切り替える。
     static func inningsFromOuts(_ outs: Int) -> String {
         let innings = outs / 3
         let rest = outs % 3
-        return rest == 0 ? "\(innings)回" : "\(innings)回\(rest)/3"
+        return rest == 0 ? t("innings.whole \(innings)") : t("innings.fraction \(innings) \(rest)")
+    }
+}
+
+extension PlateAppearanceResultType {
+    var localizedLabel: String {
+        switch self {
+        case .hit: t("result.type.hit")
+        case .out: t("result.type.out")
+        case .walk: t("result.type.walk")
+        case .error: t("result.type.error")
+        }
+    }
+}
+
+extension PlateAppearanceResultDetail {
+    var localizedLabel: String {
+        switch self {
+        case .single: t("result.detail.single")
+        case .double: t("result.detail.double")
+        case .triple: t("result.detail.triple")
+        case .hr: t("result.detail.hr")
+        case .k: t("result.detail.k")
+        case .ground: t("result.detail.ground")
+        case .fly: t("result.detail.fly")
+        case .line: t("result.detail.line")
+        case .dp: t("result.detail.dp")
+        case .sacBunt: t("result.detail.sacBunt")
+        case .sacFly: t("result.detail.sacFly")
+        case .other: t("result.detail.other")
+        case .bb: t("result.detail.bb")
+        case .hbp: t("result.detail.hbp")
+        case .e: t("result.detail.e")
+        }
     }
 }
 

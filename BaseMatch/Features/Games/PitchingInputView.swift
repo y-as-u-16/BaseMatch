@@ -7,7 +7,7 @@ struct PitchingInputView: View {
 
     private let gameId: String
 
-    @State private var pitcherName = "自分"
+    @State private var pitcherName = L10n.defaultPlayerName
     @State private var outsPitched = 3
     @State private var runs = 0
     @State private var earnedRuns = 0
@@ -261,6 +261,6 @@ private struct CompactCounterCard: View {
                 .contentShape(.capsule)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("\(label)を\(systemImage == "plus" ? "増やす" : "減らす")")
+        .accessibilityLabel(systemImage == "plus" ? L10n.incrementAccessibilityLabel(label) : L10n.decrementAccessibilityLabel(label))
     }
 }

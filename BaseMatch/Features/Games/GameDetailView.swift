@@ -73,7 +73,7 @@ struct GameDetailView: View {
                         appearance.inning?.description ?? "-",
                         appearance.rbi ?? 0
                     ),
-                    trailing: appearance.resultDetail.label,
+                    trailing: appearance.resultDetail.localizedLabel,
                     trailingTint: resultTint(for: appearance.resultType),
                     showsDivider: index < appearances.count - 1
                 )

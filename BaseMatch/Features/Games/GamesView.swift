@@ -160,7 +160,12 @@ private struct CalendarMonthGrid: View {
     let gameCountsByDate: [Date: Int]
     let onSelect: (Date) -> Void
 
-    private static let weekdayLabels = ["日", "月", "火", "水", "木", "金", "土"]
+    /// グリッドが日曜始まり固定のため、日曜始まりで並ぶ標準シンボルをそのまま使う。
+    private static let weekdayLabels: [String] = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = .current
+        return calendar.veryShortStandaloneWeekdaySymbols
+    }()
 
     /// 日曜始まりの 7 列に揃えるため、前後の空きは nil で埋める。
     private var days: [Date?] {
