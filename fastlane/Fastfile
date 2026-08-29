@@ -101,4 +101,38 @@ platform :ios do
       skip_waiting_for_build_processing: true,
     )
   end
+
+  desc "掲載情報とスクリーンショットを App Store Connect へアップロードする"
+  desc "審査には提出しない。内容を確認してから ASC の画面で提出すること。"
+  lane :upload_metadata do
+    deliver(
+      api_key: asc_api_key,
+      # ビルドは CD が TestFlight へ上げるため、ここでは触らない。
+      skip_binary_upload: true,
+      skip_screenshots: false,
+      skip_metadata: false,
+    )
+  end
+
+  desc "スクリーンショットだけを更新する（掲載テキストは触らない）"
+  desc "ASC 側に古い枚数が残っていると重複するため、先に画面から全削除しておくこと。"
+  lane :upload_screenshots_only do
+    deliver(
+      api_key: asc_api_key,
+      skip_binary_upload: true,
+      skip_screenshots: false,
+      skip_metadata: true,
+    )
+  end
+
+  desc "掲載テキストだけを更新する（スクショは触らない）"
+  desc "文言の微調整を繰り返すときはこちらが速い。"
+  lane :upload_text_only do
+    deliver(
+      api_key: asc_api_key,
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      skip_metadata: false,
+    )
+  end
 end

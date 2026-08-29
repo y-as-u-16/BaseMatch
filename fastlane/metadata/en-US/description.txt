@@ -1,0 +1,32 @@
+BaseMatch is a simple app built for recording amateur baseball and softball games.
+
+■ Record every game
+Enter the opponent, score, venue, and number of innings. Games are organized on a calendar so you can see at a glance when and where you played.
+
+■ Log at-bats with one tap
+Single, double, triple, home run, strikeout, ground out, fly out, double play, walk, hit by pitch, error — 15 outcomes, all one tap away. Innings and RBIs are recorded too.
+
+■ Detailed pitching stats
+Innings pitched are entered by outs, so fractional innings like "1.1" are recorded accurately. Track runs, earned runs, hits allowed, walks, strikeouts, and home runs allowed.
+
+■ Stats calculated automatically
+From your records, BaseMatch computes:
+• Batting Average (AVG)
+• On-Base Percentage (OBP)
+• Slugging Percentage (SLG)
+• OPS
+• Earned Run Average (ERA)
+• WHIP
+
+Stats are grouped by player, so you can manage your whole team. Filter by all-time or by month.
+
+■ No account, fully offline
+No sign-up required. All data stays on your device and is never sent anywhere. Works perfectly at fields with no signal.
+
+■ Built for
+• Team scorekeepers
+• Players tracking their own numbers
+• Anyone managing team-wide stats
+• Those moving on from paper scorebooks
+
+Available in English and Japanese.

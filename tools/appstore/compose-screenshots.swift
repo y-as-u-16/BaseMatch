@@ -1,5 +1,7 @@
 import AppKit
 import CoreGraphics
+import ImageIO
+import UniformTypeIdentifiers
 import Foundation
 
 // App Store 6.9インチ必須サイズ
@@ -44,6 +46,8 @@ for shot in shots {
 
     guard let rep = NSBitmapImageRep(
         bitmapDataPlanes: nil, pixelsWide: Int(W), pixelsHigh: Int(H),
+        // 描画用。alpha 付きでないと NSGraphicsContext が作れないため、
+        // 不透明化は書き出し直前に行う。
         bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
         colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0
     ) else { exit(1) }
@@ -117,10 +121,34 @@ for shot in shots {
 
     NSGraphicsContext.restoreGraphicsState()
 
-    guard let png = rep.representation(using: .png, properties: [:]) else {
-        print("encode failed: \(shot.file)"); continue
+    // App Store Connect はアルファ付き PNG を拒否する。
+    // noneSkipLast のコンテキストへ描き直してアルファを落とす。
+    guard let cg = rep.cgImage,
+          let opaqueCtx = CGContext(
+              data: nil, width: Int(W), height: Int(H),
+              bitsPerComponent: 8, bytesPerRow: 0,
+              space: CGColorSpaceCreateDeviceRGB(),
+              bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+          ) else {
+        print("context failed: \(shot.file)"); continue
     }
+    opaqueCtx.draw(cg, in: CGRect(x: 0, y: 0, width: W, height: H))
+    guard let flat = opaqueCtx.makeImage() else {
+        print("flatten failed: \(shot.file)"); continue
+    }
+    // NSBitmapImageRep を経由すると alpha 情報が復活してしまうため、
+    // CGImage を CGImageDestination で直接書き出す。
     let dest = "\(outDir)/\(shot.file).png"
-    try? png.write(to: URL(fileURLWithPath: dest))
+    guard let destination = CGImageDestinationCreateWithURL(
+        URL(fileURLWithPath: dest) as CFURL, "public.png" as CFString, 1, nil
+    ) else {
+        print("destination failed: \(shot.file)"); continue
+    }
+    // flat 自体は不透明だが、ImageIO は既定で RGBA として書き出すため明示する。
+    let props: [CFString: Any] = [kCGImagePropertyHasAlpha: false]
+    CGImageDestinationAddImage(destination, flat, props as CFDictionary)
+    guard CGImageDestinationFinalize(destination) else {
+        print("write failed: \(shot.file)"); continue
+    }
     print("wrote \(dest)")
 }
