@@ -1,17 +1,24 @@
-//
-//  BaseMatchApp.swift
-//  BaseMatch
-//
-//  Created by えぎやすゆき on 2026/08/29.
-//
-
+import SwiftData
 import SwiftUI
 
 @main
 struct BaseMatchApp: App {
+    private let container: ModelContainer
+
+    init() {
+        do {
+            container = try ModelContainer(
+                for: MyTeam.self, Game.self, PlateAppearance.self, PitchingAppearance.self
+            )
+        } catch {
+            fatalError("SwiftData の初期化に失敗しました: \(error)")
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
         }
+        .modelContainer(container)
     }
 }

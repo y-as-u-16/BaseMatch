@@ -2,8 +2,6 @@
 //  BaseMatchUITestsLaunchTests.swift
 //  BaseMatchUITests
 //
-//  Created by えぎやすゆき on 2026/08/29.
-//
 
 import XCTest
 

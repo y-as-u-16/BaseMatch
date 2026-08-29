@@ -2,8 +2,6 @@
 //  BaseMatchTests.swift
 //  BaseMatchTests
 //
-//  Created by えぎやすゆき on 2026/08/29.
-//
 
 import Testing
 

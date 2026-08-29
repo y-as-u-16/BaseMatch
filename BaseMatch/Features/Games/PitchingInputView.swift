@@ -1,0 +1,266 @@
+import SwiftUI
+
+struct PitchingInputView: View {
+    @Environment(AppStore.self) private var store
+    @Environment(\.appColors) private var colors
+    @Environment(\.dismiss) private var dismiss
+
+    private let gameId: String
+
+    @State private var pitcherName = "自分"
+    @State private var outsPitched = 3
+    @State private var runs = 0
+    @State private var earnedRuns = 0
+    @State private var hitsAllowed = 0
+    @State private var walks = 0
+    @State private var strikeouts = 0
+    @State private var homeRunsAllowed = 0
+    @State private var alertMessage: String?
+
+    init(gameId: String) {
+        self.gameId = gameId
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                summaryHeader
+                pitcherCard
+                inningsCard
+                counterGrid
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.bottom, 24)
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .background(colors.groupedBackground)
+        .navigationTitle(L10n.pitchingInputTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+        // ホームの toolbarBackground(.hidden) が push 先まで伝播する。.automatic だと打ち消せないため .visible を使う。
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarBackground(colors.groupedBackground, for: .navigationBar)
+        .safeAreaInset(edge: .bottom) { saveBar }
+        .alert(alertMessage ?? "", isPresented: isAlertPresented) {
+            Button(L10n.cancelButton, role: .cancel) {}
+        }
+    }
+
+    private var isAlertPresented: Binding<Bool> {
+        Binding(
+            get: { alertMessage != nil },
+            set: { if !$0 { alertMessage = nil } }
+        )
+    }
+
+    private var summaryHeader: some View {
+        PrimaryPanel {
+            VStack(spacing: 6) {
+                Text(L10n.pitchingInningsLabel)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.75))
+
+                StatValueText(
+                    value: L10n.inningsFromOuts(outsPitched),
+                    size: 48,
+                    weight: .semibold,
+                    color: .white
+                )
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+
+                Text(L10n.outsLabel(outsPitched))
+                    .font(.footnote)
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .foregroundStyle(.white.opacity(0.75))
+
+                Text(L10n.pitchingInputSummary(
+                    L10n.inningsFromOuts(outsPitched),
+                    runs,
+                    earnedRuns
+                ))
+                .font(.caption)
+                .monospacedDigit()
+                .contentTransition(.numericText())
+                .foregroundStyle(.white.opacity(0.7))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .padding(.top, 4)
+            }
+            .frame(maxWidth: .infinity)
+            .animation(.smooth, value: outsPitched)
+            .animation(.smooth, value: runs)
+            .animation(.smooth, value: earnedRuns)
+        }
+    }
+
+    private var pitcherCard: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "person")
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(colors.primary)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(L10n.pitcherNameLabel)
+                    .font(.caption)
+                    .foregroundStyle(colors.onSurfaceVariant)
+
+                TextField(L10n.pitcherNameLabel, text: $pitcherName)
+                    .font(.body)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+            }
+        }
+        .cardStyle()
+    }
+
+    private var inningsCard: some View {
+        VStack(spacing: 12) {
+            CounterRow(
+                label: L10n.pitchingInningsLabel,
+                valueLabel: L10n.inningsFromOuts(outsPitched),
+                valueWidth: 88,
+                onDecrease: { outsPitched = clampOuts(outsPitched - 1) },
+                onIncrease: { outsPitched = clampOuts(outsPitched + 1) }
+            )
+
+            HStack(spacing: 8) {
+                GlassCapsuleButton(title: L10n.addOneThirdInningButton) {
+                    outsPitched = clampOuts(outsPitched + 1)
+                }
+                GlassCapsuleButton(title: L10n.addOneInningButton) {
+                    outsPitched = clampOuts(outsPitched + 3)
+                }
+                GlassCapsuleButton(title: L10n.resetOneInningButton) {
+                    outsPitched = 3
+                }
+            }
+        }
+        .cardStyle()
+    }
+
+    private var counterGrid: some View {
+        LazyVGrid(
+            columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)],
+            spacing: 12
+        ) {
+            ForEach(counters, id: \.label) { counter in
+                CompactCounterCard(
+                    label: counter.label,
+                    systemImage: counter.systemImage,
+                    value: counter.value
+                )
+            }
+        }
+    }
+
+    private var counters: [(label: String, systemImage: String, value: Binding<Int>)] {
+        [
+            (L10n.runsLabel, "arrow.down.circle", $runs),
+            (L10n.earnedRunsLabel, "exclamationmark.circle", $earnedRuns),
+            (L10n.hitsAllowedLabel, "baseball", $hitsAllowed),
+            (L10n.walksAllowedLabel, "figure.walk", $walks),
+            (L10n.strikeoutsLabel, "xmark.circle", $strikeouts),
+            (L10n.homeRunsAllowedLabel, "baseball.fill", $homeRunsAllowed),
+        ]
+    }
+
+    private var saveBar: some View {
+        GlassCapsuleButton(
+            title: L10n.saveButton,
+            systemImage: "checkmark",
+            isProminent: true,
+            action: save
+        )
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(.bar)
+    }
+
+    private func clampOuts(_ value: Int) -> Int {
+        min(max(value, 1), 99)
+    }
+
+    private func save() {
+        let name = pitcherName.trimmed
+        guard !name.isEmpty else {
+            alertMessage = L10n.playerNameRequired
+            return
+        }
+
+        store.addPitchingAppearance(
+            gameId: gameId,
+            pitcherName: name,
+            outsPitched: outsPitched,
+            runs: runs,
+            earnedRuns: earnedRuns,
+            hitsAllowed: hitsAllowed,
+            walks: walks,
+            strikeouts: strikeouts,
+            homeRunsAllowed: homeRunsAllowed
+        )
+        dismiss()
+    }
+}
+
+private struct CompactCounterCard: View {
+    @Environment(\.appColors) private var colors
+
+    let label: String
+    let systemImage: String
+    @Binding var value: Int
+
+    @State private var tapCount = 0
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Label(label, systemImage: systemImage)
+                .font(.caption.weight(.semibold))
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(colors.onSurfaceVariant)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            HStack(spacing: 2) {
+                stepButton(systemImage: "minus") { value = max(0, value - 1) }
+
+                StatValueText(
+                    value: "\(value)",
+                    size: 26,
+                    weight: .semibold,
+                    color: value > 0 ? colors.primary : colors.onSurfaceVariant
+                )
+                .frame(maxWidth: .infinity)
+
+                stepButton(systemImage: "plus") { value = min(99, value + 1) }
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity)
+        .background(
+            colors.cardBackground,
+            in: .rect(cornerRadius: AppTheme.cardCornerRadius, style: .continuous)
+        )
+        .shadow(color: colors.cardShadow, radius: 10, y: 4)
+        .sensoryFeedback(.selection, trigger: tapCount)
+    }
+
+    private func stepButton(systemImage: String, action: @escaping () -> Void) -> some View {
+        Button {
+            tapCount += 1
+            action()
+        } label: {
+            Image(systemName: systemImage)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(colors.primary)
+                .frame(width: 44, height: 44)
+                .contentShape(.capsule)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("\(label)を\(systemImage == "plus" ? "増やす" : "減らす")")
+    }
+}
