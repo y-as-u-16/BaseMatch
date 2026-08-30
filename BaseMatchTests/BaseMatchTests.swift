@@ -51,3 +51,18 @@ struct AppSettingsTests {
         #expect(String(localized: L10n.settingsLanguage) == "言語")
     }
 }
+
+@Suite("文字列補間")
+@MainActor
+struct StringInterpolationTests {
+    /// LocalizedStringResource をそのまま文字列補間するとデバッグ表記
+    /// （key: "..." defaultValue: ...）が出てしまう。#23 の再発防止。
+    @Test("補間しても訳文が出る")
+    func interpolationYieldsTranslation() {
+        let composed = "\(String(localized: L10n.defaultMyTeamBadge))"
+
+        #expect(!composed.contains("LocalizationValue"))
+        #expect(!composed.contains("key:"))
+        #expect(composed == "デフォルト" || composed == "Default")
+    }
+}
