@@ -8,11 +8,11 @@ struct PlateAppearanceInputView: View {
     private let gameId: String?
     private let editRecordId: String?
 
-    @State private var batterName = L10n.defaultPlayerName
+    @State private var batterName = String(localized: L10n.defaultPlayerName)
     @State private var inning = 1
     @State private var rbi = 0
     @State private var selected: PlateAppearanceResultOption?
-    @State private var alertMessage: String?
+    @State private var alertMessage: LocalizedStringResource?
     @State private var isPopulated = false
 
     init(gameId: String) {
@@ -119,7 +119,7 @@ struct PlateAppearanceInputView: View {
 
             Text(L10n.plateAppearanceSummary(
                 inning,
-                selected?.detail.localizedLabel ?? L10n.notSelectedLabel,
+                String(localized: selected?.detail.localizedLabel ?? L10n.notSelectedLabel),
                 rbi
             ))
             .font(.footnote)
@@ -148,7 +148,7 @@ struct PlateAppearanceInputView: View {
                         .font(.caption)
                         .foregroundStyle(colors.onSurfaceVariant)
 
-                    TextField(L10n.batterNameLabel, text: $batterName)
+                    TextField(String(localized: L10n.batterNameLabel), text: $batterName)
                         .font(.body)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -176,7 +176,7 @@ struct PlateAppearanceInputView: View {
     }
 
     private func resultSection(
-        title: String,
+        title: LocalizedStringResource,
         options: [PlateAppearanceResultOption],
         tint: Color
     ) -> some View {

@@ -88,9 +88,9 @@ struct StatsView: View {
 
     @ViewBuilder
     private func statsSection(
-        title: String,
+        title: LocalizedStringResource,
         isEmpty: Bool,
-        emptyLabel: String,
+        emptyLabel: LocalizedStringResource,
         @ViewBuilder rows: () -> some View
     ) -> some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -106,10 +106,10 @@ struct StatsView: View {
 }
 
 private struct StatsMiniMetric: Identifiable {
-    let label: String
+    let label: LocalizedStringResource
     let value: String
 
-    var id: String { label }
+    var id: String { String(localized: label) }
 }
 
 private struct StatsPeriodSelector: View {
@@ -118,7 +118,7 @@ private struct StatsPeriodSelector: View {
     @Binding var period: StatsPeriod
     let availableMonths: [DateComponents]
 
-    private var monthLabel: String {
+    private var monthLabel: LocalizedStringResource {
         switch period {
         case .all:
             return L10n.statsPeriodMonthPlaceholder
@@ -182,7 +182,7 @@ private struct StatsPlayerCard: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     let playerName: String
-    let primaryLabel: String
+    let primaryLabel: LocalizedStringResource
     let primaryValue: String
     let metrics: [StatsMiniMetric]
 

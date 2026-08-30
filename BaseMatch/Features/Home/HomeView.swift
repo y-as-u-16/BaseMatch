@@ -164,7 +164,7 @@ private struct BallparkLines: View {
 }
 
 private struct SeasonPill: View {
-    let label: String
+    let label: LocalizedStringResource
 
     var body: some View {
         Label(label, systemImage: "calendar")
@@ -195,7 +195,7 @@ private struct HeroScoreboard: View {
         .adaptiveGlass(in: .rect(cornerRadius: AppTheme.heroCornerRadius, style: .continuous))
     }
 
-    private func statChip(label: String, value: String) -> some View {
+    private func statChip(label: LocalizedStringResource, value: String) -> some View {
         VStack(spacing: 4) {
             StatValueText(value: value, size: 30, weight: .semibold, color: .white)
                 .lineLimit(1)
@@ -292,11 +292,11 @@ struct SeasonSummaryCard: View {
 }
 
 private struct SeasonMetric: Identifiable {
-    let label: String
+    let label: LocalizedStringResource
     let value: String
     var emphasized = false
 
-    var id: String { label }
+    var id: String { String(localized: label) }
 }
 
 private struct SeasonMetricTile: View {

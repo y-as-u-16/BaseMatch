@@ -6,7 +6,7 @@ struct CreateMyTeamSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var name = ""
-    @State private var errorMessage: String?
+    @State private var errorMessage: LocalizedStringResource?
     @FocusState private var isNameFocused: Bool
 
     private var trimmedName: String {
@@ -17,7 +17,8 @@ struct CreateMyTeamSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField(L10n.myTeamNameLabel, text: $name)
+                    // TextField のプレースホルダは LocalizedStringResource 版が iOS 26 以降のため String に変換する。
+                    TextField(String(localized: L10n.myTeamNameLabel), text: $name)
                         .focused($isNameFocused)
                         .submitLabel(.done)
                         .onSubmit(submit)

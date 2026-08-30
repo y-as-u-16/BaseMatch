@@ -3,10 +3,16 @@ import SwiftUI
 
 struct RootView: View {
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorScheme) private var systemColorScheme
 
     @State private var store: AppStore?
+    @State private var settings = AppSettings()
     @State private var isInitialized = false
+
+    /// テーマ選択を反映した実効値。配色はこちらを基準に決める。
+    private var effectiveColorScheme: ColorScheme {
+        settings.theme.colorScheme ?? systemColorScheme
+    }
 
     var body: some View {
         ZStack {
@@ -19,7 +25,10 @@ struct RootView: View {
                     .transition(.opacity)
             }
         }
-        .provideAppColors(colorScheme)
+        .environment(settings)
+        .environment(\.locale, settings.language.locale ?? .autoupdatingCurrent)
+        .preferredColorScheme(settings.theme.colorScheme)
+        .provideAppColors(effectiveColorScheme)
         .task {
             if store == nil {
                 if DemoDataSeeder.isRequested {
@@ -79,13 +88,13 @@ struct MainTabView: View {
     private var tabs: some View {
         if #available(iOS 18, *) {
             TabView(selection: $selection) {
-                Tab(L10n.navHome, systemImage: "house", value: AppTab.home) {
+                Tab(String(localized: L10n.navHome), systemImage: "house", value: AppTab.home) {
                     HomeView(selection: $selection)
                 }
-                Tab(L10n.navRecord, systemImage: "baseball", value: AppTab.record) {
+                Tab(String(localized: L10n.navRecord), systemImage: "baseball", value: AppTab.record) {
                     GamesView()
                 }
-                Tab(L10n.navStats, systemImage: "chart.bar", value: AppTab.stats) {
+                Tab(String(localized: L10n.navStats), systemImage: "chart.bar", value: AppTab.stats) {
                     StatsView(selection: $selection)
                 }
             }

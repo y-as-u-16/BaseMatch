@@ -109,19 +109,23 @@ private struct CalendarCard: View {
 
 private struct CalendarMonthHeader: View {
     @Environment(\.appColors) private var colors
+    @Environment(\.locale) private var locale
 
     let month: Date
     let onPrevious: () -> Void
     let onNext: () -> Void
 
-    private static let monthFormat = Date.FormatStyle(date: .omitted)
-        .year()
-        .month(.defaultDigits)
-        .locale(Locale(identifier: "ja_JP"))
+    // 表示言語の切り替えに追従させるため static にしない。
+    private var monthFormat: Date.FormatStyle {
+        Date.FormatStyle(date: .omitted)
+            .year()
+            .month(.defaultDigits)
+            .locale(locale)
+    }
 
     var body: some View {
         HStack(spacing: 8) {
-            Text(month.formatted(Self.monthFormat))
+            Text(month.formatted(monthFormat))
                 .font(.title2.bold())
                 .foregroundStyle(colors.onSurface)
                 .contentTransition(.numericText())
@@ -137,7 +141,7 @@ private struct CalendarMonthHeader: View {
 
     private func monthButton(
         systemImage: String,
-        label: String,
+        label: LocalizedStringResource,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
@@ -287,17 +291,21 @@ private struct CalendarDayCell: View {
 private struct SelectedDateGameSection: View {
     @Environment(AppStore.self) private var store
     @Environment(\.appColors) private var colors
+    @Environment(\.locale) private var locale
 
     let selectedDate: Date
     let games: [Game]
 
     @State private var gameToDelete: Game?
 
-    private static let dayFormat = Date.FormatStyle(date: .omitted)
-        .year()
-        .month(.defaultDigits)
-        .day()
-        .locale(Locale(identifier: "ja_JP"))
+    // 表示言語の切り替えに追従させるため static にしない。
+    private var dayFormat: Date.FormatStyle {
+        Date.FormatStyle(date: .omitted)
+            .year()
+            .month(.defaultDigits)
+            .day()
+            .locale(locale)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -305,7 +313,7 @@ private struct SelectedDateGameSection: View {
                 VStack(alignment: .leading, spacing: 2) {
                     SectionHeaderBar(title: L10n.selectedDateGamesTitle)
 
-                    Text(selectedDate.formatted(Self.dayFormat))
+                    Text(selectedDate.formatted(dayFormat))
                         .font(.footnote)
                         .foregroundStyle(colors.onSurfaceVariant)
                 }

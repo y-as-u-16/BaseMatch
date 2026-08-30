@@ -57,7 +57,7 @@ final class AppStore {
     }
 
     func teamName(for game: Game) -> String {
-        myTeamById[game.myTeamId]?.name ?? L10n.unknownMyTeamLabel
+        myTeamById[game.myTeamId]?.name ?? String(localized: L10n.unknownMyTeamLabel)
     }
 
     func load() {
