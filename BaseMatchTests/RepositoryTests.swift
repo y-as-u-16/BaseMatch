@@ -7,7 +7,8 @@ import Testing
 @MainActor
 private func makeContext() throws -> ModelContext {
     let container = try ModelContainer(
-        for: MyTeam.self, Player.self, Game.self, PlateAppearance.self, PitchingAppearance.self,
+        for: MyTeam.self, Player.self, Game.self, InningScore.self,
+        PlateAppearance.self, PitchingAppearance.self,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
     return ModelContext(container)
@@ -211,6 +212,80 @@ struct GameRepositoryTests {
         #expect(game.awayTeamName == "相手")
         #expect(game.location == "東京ドーム")
         #expect(try games.games().count == 1)
+    }
+
+    @Test("イニング別得点から合計が算出される")
+    func inningScoresProduceTotals() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let game = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+
+        try games.replaceInningScores(
+            gameId: game.id,
+            home: [0, 2, 0, 3, 0, 1, 0],
+            away: [1, 0, 0, 0, 1, 0, 0]
+        )
+
+        let updated = try #require(try games.game(id: game.id))
+        #expect(updated.homeScore == 6)
+        #expect(updated.awayScore == 2)
+        #expect(try games.inningScores(gameId: game.id).count == 14)
+    }
+
+    @Test("入れ直すと古いイニングは消える")
+    func replacingInningScoresClearsOld() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let game = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+
+        try games.replaceInningScores(gameId: game.id, home: [1, 1, 1], away: [0, 0, 0])
+        try games.replaceInningScores(gameId: game.id, home: [5], away: [2])
+
+        let updated = try #require(try games.game(id: game.id))
+        #expect(updated.homeScore == 5)
+        #expect(updated.awayScore == 2)
+        #expect(try games.inningScores(gameId: game.id).count == 2)
+    }
+
+    @Test("イニング別が無い試合は合計スコアをそのまま保つ")
+    func gamesWithoutInningsKeepTotals() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let game = try games.createGame(
+            date: Date(), myTeamId: team.id, awayTeamName: "相手",
+            homeScore: 7, awayScore: 3
+        )
+
+        #expect(try games.inningScores(gameId: game.id).isEmpty)
+        #expect(game.homeScore == 7)
+        #expect(game.awayScore == 3)
+    }
+
+    @Test("試合を削除するとイニング別得点も消える")
+    func deletingGameRemovesInningScores() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let target = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+        let other = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "別")
+
+        try games.replaceInningScores(gameId: target.id, home: [1], away: [0])
+        try games.replaceInningScores(gameId: other.id, home: [2], away: [1])
+
+        try games.deleteGame(id: target.id)
+
+        #expect(try games.inningScores(gameId: target.id).isEmpty)
+        #expect(try games.inningScores(gameId: other.id).count == 2)
+    }
+
+    @Test("負の得点は弾かれる")
+    func negativeInningScoreThrows() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let game = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+
+        #expect(throws: AppError.self) {
+            try games.replaceInningScores(gameId: game.id, home: [1, -1], away: [0, 0])
+        }
     }
 
     @Test("打席記録を更新できる")
@@ -623,5 +698,57 @@ struct SeasonSummaryTests {
 
         #expect(summary.battingAverage == "1.000")
         #expect(summary.era == "3.00")
+    }
+}
+
+@Suite("既存試合の互換性")
+@MainActor
+struct LegacyGameCompatibilityTests {
+    /// イニング別を持たない試合を updateGame で保存しても、
+    /// 合計スコアが 0 に潰れないこと。CreateGameView の hasInningScores
+    /// ガードが外れると壊れる経路。
+    @Test("合計スコアだけの試合は編集保存しても得点が残る")
+    func updatingLegacyGameKeepsScore() throws {
+        let context = try makeContext()
+        let games = GameRepository(context: context)
+        let teams = MyTeamRepository(context: context)
+        let team = try teams.createMyTeam(name: "A")
+
+        let game = try games.createGame(
+            date: Date(), myTeamId: team.id, awayTeamName: "相手",
+            homeScore: 7, awayScore: 3
+        )
+
+        // 画面が渡すのは「既存の合計」であって 0 ではない。
+        _ = try games.updateGame(
+            gameId: game.id,
+            date: game.date,
+            myTeamId: team.id,
+            awayTeamName: "相手",
+            innings: 7,
+            homeScore: game.homeScore ?? 0,
+            awayScore: game.awayScore ?? 0
+        )
+
+        let updated = try #require(try games.game(id: game.id))
+        #expect(updated.homeScore == 7)
+        #expect(updated.awayScore == 3)
+        #expect(try games.inningScores(gameId: game.id).isEmpty)
+    }
+
+    @Test("0対0の試合でもイニング別は保存される")
+    func scorelessGameStillStoresInnings() throws {
+        let context = try makeContext()
+        let games = GameRepository(context: context)
+        let teams = MyTeamRepository(context: context)
+        let team = try teams.createMyTeam(name: "A")
+        let game = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+
+        try games.replaceInningScores(gameId: game.id, home: [0, 0, 0], away: [0, 0, 0])
+
+        // 合計が 0 でも「入力された」ことは残る。
+        #expect(try games.inningScores(gameId: game.id).count == 6)
+        let updated = try #require(try games.game(id: game.id))
+        #expect(updated.homeScore == 0)
     }
 }

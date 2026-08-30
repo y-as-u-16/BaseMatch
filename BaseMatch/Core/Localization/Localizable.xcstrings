@@ -307,6 +307,60 @@
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "イニング数" } }
       }
     },
+    "game.field.inningScores" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Runs by inning" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "イニング別得点" } }
+      }
+    },
+    "game.field.inningScoresHint" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The total is calculated from the runs by inning." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "合計はイニング別得点から自動で計算されます。" } }
+      }
+    },
+    "game.field.inningNumber %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inning %lld" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%lld回" } }
+      }
+    },
+    "game.field.topHalf" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Top" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "表" } }
+      }
+    },
+    "game.field.bottomHalf" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Bottom" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "裏" } }
+      }
+    },
+    "game.field.totalScore" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Total" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "合計" } }
+      }
+    },
+    "game.detail.lineScore" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Line score" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ラインスコア" } }
+      }
+    },
+    "game.detail.lineScoreTotal" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "R" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "計" } }
+      }
+    },
+    "game.field.inningRunsAccessibility %lld %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inning %1$lld, %2$@" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld回%2$@" } }
+      }
+    },
     "common.create" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Create" } },

@@ -108,6 +108,8 @@ struct GameDetailView: View {
             VStack(spacing: 24) {
                 GameScoreHeader(game: game, myTeamName: store.teamName(for: game))
 
+                lineScoreSection(for: game)
+
                 plateAppearanceSection(gameId: game.id)
                 pitchingSection(gameId: game.id)
             }
@@ -120,6 +122,25 @@ struct GameDetailView: View {
         .toolbarBackground(colors.groupedBackground, for: .navigationBar)
         .safeAreaInset(edge: .bottom) {
             GameDetailActionBar(gameId: game.id)
+        }
+    }
+
+    @ViewBuilder
+    private func lineScoreSection(for game: Game) -> some View {
+        let homeRuns = store.inningRuns(gameId: game.id, isHome: true)
+        let awayRuns = store.inningRuns(gameId: game.id, isHome: false)
+
+        if !homeRuns.isEmpty || !awayRuns.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                SectionHeaderBar(title: L10n.lineScoreTitle)
+
+                LineScoreView(
+                    homeName: store.teamName(for: game),
+                    homeRuns: homeRuns,
+                    awayName: game.awayTeamName,
+                    awayRuns: awayRuns
+                )
+            }
         }
     }
 
@@ -243,6 +264,112 @@ private struct GameScoreHeader: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
             .background(.white.opacity(0.15), in: .capsule)
+    }
+}
+
+/// ラインスコア。チーム名と合計は固定し、イニング列だけ横スクロールさせる。
+/// 9回だと横幅が足りず、名前が読めないまま数字だけ流れるのを避ける。
+private struct LineScoreView: View {
+    @Environment(\.appColors) private var colors
+
+    let homeName: String
+    let homeRuns: [Int]
+    let awayName: String
+    let awayRuns: [Int]
+
+    private static let rowHeight: CGFloat = 28
+
+    /// 9回まではスクロールさせず一画面に収める。隠れた列があると気づかれない。
+    private var nameWidth: CGFloat { inningCount <= 7 ? 76 : 60 }
+
+    private var inningCount: Int { max(homeRuns.count, awayRuns.count) }
+
+    var body: some View {
+        HStack(spacing: 0) {
+            teamNameColumn
+
+            VStack(alignment: .leading, spacing: 0) {
+                inningRow(values: (1...max(inningCount, 1)).map { "\($0)" }, isHeader: true)
+                inningRow(values: paddedValues(awayRuns), isHeader: false)
+                inningRow(values: paddedValues(homeRuns), isHeader: false)
+            }
+            .frame(maxWidth: .infinity)
+
+            Divider()
+
+            totalColumn
+        }
+        .cardStyle(padding: 12)
+    }
+
+    private var teamNameColumn: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            cell { Color.clear }
+            nameCell(awayName)
+            nameCell(homeName)
+        }
+        .padding(.trailing, 8)
+    }
+
+    private func nameCell(_ name: String) -> some View {
+        cell {
+            Text(name)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(colors.onSurface)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .frame(width: nameWidth)
+    }
+
+    private var totalColumn: some View {
+        VStack(spacing: 0) {
+            cell {
+                Text(L10n.lineScoreTotalHeader)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(colors.onSurfaceVariant)
+            }
+            totalCell(awayRuns.reduce(0, +))
+            totalCell(homeRuns.reduce(0, +))
+        }
+        .frame(width: 40)
+        .padding(.leading, 4)
+    }
+
+    private func totalCell(_ total: Int) -> some View {
+        cell {
+            Text("\(total)")
+                .font(.subheadline.weight(.bold))
+                .monospacedDigit()
+                .foregroundStyle(colors.primary)
+        }
+    }
+
+    private func inningRow(values: [String], isHeader: Bool) -> some View {
+        HStack(spacing: 0) {
+            ForEach(Array(values.enumerated()), id: \.offset) { _, value in
+                cell {
+                    Text(value)
+                        .font(isHeader ? .caption2.weight(.semibold) : .subheadline)
+                        .monospacedDigit()
+                        .foregroundStyle(isHeader ? colors.onSurfaceVariant : colors.onSurface)
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+    }
+
+    /// 表裏で回数が違っても列がずれないよう、短い側を "-" で埋める。
+    private func paddedValues(_ runs: [Int]) -> [String] {
+        let values = runs.map { "\($0)" }
+        guard values.count < inningCount else { return values }
+        return values + Array(repeating: "-", count: inningCount - values.count)
+    }
+
+    private func cell<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        content()
+            .frame(height: Self.rowHeight)
     }
 }
 

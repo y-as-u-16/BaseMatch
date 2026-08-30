@@ -170,6 +170,47 @@ struct GameRepository {
         try context.save()
     }
 
+    func allInningScores() throws -> [InningScore] {
+        try context.fetch(FetchDescriptor<InningScore>())
+    }
+
+    func inningScores(gameId: String) throws -> [InningScore] {
+        let descriptor = FetchDescriptor<InningScore>(
+            predicate: #Predicate { $0.gameId == gameId },
+            sortBy: [SortDescriptor(\.inning)]
+        )
+        return try context.fetch(descriptor)
+    }
+
+    /// イニング別得点を丸ごと入れ替え、合計スコアも同時に更新する。
+    /// 差分更新にすると入力欄の増減と噛み合わず状態が崩れるため、都度消して入れ直す。
+    func replaceInningScores(gameId: String, home: [Int], away: [Int]) throws {
+        guard home.allSatisfy({ $0 >= 0 }), away.allSatisfy({ $0 >= 0 }) else {
+            throw AppError.validation("0以上の点数を入力してください")
+        }
+        guard let game = try game(id: gameId) else {
+            throw AppError.notFound("試合が見つかりません")
+        }
+
+        try context.delete(model: InningScore.self, where: #Predicate { $0.gameId == gameId })
+
+        for (index, runs) in home.enumerated() {
+            context.insert(
+                InningScore(gameId: gameId, inning: index + 1, isHome: true, runs: runs)
+            )
+        }
+        for (index, runs) in away.enumerated() {
+            context.insert(
+                InningScore(gameId: gameId, inning: index + 1, isHome: false, runs: runs)
+            )
+        }
+
+        // 合計は必ずイニング別から導く。二重管理を避けるため手入力は受け付けない。
+        game.homeScore = home.reduce(0, +)
+        game.awayScore = away.reduce(0, +)
+        try context.save()
+    }
+
     func updatePlateAppearance(
         id: String,
         batterName: String,
@@ -240,6 +281,7 @@ struct GameRepository {
 
         try context.delete(model: PlateAppearance.self, where: #Predicate { $0.gameId == id })
         try context.delete(model: PitchingAppearance.self, where: #Predicate { $0.gameId == id })
+        try context.delete(model: InningScore.self, where: #Predicate { $0.gameId == id })
         context.delete(game)
         try context.save()
     }

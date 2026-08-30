@@ -13,6 +13,7 @@ final class AppStore {
     private(set) var pitchingAppearances: [PitchingAppearance] = []
     private(set) var myTeams: [MyTeam] = []
     private(set) var players: [Player] = []
+    private(set) var inningScores: [InningScore] = []
     private(set) var isLoaded = false
     var errorMessage: String?
 
@@ -70,7 +71,28 @@ final class AppStore {
             pitchingAppearances = try gameRepository.pitchingAppearances()
             myTeams = try myTeamRepository.myTeams()
             players = try playerRepository.allPlayers()
+            inningScores = try gameRepository.allInningScores()
             isLoaded = true
+        }
+    }
+
+    func inningScores(gameId: String) -> [InningScore] {
+        inningScores.filter { $0.gameId == gameId }
+    }
+
+    /// 表・裏それぞれの得点を回順に並べた配列。無ければ空。
+    func inningRuns(gameId: String, isHome: Bool) -> [Int] {
+        inningScores(gameId: gameId)
+            .filter { $0.isHome == isHome }
+            .sorted { $0.inning < $1.inning }
+            .map(\.runs)
+    }
+
+    func replaceInningScores(gameId: String, home: [Int], away: [Int]) {
+        perform {
+            try gameRepository.replaceInningScores(gameId: gameId, home: home, away: away)
+            games = try gameRepository.games()
+            inningScores = try gameRepository.allInningScores()
         }
     }
 
@@ -266,6 +288,7 @@ final class AppStore {
         perform {
             try gameRepository.deleteGame(id: id)
             games = try gameRepository.games()
+            inningScores = try gameRepository.allInningScores()
             plateAppearances = try gameRepository.plateAppearances()
             pitchingAppearances = try gameRepository.pitchingAppearances()
         }
