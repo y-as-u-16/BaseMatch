@@ -277,8 +277,10 @@ private struct LineScoreView: View {
     let awayName: String
     let awayRuns: [Int]
 
-    private static let cellWidth: CGFloat = 30
     private static let rowHeight: CGFloat = 28
+
+    /// 9回まではスクロールさせず一画面に収める。隠れた列があると気づかれない。
+    private var nameWidth: CGFloat { inningCount <= 7 ? 76 : 60 }
 
     private var inningCount: Int { max(homeRuns.count, awayRuns.count) }
 
@@ -286,13 +288,12 @@ private struct LineScoreView: View {
         HStack(spacing: 0) {
             teamNameColumn
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 0) {
-                    inningRow(values: (1...max(inningCount, 1)).map { "\($0)" }, isHeader: true)
-                    inningRow(values: paddedValues(awayRuns), isHeader: false)
-                    inningRow(values: paddedValues(homeRuns), isHeader: false)
-                }
+            VStack(alignment: .leading, spacing: 0) {
+                inningRow(values: (1...max(inningCount, 1)).map { "\($0)" }, isHeader: true)
+                inningRow(values: paddedValues(awayRuns), isHeader: false)
+                inningRow(values: paddedValues(homeRuns), isHeader: false)
             }
+            .frame(maxWidth: .infinity)
 
             Divider()
 
@@ -319,7 +320,7 @@ private struct LineScoreView: View {
                 .minimumScaleFactor(0.7)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(width: 84)
+        .frame(width: nameWidth)
     }
 
     private var totalColumn: some View {
@@ -354,7 +355,7 @@ private struct LineScoreView: View {
                         .monospacedDigit()
                         .foregroundStyle(isHeader ? colors.onSurfaceVariant : colors.onSurface)
                 }
-                .frame(width: Self.cellWidth)
+                .frame(maxWidth: .infinity)
             }
         }
     }

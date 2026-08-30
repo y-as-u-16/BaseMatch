@@ -50,6 +50,17 @@ enum DemoDataSeeder {
             )
             context.insert(game)
 
+            for (index, runs) in plan.homeInnings.enumerated() {
+                context.insert(
+                    InningScore(gameId: game.id, inning: index + 1, isHome: true, runs: runs)
+                )
+            }
+            for (index, runs) in plan.awayInnings.enumerated() {
+                context.insert(
+                    InningScore(gameId: game.id, inning: index + 1, isHome: false, runs: runs)
+                )
+            }
+
             for pa in plan.plateAppearances(batters: names.batters) {
                 context.insert(
                     PlateAppearance(
@@ -125,6 +136,26 @@ private struct GamePlan {
     let home: Int
     let away: Int
     let venue: String
+
+    /// 合計が home / away に一致する 7 回分の配分。
+    /// 序盤・中盤・終盤に散らしてラインスコアが単調にならないようにする。
+    var homeInnings: [Int] { Self.distribute(home) }
+    var awayInnings: [Int] { Self.distribute(away) }
+
+    private static func distribute(_ total: Int) -> [Int] {
+        var runs = [Int](repeating: 0, count: 7)
+        // 得点する回を散らすため、1回ずつ間隔を空けて置いていく。
+        var inning = 0
+        var remaining = total
+        while remaining > 0 {
+            let scored = min(remaining, inning == 3 ? 2 : 1)
+            runs[inning % 7] += scored
+            remaining -= scored
+            inning += 2
+            if inning >= 7 { inning = (inning % 7) + 1 }
+        }
+        return runs
+    }
 
     /// 打率が .300〜.400 台に収まるよう、安打と凡打を混ぜる。
     /// batters は [1番, 2番, 3番, 4番] の並び。
