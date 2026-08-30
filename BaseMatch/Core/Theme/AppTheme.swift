@@ -84,6 +84,9 @@ struct AppColors {
 
     var gold: Color { isDark ? AppTheme.trophyGoldDark : AppTheme.trophyGold }
 
+    /// gold は明度が高く、白文字ではコントラストが取れない。
+    var onGold: Color { Color(hex: 0x3A2A05) }
+
     // MARK: - 勝敗
 
     var winColor: Color { primary }

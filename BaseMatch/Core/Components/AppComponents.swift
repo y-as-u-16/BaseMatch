@@ -27,15 +27,25 @@ struct AppPanel<Content: View>: View {
 struct PrimaryPanel<Content: View>: View {
     @Environment(\.colorScheme) private var colorScheme
 
+    var padding = EdgeInsets(top: 22, leading: 20, bottom: 20, trailing: 20)
     @ViewBuilder var content: Content
 
     var body: some View {
         content
-            .padding(EdgeInsets(top: 22, leading: 20, bottom: 20, trailing: 20))
+            .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background {
                 HeroBackground(colorScheme: colorScheme)
                     .overlay(.black.opacity(colorScheme == .dark ? 0.1 : 0))
+                    // 濃色面が単色に見えないよう、上端に光を当てて厚みを作る。
+                    .overlay(alignment: .top) {
+                        LinearGradient(
+                            colors: [.white.opacity(0.16), .clear],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(height: 96)
+                    }
             }
             .clipShape(.rect(cornerRadius: AppTheme.heroCornerRadius, style: .continuous))
             .shadow(color: AppTheme.fieldGreen.opacity(colorScheme == .dark ? 0.35 : 0.22), radius: 16, y: 10)

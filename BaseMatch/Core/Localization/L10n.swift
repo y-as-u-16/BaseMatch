@@ -51,6 +51,21 @@ enum L10n {
         t("home.metric.runsValue \(runs)")
     }
 
+    static var homeDraftSectionTitle: LocalizedStringResource { t("home.draft.sectionTitle") }
+    static var homeDraftBadge: LocalizedStringResource { t("home.draft.badge") }
+    static var homeDraftResume: LocalizedStringResource { t("home.draft.resume") }
+    static var homePlayerSectionTitle: LocalizedStringResource { t("home.player.sectionTitle") }
+    static var homePlayerHitsLabel: LocalizedStringResource { t("home.player.metric.hits") }
+    static var homePlayerHomeRunsLabel: LocalizedStringResource { t("home.player.metric.hr") }
+    static var homePlayerOpsLabel: LocalizedStringResource { t("home.player.metric.ops") }
+
+    static func homeDraftMoreCount(_ count: Int) -> LocalizedStringResource {
+        t("home.draft.moreCount \(count)")
+    }
+    static func homePlayerHitStreak(_ games: Int) -> LocalizedStringResource {
+        t("home.player.hitStreak \(games)")
+    }
+
     // Record / calendar
     static var recordTitle: LocalizedStringResource { t("record.title") }
     static var addGameButton: LocalizedStringResource { t("record.addGame") }
