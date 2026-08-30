@@ -167,7 +167,9 @@ struct CreateGameView: View {
             } else {
                 Picker(L10n.myTeamSelectLabel, selection: myTeamSelection) {
                     ForEach(store.myTeams) { team in
-                        Text(team.isDefault ? "\(team.name)（\(L10n.defaultMyTeamBadge)）" : team.name)
+                        Text(team.isDefault
+                            ? "\(team.name)（\(String(localized: L10n.defaultMyTeamBadge))）"
+                            : team.name)
                             .tag(team.id as String?)
                     }
                 }
@@ -207,7 +209,7 @@ struct CreateGameView: View {
             ScoreStepperRow(label: L10n.homeScoreLabel, value: $homeScore, range: Self.scoreRange)
             ScoreStepperRow(label: L10n.awayScoreLabel, value: $awayScore, range: Self.scoreRange)
         } header: {
-            Text("\(L10n.homeScoreLabel) / \(L10n.awayScoreLabel)")
+            Text("\(String(localized: L10n.homeScoreLabel)) / \(String(localized: L10n.awayScoreLabel))")
         }
     }
 
