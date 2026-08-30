@@ -205,7 +205,9 @@ private struct HeroScoreboard: View {
 
                 statChip(
                     label: L10n.seasonRecordMetricLabel,
-                    value: "\(summary.wins)-\(summary.losses)-\(summary.draws)",
+                    value: String(localized: L10n.seasonRecordLabel(
+                        summary.wins, summary.losses, summary.draws
+                    )),
                     size: 30
                 )
             }
@@ -239,7 +241,17 @@ private struct HeroScoreboard: View {
         }
         .padding(.vertical, 14)
         .padding(.horizontal, 8)
+        // 背景のメッシュは色幅が広く、透過だけだと明るい部分で数字が沈む。
+        // 暗いベースを敷いてどこでも同じ読みやすさにする。
+        .background {
+            RoundedRectangle(cornerRadius: AppTheme.heroCornerRadius, style: .continuous)
+                .fill(.black.opacity(0.42))
+        }
         .adaptiveGlass(in: .rect(cornerRadius: AppTheme.heroCornerRadius, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: AppTheme.heroCornerRadius, style: .continuous)
+                .strokeBorder(.white.opacity(0.22), lineWidth: 0.5)
+        }
         .accessibilityIdentifier("heroScoreboard")
     }
 
@@ -255,13 +267,14 @@ private struct HeroScoreboard: View {
         size: CGFloat
     ) -> some View {
         VStack(spacing: 4) {
-            StatValueText(value: value, size: size, weight: .semibold, color: .white)
+            StatValueText(value: value, size: size, weight: .bold, color: .white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
+                .shadow(color: .black.opacity(0.35), radius: 3, y: 1)
 
             Text(label)
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.7))
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.white.opacity(0.85))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
         }

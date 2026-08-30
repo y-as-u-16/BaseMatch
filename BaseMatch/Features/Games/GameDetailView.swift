@@ -67,10 +67,7 @@ struct GameDetailView: View {
         }
         .confirmationDialog(
             L10n.deletePlateAppearanceTitle,
-            isPresented: .init(
-                get: { plateAppearanceToDelete != nil },
-                set: { if !$0 { plateAppearanceToDelete = nil } }
-            ),
+            isPresented: .isPresent($plateAppearanceToDelete),
             titleVisibility: .visible
         ) {
             Button(L10n.deleteButton, role: .destructive) {
@@ -85,10 +82,7 @@ struct GameDetailView: View {
         }
         .confirmationDialog(
             L10n.deletePitchingTitle,
-            isPresented: .init(
-                get: { pitchingToDelete != nil },
-                set: { if !$0 { pitchingToDelete = nil } }
-            ),
+            isPresented: .isPresent($pitchingToDelete),
             titleVisibility: .visible
         ) {
             Button(L10n.deleteButton, role: .destructive) {
