@@ -370,6 +370,25 @@ final class AppStore {
         }
     }
 
+    /// 記録の途中で止まっている試合。ホームから続きへ戻す導線に使う。
+    var draftGames: [Game] {
+        games.filter { $0.status == .draft }.sorted { $0.date > $1.date }
+    }
+
+    /// デフォルトチームのデフォルト選手のハイライト。
+    var defaultPlayerHighlight: PlayerHighlight? {
+        guard let teamId = defaultMyTeam?.id,
+              let name = defaultPlayerName(myTeamId: teamId)
+        else { return nil }
+
+        let highlight = PlayerHighlight.make(
+            playerName: name,
+            games: games.filter { $0.myTeamId == teamId },
+            plateAppearances: plateAppearances
+        )
+        return highlight.hasRecords ? highlight : nil
+    }
+
     var seasonSummary: SeasonSummary {
         SeasonSummary.from(
             games: games,

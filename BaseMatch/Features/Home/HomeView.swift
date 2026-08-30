@@ -16,12 +16,22 @@ struct HomeView: View {
                     HomeHero(summary: store.seasonSummary, topInset: proxy.safeAreaInsets.top)
 
                     VStack(spacing: 28) {
+                        if let draft = store.draftGames.first {
+                            HomeDraftGameSection(
+                                game: draft,
+                                title: draftTitle(for: draft),
+                                remainingCount: store.draftGames.count - 1
+                            )
+                        }
+
                         HomePrimaryActions(
                             onRecord: { path.append(GameRoute.create(date: Date())) },
                             onStats: { selection = .stats }
                         )
 
-                        SeasonSummaryCard(summary: store.seasonSummary)
+                        if let highlight = store.defaultPlayerHighlight {
+                            HomePlayerHighlightSection(highlight: highlight)
+                        }
 
                         HomeRecentGamesSection(games: Array(store.sortedGames.prefix(3)))
                     }
@@ -66,6 +76,10 @@ struct HomeView: View {
             }
         }
     }
+
+    private func draftTitle(for game: Game) -> String {
+        "\(store.teamName(for: game)) vs \(game.awayTeamName)"
+    }
 }
 
 struct HomeHero: View {
@@ -90,10 +104,7 @@ struct HomeHero: View {
             }
             .multilineTextAlignment(.center)
 
-            HeroScoreboard(
-                gamesValue: "\(summary.games)",
-                recordValue: "\(summary.wins)-\(summary.losses)-\(summary.draws)"
-            )
+            HeroScoreboard(summary: summary)
         }
         .padding(.horizontal, 24)
         // ステータスバーと、その下に重なるツールバー（設定ギア）の両方を避ける。
@@ -176,37 +187,87 @@ private struct SeasonPill: View {
     }
 }
 
+/// 今季の5項目をヒーローに集約する。5つを1行に並べると桁が潰れるため、
+/// チーム成績（試合数・勝敗）と内訳（得点・打率・防御率）の2段に分ける。
 private struct HeroScoreboard: View {
-    let gamesValue: String
-    let recordValue: String
+    let summary: SeasonSummary
 
     var body: some View {
-        HStack(spacing: 0) {
-            statChip(label: L10n.seasonGamesMetricLabel, value: gamesValue)
+        VStack(spacing: 14) {
+            HStack(spacing: 0) {
+                statChip(
+                    label: L10n.seasonGamesMetricLabel,
+                    value: "\(summary.games)",
+                    size: 30
+                )
+
+                heroDivider
+
+                statChip(
+                    label: L10n.seasonRecordMetricLabel,
+                    value: "\(summary.wins)-\(summary.losses)-\(summary.draws)",
+                    size: 30
+                )
+            }
 
             Divider()
                 .overlay(.white.opacity(0.2))
-                .frame(height: 44)
 
-            statChip(label: L10n.seasonRecordMetricLabel, value: recordValue)
+            HStack(spacing: 0) {
+                statChip(
+                    label: L10n.seasonRunsMetricLabel,
+                    value: "\(summary.totalRuns)",
+                    size: 22
+                )
+
+                heroDivider
+
+                statChip(
+                    label: L10n.seasonAverageMetricLabel,
+                    value: summary.battingAverage,
+                    size: 22
+                )
+
+                heroDivider
+
+                statChip(
+                    label: L10n.seasonEraMetricLabel,
+                    value: summary.era,
+                    size: 22
+                )
+            }
         }
-        .padding(.vertical, 12)
+        .padding(.vertical, 14)
         .padding(.horizontal, 8)
         .adaptiveGlass(in: .rect(cornerRadius: AppTheme.heroCornerRadius, style: .continuous))
+        .accessibilityIdentifier("heroScoreboard")
     }
 
-    private func statChip(label: LocalizedStringResource, value: String) -> some View {
+    private var heroDivider: some View {
+        Divider()
+            .overlay(.white.opacity(0.2))
+            .frame(height: 36)
+    }
+
+    private func statChip(
+        label: LocalizedStringResource,
+        value: String,
+        size: CGFloat
+    ) -> some View {
         VStack(spacing: 4) {
-            StatValueText(value: value, size: 30, weight: .semibold, color: .white)
+            StatValueText(value: value, size: size, weight: .semibold, color: .white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
 
             Text(label)
                 .font(.caption)
                 .foregroundStyle(.white.opacity(0.7))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
         }
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, 12)
+        .padding(.horizontal, 8)
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -232,94 +293,171 @@ struct HomePrimaryActions: View {
     }
 }
 
-struct SeasonSummaryCard: View {
+/// 記録の途中で止まっている試合。ホームで最も目立たせ、続きへ直行させる。
+struct HomeDraftGameSection: View {
     @Environment(\.appColors) private var colors
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
-    let summary: SeasonSummary
-
-    private var metrics: [SeasonMetric] {
-        // 試合数と勝敗はヒーローのスコアボードが担うため、ここでは重複させない。
-        [
-            SeasonMetric(
-                label: L10n.seasonRunsMetricLabel,
-                value: "\(summary.totalRuns)"
-            ),
-            SeasonMetric(
-                label: L10n.seasonAverageMetricLabel,
-                value: summary.battingAverage,
-                emphasized: true
-            ),
-            SeasonMetric(
-                label: L10n.seasonEraMetricLabel,
-                value: summary.era,
-                emphasized: true
-            ),
-        ]
-    }
-
-    private var columnCount: Int {
-        dynamicTypeSize.isAccessibilitySize ? 2 : 3
-    }
+    let game: Game
+    let title: String
+    let remainingCount: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(L10n.seasonSummaryTitle)
-                    .font(.title3.bold())
-                    .foregroundStyle(colors.onSurface)
+        VStack(alignment: .leading, spacing: 8) {
+            SectionHeaderBar(title: L10n.homeDraftSectionTitle)
 
-                Text(L10n.seasonSummarySubtitle(summary.year))
+            NavigationLink(value: GameRoute.detail(gameId: game.id)) {
+                DraftGameCard(game: game, title: title)
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("draftGameCard")
+
+            if remainingCount > 0 {
+                Text(L10n.homeDraftMoreCount(remainingCount))
                     .font(.footnote)
                     .foregroundStyle(colors.onSurfaceVariant)
-            }
-
-            LazyVGrid(
-                columns: Array(
-                    repeating: GridItem(.flexible(), spacing: 12, alignment: .leading),
-                    count: columnCount
-                ),
-                alignment: .leading,
-                spacing: 20
-            ) {
-                ForEach(metrics) { metric in
-                    SeasonMetricTile(metric: metric)
-                }
+                    .padding(.leading, 4)
             }
         }
-        .cardStyle(padding: 20)
     }
 }
 
-private struct SeasonMetric: Identifiable {
-    let label: LocalizedStringResource
-    let value: String
-    var emphasized = false
-
-    var id: String { String(localized: label) }
-}
-
-private struct SeasonMetricTile: View {
+private struct DraftGameCard: View {
     @Environment(\.appColors) private var colors
 
-    let metric: SeasonMetric
+    let game: Game
+    let title: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        PrimaryPanel(padding: EdgeInsets(top: 18, leading: 18, bottom: 18, trailing: 18)) {
+            content
+        }
+    }
+
+    private var content: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 8) {
+                Label(L10n.homeDraftBadge, systemImage: "record.circle")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(colors.tertiary.gradient, in: .capsule)
+                    .symbolEffect(.pulse)
+
+                Spacer(minLength: 0)
+
+                Text(game.date.slashDateLabel)
+                    .font(.caption)
+                    .monospacedDigit()
+                    .foregroundStyle(.white.opacity(0.75))
+            }
+
+            Text(title)
+                .font(.headline)
+                .foregroundStyle(.white)
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
+
+            ScoreBoardView(
+                homeName: "HOME",
+                homeScore: game.homeScore ?? 0,
+                awayName: "AWAY",
+                awayScore: game.awayScore ?? 0,
+                compact: true,
+                onDarkBackground: true
+            )
+
+            HStack(spacing: 6) {
+                Text(L10n.homeDraftResume)
+                Image(systemName: "chevron.right")
+            }
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .adaptiveGlass(in: .capsule)
+        }
+    }
+}
+
+/// デフォルト選手の今季成績。数字だけでなく連続安打を添えて動機づけにする。
+struct HomePlayerHighlightSection: View {
+    @Environment(\.appColors) private var colors
+
+    let highlight: PlayerHighlight
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionHeaderBar(title: L10n.homePlayerSectionTitle)
+
+            VStack(alignment: .leading, spacing: 16) {
+                Text(highlight.playerName)
+                    .font(.headline)
+                    .foregroundStyle(colors.onSurface)
+                    .lineLimit(1)
+
+                HStack(spacing: 0) {
+                    metricColumn(
+                        label: L10n.seasonAverageMetricLabel,
+                        value: highlight.batting.averageLabel,
+                        emphasized: true
+                    )
+                    metricColumn(
+                        label: L10n.homePlayerHitsLabel,
+                        value: "\(highlight.batting.hits)"
+                    )
+                    metricColumn(
+                        label: L10n.homePlayerHomeRunsLabel,
+                        value: "\(highlight.batting.hr)"
+                    )
+                    metricColumn(
+                        label: L10n.homePlayerOpsLabel,
+                        value: highlight.batting.opsLabel,
+                        emphasized: true
+                    )
+                }
+
+                // 1試合では「連続」と言えないため、2試合以上のときだけ出す。
+                if highlight.hitStreak >= 2 {
+                    Label(
+                        String(localized: L10n.homePlayerHitStreak(highlight.hitStreak)),
+                        systemImage: "flame.fill"
+                    )
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(colors.gold)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(colors.gold.opacity(0.14), in: .capsule)
+                }
+            }
+            .cardStyle(padding: 20)
+            .accessibilityIdentifier("playerHighlight")
+        }
+    }
+
+    private func metricColumn(
+        label: LocalizedStringResource,
+        value: String,
+        emphasized: Bool = false
+    ) -> some View {
+        VStack(spacing: 4) {
             StatValueText(
-                value: metric.value,
-                size: 28,
+                value: value,
+                size: 24,
                 weight: .semibold,
-                color: metric.emphasized ? colors.primary : colors.onSurface
+                color: emphasized ? colors.primary : colors.onSurface
             )
             .lineLimit(1)
             .minimumScaleFactor(0.5)
 
-            Text(metric.label)
+            Text(label)
                 .font(.caption)
                 .foregroundStyle(colors.onSurfaceVariant)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
     }
 }
 

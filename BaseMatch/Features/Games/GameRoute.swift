@@ -86,11 +86,14 @@ struct GameRecordCard: View {
         .from(homeScore: homeScore, awayScore: awayScore)
     }
 
-    private var resultTint: Color {
+    private var isDraft: Bool { game.status == .draft }
+
+    private var badgeTint: Color {
+        guard !isDraft else { return colors.tertiary }
         switch result {
-        case .win: colors.winColor
-        case .draw: colors.drawColor
-        case .loss: colors.lossColor
+        case .win: return colors.winColor
+        case .draw: return colors.drawColor
+        case .loss: return colors.lossColor
         }
     }
 
@@ -104,12 +107,13 @@ struct GameRecordCard: View {
 
                 Spacer(minLength: 0)
 
-                Text(result.label)
+                // 記録途中の試合に勝敗を出すと確定済みに見えてしまう。
+                Text(isDraft ? L10n.homeDraftBadge : result.label)
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(resultTint)
+                    .foregroundStyle(badgeTint)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 3)
-                    .background(resultTint.opacity(0.14), in: .capsule)
+                    .background(badgeTint.opacity(0.14), in: .capsule)
 
                 Image(systemName: "chevron.right")
                     .font(.caption.weight(.semibold))

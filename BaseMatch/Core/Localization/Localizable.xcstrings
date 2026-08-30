@@ -139,6 +139,60 @@
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "%lld点" } }
       }
     },
+    "home.draft.sectionTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "In Progress" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "記録中の試合" } }
+      }
+    },
+    "home.draft.badge" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recording" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "記録中" } }
+      }
+    },
+    "home.draft.resume" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue recording" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "続きを記録する" } }
+      }
+    },
+    "home.draft.moreCount %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld more in progress" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "他に%lld件が記録中" } }
+      }
+    },
+    "home.player.sectionTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your Season" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "あなたの今季" } }
+      }
+    },
+    "home.player.metric.hits" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "H" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "安打" } }
+      }
+    },
+    "home.player.metric.hr" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "HR" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "本塁打" } }
+      }
+    },
+    "home.player.metric.ops" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "OPS" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "OPS" } }
+      }
+    },
+    "home.player.hitStreak %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hitting streak: %lld games" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%lld試合連続安打中" } }
+      }
+    },
     "record.title" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Games" } },

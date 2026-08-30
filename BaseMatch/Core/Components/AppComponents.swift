@@ -27,11 +27,12 @@ struct AppPanel<Content: View>: View {
 struct PrimaryPanel<Content: View>: View {
     @Environment(\.colorScheme) private var colorScheme
 
+    var padding = EdgeInsets(top: 22, leading: 20, bottom: 20, trailing: 20)
     @ViewBuilder var content: Content
 
     var body: some View {
         content
-            .padding(EdgeInsets(top: 22, leading: 20, bottom: 20, trailing: 20))
+            .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background {
                 HeroBackground(colorScheme: colorScheme)

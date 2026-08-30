@@ -376,3 +376,79 @@ struct PeriodStatsTests {
         #expect(stats == .empty)
     }
 }
+
+@Suite("PlayerHighlight")
+@MainActor
+struct PlayerHighlightTests {
+    private func game(_ id: String, daysAgo: Int) -> Game {
+        let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: Date()) ?? Date()
+        return Game(id: id, date: date, myTeamId: "t", awayTeamName: "相手")
+    }
+
+    private func hit(_ gameId: String, _ name: String = "田中") -> PlateAppearance {
+        PlateAppearance(gameId: gameId, batterName: name, resultType: .hit, resultDetail: .single)
+    }
+
+    private func out(_ gameId: String, _ name: String = "田中") -> PlateAppearance {
+        PlateAppearance(gameId: gameId, batterName: name, resultType: .out, resultDetail: .k)
+    }
+
+    @Test("連続安打は直近から数える")
+    func streakCountsFromLatest() {
+        let highlight = PlayerHighlight.make(
+            playerName: "田中",
+            games: [game("g1", daysAgo: 20), game("g2", daysAgo: 10), game("g3", daysAgo: 1)],
+            plateAppearances: [hit("g1"), hit("g2"), hit("g3")]
+        )
+
+        #expect(highlight.hitStreak == 3)
+    }
+
+    @Test("安打の無い試合で連続が切れる")
+    func streakBreaksOnHitlessGame() {
+        let highlight = PlayerHighlight.make(
+            playerName: "田中",
+            games: [game("g1", daysAgo: 20), game("g2", daysAgo: 10), game("g3", daysAgo: 1)],
+            plateAppearances: [hit("g1"), out("g2"), hit("g3")]
+        )
+
+        // 直近の g3 だけが連続。
+        #expect(highlight.hitStreak == 1)
+    }
+
+    @Test("出場していない試合は連続を切らさない")
+    func absenceDoesNotBreakStreak() {
+        let highlight = PlayerHighlight.make(
+            playerName: "田中",
+            games: [game("g1", daysAgo: 20), game("g2", daysAgo: 10), game("g3", daysAgo: 1)],
+            // g2 には出ていない。
+            plateAppearances: [hit("g1"), out("g2", "佐藤"), hit("g3")]
+        )
+
+        #expect(highlight.hitStreak == 2)
+    }
+
+    @Test("他の選手の打席は混ざらない")
+    func otherPlayersAreExcluded() {
+        let highlight = PlayerHighlight.make(
+            playerName: "田中",
+            games: [game("g1", daysAgo: 1)],
+            plateAppearances: [hit("g1"), hit("g1", "佐藤"), hit("g1", "佐藤")]
+        )
+
+        #expect(highlight.batting.pa == 1)
+        #expect(highlight.batting.hits == 1)
+    }
+
+    @Test("記録が無ければ hasRecords は false")
+    func noRecordsIsDetected() {
+        let highlight = PlayerHighlight.make(
+            playerName: "田中",
+            games: [game("g1", daysAgo: 1)],
+            plateAppearances: []
+        )
+
+        #expect(!highlight.hasRecords)
+        #expect(highlight.hitStreak == 0)
+    }
+}
