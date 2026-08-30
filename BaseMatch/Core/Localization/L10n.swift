@@ -66,6 +66,10 @@ enum L10n {
     static var directInputLabel: LocalizedStringResource { t("player.directInput") }
     static var statsFilterAllPlayers: LocalizedStringResource { t("stats.filterAllPlayers") }
 
+    static var gameResultWin: LocalizedStringResource { t("game.result.win") }
+    static var gameResultDraw: LocalizedStringResource { t("game.result.draw") }
+    static var gameResultLoss: LocalizedStringResource { t("game.result.loss") }
+
     static var selectMonthTitle: LocalizedStringResource { t("record.selectMonth") }
     static var jumpToTodayButton: LocalizedStringResource { t("record.jumpToToday") }
     static var previousMonthTooltip: LocalizedStringResource { t("record.previousMonth") }

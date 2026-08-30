@@ -247,6 +247,24 @@
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "全選手" } }
       }
     },
+    "game.result.win" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Win" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "勝ち" } }
+      }
+    },
+    "game.result.draw" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Draw" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "引き分け" } }
+      }
+    },
+    "game.result.loss" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loss" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "負け" } }
+      }
+    },
     "record.selectMonth" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Select month" } },

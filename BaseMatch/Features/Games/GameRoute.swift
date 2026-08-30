@@ -35,11 +35,11 @@ enum GameRoute: Hashable {
 enum GameRecordResult {
     case win, draw, loss
 
-    var label: String {
+    var label: LocalizedStringResource {
         switch self {
-        case .win: "W"
-        case .draw: "D"
-        case .loss: "L"
+        case .win: L10n.gameResultWin
+        case .draw: L10n.gameResultDraw
+        case .loss: L10n.gameResultLoss
         }
     }
 
