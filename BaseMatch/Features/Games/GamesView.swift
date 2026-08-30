@@ -29,7 +29,8 @@ struct GamesView: View {
                         selectedDate: selectedDate,
                         gameCountsByDate: gameCountsByDate,
                         onSelect: { selectedDate = $0 },
-                        onChangeMonth: changeMonth
+                        onChangeMonth: changeMonth,
+                        onSelectMonth: jumpToMonth
                     )
 
                     SelectedDateGameSection(
@@ -68,6 +69,13 @@ struct GamesView: View {
         // 移行元と同じく、月移動で選択日もその月の 1 日へ追随させる。
         selectedDate = focusedMonth
     }
+
+    private func jumpToMonth(_ month: Date) {
+        withAnimation(.smooth) {
+            focusedMonth = month.monthKey
+            selectedDate = focusedMonth
+        }
+    }
 }
 
 private struct CalendarCard: View {
@@ -76,13 +84,15 @@ private struct CalendarCard: View {
     let gameCountsByDate: [Date: Int]
     let onSelect: (Date) -> Void
     let onChangeMonth: (Int) -> Void
+    let onSelectMonth: (Date) -> Void
 
     var body: some View {
         VStack(spacing: 16) {
             CalendarMonthHeader(
                 month: month,
                 onPrevious: { onChangeMonth(-1) },
-                onNext: { onChangeMonth(1) }
+                onNext: { onChangeMonth(1) },
+                onSelect: onSelectMonth
             )
 
             CalendarMonthGrid(
@@ -114,6 +124,9 @@ private struct CalendarMonthHeader: View {
     let month: Date
     let onPrevious: () -> Void
     let onNext: () -> Void
+    let onSelect: (Date) -> Void
+
+    @State private var isPickerPresented = false
 
     // 表示言語の切り替えに追従させるため static にしない。
     private var monthFormat: Date.FormatStyle {
@@ -125,17 +138,36 @@ private struct CalendarMonthHeader: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Text(month.formatted(monthFormat))
-                .font(.title2.bold())
-                .foregroundStyle(colors.onSurface)
-                .contentTransition(.numericText())
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
+            // 近い月は ＜＞ とスワイプ、遠い月はここから一気に飛ぶ。
+            // Apple のカレンダーや DatePicker と同じ組み合わせ。
+            Button {
+                isPickerPresented = true
+            } label: {
+                HStack(spacing: 4) {
+                    Text(month.formatted(monthFormat))
+                        .font(.title2.bold())
+                        .foregroundStyle(colors.onSurface)
+                        .contentTransition(.numericText())
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+
+                    Image(systemName: "chevron.down")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(colors.primary)
+                }
+                .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(L10n.selectMonthTitle)
+            .accessibilityIdentifier("monthHeader")
 
             Spacer(minLength: 0)
 
             monthButton(systemImage: "chevron.left", label: L10n.previousMonthTooltip, action: onPrevious)
             monthButton(systemImage: "chevron.right", label: L10n.nextMonthTooltip, action: onNext)
+        }
+        .sheet(isPresented: $isPickerPresented) {
+            MonthPickerSheet(month: month, onSelect: onSelect)
         }
     }
 
@@ -370,6 +402,102 @@ private struct SelectedDateGameSection: View {
 
     private func cardTitle(for game: Game) -> String {
         "\(store.teamName(for: game)) vs \(game.awayTeamName)"
+    }
+}
+
+/// 年と月だけを選ぶホイール。
+/// `DatePicker` の .wheel は日まで含んでしまうため、Picker を2つ並べる。
+private struct MonthPickerSheet: View {
+    @Environment(\.appColors) private var colors
+    @Environment(\.locale) private var locale
+    @Environment(\.dismiss) private var dismiss
+
+    let month: Date
+    let onSelect: (Date) -> Void
+
+    @State private var year: Int
+    @State private var monthNumber: Int
+
+    init(month: Date, onSelect: @escaping (Date) -> Void) {
+        self.month = month
+        self.onSelect = onSelect
+        let components = Calendar.current.dateComponents([.year, .month], from: month)
+        _year = State(initialValue: components.year ?? 2026)
+        _monthNumber = State(initialValue: components.month ?? 1)
+    }
+
+    /// 記録アプリなので未来は翌年まで、過去は10年前まで見られれば足りる。
+    private var years: [Int] {
+        let current = Calendar.current.component(.year, from: Date())
+        return Array((current - 10)...(current + 1))
+    }
+
+    private func monthLabel(_ number: Int) -> String {
+        var components = DateComponents()
+        components.year = year
+        components.month = number
+        guard let date = Calendar.current.date(from: components) else { return "\(number)" }
+        return date.formatted(
+            Date.FormatStyle(date: .omitted).month(.wide).locale(locale)
+        )
+    }
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Picker("", selection: $year) {
+                        ForEach(years, id: \.self) { value in
+                            Text(String(value)).tag(value)
+                        }
+                    }
+                    .pickerStyle(.wheel)
+                    .frame(maxWidth: .infinity)
+
+                    Picker("", selection: $monthNumber) {
+                        ForEach(1...12, id: \.self) { value in
+                            Text(monthLabel(value)).tag(value)
+                        }
+                    }
+                    .pickerStyle(.wheel)
+                    .frame(maxWidth: .infinity)
+                }
+                .labelsHidden()
+
+                Button {
+                    let today = Date()
+                    let components = Calendar.current.dateComponents([.year, .month], from: today)
+                    year = components.year ?? year
+                    monthNumber = components.month ?? monthNumber
+                } label: {
+                    Label(L10n.jumpToTodayButton, systemImage: "location")
+                        .font(.subheadline.weight(.semibold))
+                }
+                .tint(colors.primary)
+                .padding(.bottom, 8)
+            }
+            .navigationTitle(L10n.selectMonthTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(L10n.cancelButton) { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(L10n.doneButton) {
+                        var components = DateComponents()
+                        components.year = year
+                        components.month = monthNumber
+                        if let date = Calendar.current.date(from: components) {
+                            onSelect(date.monthKey)
+                        }
+                        dismiss()
+                    }
+                    .fontWeight(.semibold)
+                    .accessibilityIdentifier("confirmMonth")
+                }
+            }
+        }
+        .presentationDetents([.height(320)])
     }
 }
 
