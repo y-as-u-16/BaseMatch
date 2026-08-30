@@ -56,6 +56,16 @@ enum L10n {
     static var addGameButton: LocalizedStringResource { t("record.addGame") }
     static var selectedDateGamesTitle: LocalizedStringResource { t("record.selectedDateGames") }
     static var noGamesOnSelectedDate: LocalizedStringResource { t("record.noGamesOnDate") }
+    static var playerSectionTitle: LocalizedStringResource { t("player.sectionTitle") }
+    static var addPlayerButton: LocalizedStringResource { t("player.addButton") }
+    static var addPlayerTitle: LocalizedStringResource { t("player.addTitle") }
+    static var playerNameLabel: LocalizedStringResource { t("player.nameLabel") }
+    static var playerEmptyHint: LocalizedStringResource { t("player.empty") }
+    static var deletePlayerTitle: LocalizedStringResource { t("player.deleteTitle") }
+    static var deletePlayerMessage: LocalizedStringResource { t("player.deleteMessage") }
+    static var directInputLabel: LocalizedStringResource { t("player.directInput") }
+    static var statsFilterAllPlayers: LocalizedStringResource { t("stats.filterAllPlayers") }
+
     static var selectMonthTitle: LocalizedStringResource { t("record.selectMonth") }
     static var jumpToTodayButton: LocalizedStringResource { t("record.jumpToToday") }
     static var previousMonthTooltip: LocalizedStringResource { t("record.previousMonth") }

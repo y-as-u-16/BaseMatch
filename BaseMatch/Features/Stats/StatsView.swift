@@ -6,6 +6,14 @@ struct StatsView: View {
 
     @Binding var selection: AppTab
     @State private var period: StatsPeriod = .all
+    @State private var playerFilter: String?
+
+    /// 記録に出てくる選手名。絞り込みの選択肢。
+    private var recordedPlayerNames: [String] {
+        let names = store.plateAppearances.map(\.batterName)
+            + store.pitchingAppearances.map(\.pitcherName)
+        return Array(Set(names)).sorted()
+    }
 
     private var hasAnyRecord: Bool {
         !store.plateAppearances.isEmpty || !store.pitchingAppearances.isEmpty
@@ -40,14 +48,19 @@ struct StatsView: View {
             pitchingAppearances: store.pitchingAppearances,
             period: period
         )
-        let battingRows = stats.batting
-        let pitchingRows = stats.pitching
+        let battingRows = stats.batting.filter { playerFilter == nil || $0.playerName == playerFilter }
+        let pitchingRows = stats.pitching.filter { playerFilter == nil || $0.playerName == playerFilter }
 
         return ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 StatsPeriodSelector(
                     period: $period,
                     availableMonths: availableMonths(store.games)
+                )
+
+                PlayerFilterSelector(
+                    selected: $playerFilter,
+                    candidates: recordedPlayerNames
                 )
 
                 statsSection(title: L10n.battingStatsTitle, isEmpty: battingRows.isEmpty, emptyLabel: L10n.noBattingStatsLabel) {
@@ -249,6 +262,55 @@ private struct StatsPlayerCard: View {
                     .accessibilityElement(children: .combine)
                 }
             }
+        }
+    }
+}
+
+/// 選手ごとの絞り込み。StatsPeriodSelector と同じ見た目に揃える。
+private struct PlayerFilterSelector: View {
+    @Environment(\.appColors) private var colors
+
+    @Binding var selected: String?
+    let candidates: [String]
+
+    var body: some View {
+        if candidates.count > 1 {
+            HStack(spacing: 10) {
+                SelectionChip(
+                    title: L10n.statsFilterAllPlayers,
+                    systemImage: "person.2",
+                    isSelected: selected == nil
+                ) {
+                    selected = nil
+                }
+
+                Menu {
+                    ForEach(candidates, id: \.self) { name in
+                        Button(name) { selected = name }
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "person")
+                        Text(selected ?? String(localized: L10n.playerSectionTitle))
+                            .font(.subheadline.weight(.semibold))
+                            .lineLimit(1)
+                        Image(systemName: "chevron.up.chevron.down")
+                            .font(.caption2.weight(.semibold))
+                    }
+                    .foregroundStyle(selected == nil ? colors.onSurface : .white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .frame(maxWidth: .infinity)
+                    .background {
+                        Capsule(style: .continuous)
+                            .fill(selected == nil
+                                ? AnyShapeStyle(Color(.tertiarySystemFill))
+                                : AnyShapeStyle(colors.primary.gradient))
+                    }
+                }
+                .accessibilityIdentifier("playerFilter")
+            }
+            .sensoryFeedback(.selection, trigger: selected)
         }
     }
 }

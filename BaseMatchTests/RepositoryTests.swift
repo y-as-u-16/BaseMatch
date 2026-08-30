@@ -7,7 +7,7 @@ import Testing
 @MainActor
 private func makeContext() throws -> ModelContext {
     let container = try ModelContainer(
-        for: MyTeam.self, Game.self, PlateAppearance.self, PitchingAppearance.self,
+        for: MyTeam.self, Player.self, Game.self, PlateAppearance.self, PitchingAppearance.self,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
     return ModelContext(container)
@@ -103,6 +103,84 @@ struct MyTeamRepositoryTests {
         #expect(throws: AppError.self) {
             try repository.setDefaultMyTeam(id: "not-exist")
         }
+    }
+}
+
+@Suite("PlayerRepository")
+@MainActor
+struct PlayerRepositoryTests {
+    private func makeRepositories() throws -> (PlayerRepository, MyTeamRepository) {
+        let context = try makeContext()
+        return (PlayerRepository(context: context), MyTeamRepository(context: context))
+    }
+
+    @Test("選手を追加すると表示順が振られる")
+    func createPlayerAssignsOrder() throws {
+        let (players, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+
+        let first = try players.createPlayer(name: "  田中  ", myTeamId: team.id)
+        let second = try players.createPlayer(name: "佐藤", myTeamId: team.id)
+
+        #expect(first.name == "田中")
+        #expect(first.displayOrder == 0)
+        #expect(second.displayOrder == 1)
+        #expect(try players.players(myTeamId: team.id).count == 2)
+    }
+
+    @Test("空の名前は弾かれる")
+    func blankNameThrows() throws {
+        let (players, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+
+        #expect(throws: AppError.self) {
+            try players.createPlayer(name: "   ", myTeamId: team.id)
+        }
+    }
+
+    @Test("同じチームに同名は追加できない")
+    func duplicateNameInSameTeamThrows() throws {
+        let (players, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        _ = try players.createPlayer(name: "田中", myTeamId: team.id)
+
+        #expect(throws: AppError.self) {
+            try players.createPlayer(name: "田中", myTeamId: team.id)
+        }
+    }
+
+    @Test("別のチームなら同名でも追加できる")
+    func sameNameInOtherTeamIsAllowed() throws {
+        let (players, teams) = try makeRepositories()
+        let teamA = try teams.createMyTeam(name: "A")
+        let teamB = try teams.createMyTeam(name: "B")
+
+        _ = try players.createPlayer(name: "田中", myTeamId: teamA.id)
+        let other = try players.createPlayer(name: "田中", myTeamId: teamB.id)
+
+        #expect(other.name == "田中")
+        #expect(try players.players(myTeamId: teamB.id).count == 1)
+    }
+
+    @Test("選手を削除しても過去の記録は残る")
+    func deletingPlayerKeepsRecords() throws {
+        let context = try makeContext()
+        let players = PlayerRepository(context: context)
+        let teams = MyTeamRepository(context: context)
+        let games = GameRepository(context: context)
+
+        let team = try teams.createMyTeam(name: "A")
+        let player = try players.createPlayer(name: "田中", myTeamId: team.id)
+        let game = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+        _ = try games.addPlateAppearance(
+            gameId: game.id, batterName: "田中", resultType: .hit, resultDetail: .single
+        )
+
+        try players.deletePlayer(id: player.id)
+
+        // 記録は名前で持っているため、選手を消しても成績は失われない。
+        #expect(try players.players(myTeamId: team.id).isEmpty)
+        #expect(try games.plateAppearances().count == 1)
     }
 }
 

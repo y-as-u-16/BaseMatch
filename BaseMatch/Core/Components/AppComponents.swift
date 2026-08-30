@@ -440,3 +440,32 @@ extension View {
         }
     }
 }
+
+/// 登録済みの選手と過去に入力した名前から選ぶメニュー。
+/// 直接入力も残すため、TextField は置き換えず横に並べる。
+struct PlayerPickerMenu: View {
+    @Environment(\.appColors) private var colors
+
+    let candidates: [String]
+    let onSelect: (String) -> Void
+
+    var body: some View {
+        if candidates.isEmpty {
+            EmptyView()
+        } else {
+            Menu {
+                ForEach(candidates, id: \.self) { name in
+                    Button(name) { onSelect(name) }
+                }
+            } label: {
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(colors.primary)
+                    .frame(width: 44, height: 44)
+                    .contentShape(.rect)
+            }
+            .accessibilityLabel(L10n.playerSectionTitle)
+            .accessibilityIdentifier("playerPicker")
+        }
+    }
+}

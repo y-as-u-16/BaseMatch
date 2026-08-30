@@ -163,6 +163,60 @@
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "この日の試合はありません" } }
       }
     },
+    "player.sectionTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Players" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "選手" } }
+      }
+    },
+    "player.addButton" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Player" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "選手を追加" } }
+      }
+    },
+    "player.addTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "New Player" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "選手を追加" } }
+      }
+    },
+    "player.nameLabel" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Player name" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "選手名" } }
+      }
+    },
+    "player.empty" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add players to pick them when recording." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "選手を登録すると、記録するときに一覧から選べます。" } }
+      }
+    },
+    "player.deleteTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete this player?" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "この選手を削除しますか？" } }
+      }
+    },
+    "player.deleteMessage" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Past records are kept." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "過去の記録はそのまま残ります。" } }
+      }
+    },
+    "player.directInput" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter manually" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "直接入力" } }
+      }
+    },
+    "stats.filterAllPlayers" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All players" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "全選手" } }
+      }
+    },
     "record.selectMonth" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Select month" } },
