@@ -10,6 +10,11 @@ enum DemoDataSeeder {
         CommandLine.arguments.contains("-seedDemoData")
     }
 
+    /// ラインスコアの見た目を9回制でも確認できるようにする検証用スイッチ。
+    private static var inningsPerGame: Int {
+        CommandLine.arguments.contains("-seedNineInnings") ? 9 : 7
+    }
+
     /// 掲載画像は言語ごとに差し替えるため、名前も表示言語に合わせる。
     /// UI 文言ではないので String Catalog には載せない。
     private static var isEnglish: Bool {
@@ -46,16 +51,16 @@ enum DemoDataSeeder {
                 awayScore: plan.away,
                 status: .final_,
                 createdAt: date,
-                innings: 7
+                innings: Self.inningsPerGame
             )
             context.insert(game)
 
-            for (index, runs) in plan.homeInnings.enumerated() {
+            for (index, runs) in plan.homeInnings(count: Self.inningsPerGame).enumerated() {
                 context.insert(
                     InningScore(gameId: game.id, inning: index + 1, isHome: true, runs: runs)
                 )
             }
-            for (index, runs) in plan.awayInnings.enumerated() {
+            for (index, runs) in plan.awayInnings(count: Self.inningsPerGame).enumerated() {
                 context.insert(
                     InningScore(gameId: game.id, inning: index + 1, isHome: false, runs: runs)
                 )
@@ -137,22 +142,22 @@ private struct GamePlan {
     let away: Int
     let venue: String
 
-    /// 合計が home / away に一致する 7 回分の配分。
+    /// 合計が home / away に一致する配分。
     /// 序盤・中盤・終盤に散らしてラインスコアが単調にならないようにする。
-    var homeInnings: [Int] { Self.distribute(home) }
-    var awayInnings: [Int] { Self.distribute(away) }
+    func homeInnings(count: Int) -> [Int] { Self.distribute(home, count: count) }
+    func awayInnings(count: Int) -> [Int] { Self.distribute(away, count: count) }
 
-    private static func distribute(_ total: Int) -> [Int] {
-        var runs = [Int](repeating: 0, count: 7)
+    private static func distribute(_ total: Int, count: Int) -> [Int] {
+        var runs = [Int](repeating: 0, count: count)
         // 得点する回を散らすため、1回ずつ間隔を空けて置いていく。
         var inning = 0
         var remaining = total
         while remaining > 0 {
             let scored = min(remaining, inning == 3 ? 2 : 1)
-            runs[inning % 7] += scored
+            runs[inning % count] += scored
             remaining -= scored
             inning += 2
-            if inning >= 7 { inning = (inning % 7) + 1 }
+            if inning >= count { inning = (inning % count) + 1 }
         }
         return runs
     }
