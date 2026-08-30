@@ -62,6 +62,30 @@ final class Player {
     }
 }
 
+/// 1イニング分の得点。既存モデルに揃えて `gameId` の手動外部キーで繋ぐ。
+@Model
+final class InningScore {
+    @Attribute(.unique) var id: String = ""
+    var gameId: String = ""
+    var inning: Int = 1
+    var isHome: Bool = true
+    var runs: Int = 0
+
+    init(
+        id: String = UUID().uuidString,
+        gameId: String,
+        inning: Int,
+        isHome: Bool,
+        runs: Int
+    ) {
+        self.id = id
+        self.gameId = gameId
+        self.inning = inning
+        self.isHome = isHome
+        self.runs = runs
+    }
+}
+
 @Model
 final class Game {
     @Attribute(.unique) var id: String = ""

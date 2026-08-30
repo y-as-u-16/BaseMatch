@@ -83,6 +83,17 @@ enum L10n {
     static var scoreMustBeNonNegative: LocalizedStringResource { t("game.validation.scoreNonNegative") }
     static var locationOptionalLabel: LocalizedStringResource { t("game.field.locationOptional") }
     static var inningsCountLabel: LocalizedStringResource { t("game.field.inningsCount") }
+    static var inningScoresLabel: LocalizedStringResource { t("game.field.inningScores") }
+    static var inningScoresHint: LocalizedStringResource { t("game.field.inningScoresHint") }
+    static var topHalfLabel: LocalizedStringResource { t("game.field.topHalf") }
+    static var bottomHalfLabel: LocalizedStringResource { t("game.field.bottomHalf") }
+    static var totalScoreLabel: LocalizedStringResource { t("game.field.totalScore") }
+    static func inningNumberLabel(_ inning: Int) -> LocalizedStringResource {
+        t("game.field.inningNumber \(inning)")
+    }
+    static func inningRunsAccessibilityLabel(_ inning: Int, _ half: String) -> LocalizedStringResource {
+        t("game.field.inningRunsAccessibility \(inning) \(half)")
+    }
     static var createButton: LocalizedStringResource { t("common.create") }
     static var saveChangesButton: LocalizedStringResource { t("common.saveChanges") }
     static var gameUpdatedMessage: LocalizedStringResource { t("game.updatedMessage") }
@@ -94,6 +105,8 @@ enum L10n {
     static var addPitchingButton: LocalizedStringResource { t("game.detail.addPitching") }
     static var plateAppearanceRecordsTitle: LocalizedStringResource { t("game.detail.plateAppearances") }
     static var emptyPlateAppearances: LocalizedStringResource { t("game.detail.emptyPlateAppearances") }
+    static var lineScoreTitle: LocalizedStringResource { t("game.detail.lineScore") }
+    static var lineScoreTotalHeader: LocalizedStringResource { t("game.detail.lineScoreTotal") }
     static var pitchingRecordsTitle: LocalizedStringResource { t("game.detail.pitchingRecords") }
     static var emptyPitchingAppearances: LocalizedStringResource { t("game.detail.emptyPitching") }
 
