@@ -341,7 +341,7 @@ struct ScoreBoardView: View {
     let homeScore: Int
     let awayName: String
     let awayScore: Int
-    var resultLabel: String?
+    var resultLabel: LocalizedStringResource?
     var resultTint: Color?
     var compact = false
     var onDarkBackground = false
