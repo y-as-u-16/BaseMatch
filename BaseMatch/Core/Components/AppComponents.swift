@@ -43,7 +43,7 @@ struct PrimaryPanel<Content: View>: View {
 }
 
 struct SectionHeaderBar: View {
-    let title: String
+    let title: LocalizedStringResource
 
     var body: some View {
         Text(title)
@@ -70,9 +70,9 @@ struct CountBadge: View {
 }
 
 struct EmptyTextPanel: View {
-    let text: String
+    let text: LocalizedStringResource
 
-    init(_ text: String) { self.text = text }
+    init(_ text: LocalizedStringResource) { self.text = text }
 
     var body: some View {
         Text(text)
@@ -92,9 +92,9 @@ struct EmptyStateView: View {
     @Environment(\.appColors) private var colors
 
     let systemImage: String
-    let title: String
-    var subtitle: String?
-    var actionLabel: String?
+    let title: LocalizedStringResource
+    var subtitle: LocalizedStringResource?
+    var actionLabel: LocalizedStringResource?
     var action: (() -> Void)?
 
     var body: some View {
@@ -168,8 +168,8 @@ struct SecondaryActionButtonStyle: ButtonStyle {
 struct CounterRow: View {
     @Environment(\.appColors) private var colors
 
-    let label: String
-    let valueLabel: String
+    let label: LocalizedStringResource
+    let valueLabel: LocalizedStringResource
     var valueWidth: CGFloat = 72
     var emphasizeValue = true
     let onDecrease: () -> Void
@@ -219,7 +219,7 @@ struct CounterRow: View {
                 .contentShape(.capsule)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(systemImage == "plus" ? L10n.incrementAccessibilityLabel(label) : L10n.decrementAccessibilityLabel(label))
+        .accessibilityLabel(systemImage == "plus" ? L10n.incrementAccessibilityLabel(String(localized: label)) : L10n.decrementAccessibilityLabel(String(localized: label)))
     }
 }
 
@@ -246,7 +246,7 @@ struct StatValueText: View {
 struct SelectionChip: View {
     @Environment(\.appColors) private var colors
 
-    let title: String
+    let title: LocalizedStringResource
     var systemImage: String?
     var tint: Color?
     let isSelected: Bool
@@ -283,7 +283,7 @@ struct SelectionChip: View {
 
 /// グラス素材の Capsule ボタン。下部固定アクションやクイック操作に使う。
 struct GlassCapsuleButton: View {
-    let title: String
+    let title: LocalizedStringResource
     var systemImage: String?
     var isProminent = false
     var tint: Color?

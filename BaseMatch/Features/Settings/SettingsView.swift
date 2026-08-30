@@ -2,13 +2,16 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(AppStore.self) private var store
+    @Environment(AppSettings.self) private var settings
     @Environment(\.appColors) private var colors
     @Environment(\.dismiss) private var dismiss
 
     @State private var isCreateTeamPresented = false
 
     var body: some View {
-        List {
+        @Bindable var settings = settings
+
+        return List {
             Section {
                 ForEach(store.myTeams) { team in
                     MyTeamRow(team: team) {
@@ -32,6 +35,20 @@ struct SettingsView: View {
                 }
             }
 
+            Section(L10n.settingsAppearanceSection) {
+                Picker(L10n.settingsLanguage, selection: $settings.language) {
+                    ForEach(AppLanguage.allCases) { language in
+                        Text(language.label).tag(language)
+                    }
+                }
+
+                Picker(L10n.settingsTheme, selection: $settings.theme) {
+                    ForEach(AppThemeMode.allCases) { theme in
+                        Text(theme.label).tag(theme)
+                    }
+                }
+            }
+
             // App Review Guideline 5.1.1(i) がアプリ内からのアクセスを必須としている。
             Section(L10n.settingsAboutSection) {
                 Link(destination: Self.privacyPolicyURL) {
@@ -46,7 +63,11 @@ struct SettingsView: View {
                 }
                 .tint(colors.primary)
 
-                LabeledContent(L10n.settingsVersion, value: Self.appVersion)
+                LabeledContent {
+                    Text(Self.appVersion)
+                } label: {
+                    Text(L10n.settingsVersion)
+                }
             }
         }
         .listStyle(.insetGrouped)

@@ -17,8 +17,8 @@ struct CreateGameView: View {
 
     @State private var isPopulated = false
     @State private var isCreateMyTeamPresented = false
-    @State private var awayTeamNameError: String?
-    @State private var myTeamError: String?
+    @State private var awayTeamNameError: LocalizedStringResource?
+    @State private var myTeamError: LocalizedStringResource?
     @FocusState private var isTextFieldFocused: Bool
 
     private static let baseInningsOptions = [3, 5, 7, 9]
@@ -36,11 +36,11 @@ struct CreateGameView: View {
 
     private var isEditMode: Bool { editGameId != nil }
 
-    private var title: String {
+    private var title: LocalizedStringResource {
         isEditMode ? L10n.editGameTitle : L10n.createGameTitle
     }
 
-    private var submitLabel: String {
+    private var submitLabel: LocalizedStringResource {
         isEditMode ? L10n.saveChangesButton : L10n.createButton
     }
 
@@ -139,13 +139,13 @@ struct CreateGameView: View {
             )
             .datePickerStyle(.compact)
 
-            TextField(L10n.awayTeamNameLabel, text: $awayTeamName)
+            TextField(String(localized: L10n.awayTeamNameLabel), text: $awayTeamName)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .focused($isTextFieldFocused)
                 .onChange(of: awayTeamName) { _, _ in awayTeamNameError = nil }
 
-            TextField(L10n.locationOptionalLabel, text: $location)
+            TextField(String(localized: L10n.locationOptionalLabel), text: $location)
                 .textInputAutocapitalization(.never)
                 .focused($isTextFieldFocused)
         } header: {
@@ -279,7 +279,7 @@ struct CreateGameView: View {
 private struct ScoreStepperRow: View {
     @Environment(\.appColors) private var colors
 
-    let label: String
+    let label: LocalizedStringResource
     @Binding var value: Int
     let range: ClosedRange<Int>
 

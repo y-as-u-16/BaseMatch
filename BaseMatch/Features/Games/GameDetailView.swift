@@ -283,9 +283,9 @@ private struct GameDetailActionBar: View {
 private struct RecordSection<Content: View>: View {
     @Environment(\.appColors) private var colors
 
-    let title: String
+    let title: LocalizedStringResource
     let count: Int
-    let emptyText: String
+    let emptyText: LocalizedStringResource
     @ViewBuilder var content: Content
 
     var body: some View {
@@ -313,8 +313,8 @@ private struct RecordRow: View {
     let systemImage: String
     let tint: Color
     let title: String
-    let subtitle: String
-    let trailing: String
+    let subtitle: LocalizedStringResource
+    let trailing: LocalizedStringResource
     let trailingTint: Color
     let showsDivider: Bool
 

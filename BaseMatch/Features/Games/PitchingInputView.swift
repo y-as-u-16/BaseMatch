@@ -8,7 +8,7 @@ struct PitchingInputView: View {
     private let gameId: String?
     private let editRecordId: String?
 
-    @State private var pitcherName = L10n.defaultPlayerName
+    @State private var pitcherName = String(localized: L10n.defaultPlayerName)
     @State private var outsPitched = 3
     @State private var runs = 0
     @State private var earnedRuns = 0
@@ -16,7 +16,7 @@ struct PitchingInputView: View {
     @State private var walks = 0
     @State private var strikeouts = 0
     @State private var homeRunsAllowed = 0
-    @State private var alertMessage: String?
+    @State private var alertMessage: LocalizedStringResource?
     @State private var isPopulated = false
 
     init(gameId: String) {
@@ -99,7 +99,7 @@ struct PitchingInputView: View {
                     .foregroundStyle(.white.opacity(0.75))
 
                 StatValueText(
-                    value: L10n.inningsFromOuts(outsPitched),
+                    value: String(localized: L10n.inningsFromOuts(outsPitched)),
                     size: 48,
                     weight: .semibold,
                     color: .white
@@ -114,7 +114,7 @@ struct PitchingInputView: View {
                     .foregroundStyle(.white.opacity(0.75))
 
                 Text(L10n.pitchingInputSummary(
-                    L10n.inningsFromOuts(outsPitched),
+                    String(localized: L10n.inningsFromOuts(outsPitched)),
                     runs,
                     earnedRuns
                 ))
@@ -144,7 +144,7 @@ struct PitchingInputView: View {
                     .font(.caption)
                     .foregroundStyle(colors.onSurfaceVariant)
 
-                TextField(L10n.pitcherNameLabel, text: $pitcherName)
+                TextField(String(localized: L10n.pitcherNameLabel), text: $pitcherName)
                     .font(.body)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
@@ -183,7 +183,7 @@ struct PitchingInputView: View {
             columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)],
             spacing: 12
         ) {
-            ForEach(counters, id: \.label) { counter in
+            ForEach(counters, id: \.systemImage) { counter in
                 CompactCounterCard(
                     label: counter.label,
                     systemImage: counter.systemImage,
@@ -193,7 +193,7 @@ struct PitchingInputView: View {
         }
     }
 
-    private var counters: [(label: String, systemImage: String, value: Binding<Int>)] {
+    private var counters: [(label: LocalizedStringResource, systemImage: String, value: Binding<Int>)] {
         [
             (L10n.runsLabel, "arrow.down.circle", $runs),
             (L10n.earnedRunsLabel, "exclamationmark.circle", $earnedRuns),
@@ -272,7 +272,7 @@ struct PitchingInputView: View {
 private struct CompactCounterCard: View {
     @Environment(\.appColors) private var colors
 
-    let label: String
+    let label: LocalizedStringResource
     let systemImage: String
     @Binding var value: Int
 
@@ -325,6 +325,6 @@ private struct CompactCounterCard: View {
                 .contentShape(.capsule)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(systemImage == "plus" ? L10n.incrementAccessibilityLabel(label) : L10n.decrementAccessibilityLabel(label))
+        .accessibilityLabel(systemImage == "plus" ? L10n.incrementAccessibilityLabel(String(localized: label)) : L10n.decrementAccessibilityLabel(String(localized: label)))
     }
 }

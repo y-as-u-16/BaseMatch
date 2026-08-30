@@ -619,6 +619,42 @@
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "デフォルト" } }
       }
     },
+    "settings.appearanceSection" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Language & Appearance" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "言語と外観" } }
+      }
+    },
+    "settings.language" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Language" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "言語" } }
+      }
+    },
+    "settings.theme" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Appearance" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "外観" } }
+      }
+    },
+    "settings.followSystem" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "System" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "システムに従う" } }
+      }
+    },
+    "settings.themeLight" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Light" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ライト" } }
+      }
+    },
+    "settings.themeDark" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dark" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ダーク" } }
+      }
+    },
     "common.edit" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit" } },
