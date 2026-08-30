@@ -79,6 +79,7 @@ struct GameRecordCard: View {
 
     let game: Game
     let title: String
+    var showsResultAccent = false
 
     private var homeScore: Int { game.homeScore ?? 0 }
     private var awayScore: Int { game.awayScore ?? 0 }
@@ -97,6 +98,11 @@ struct GameRecordCard: View {
         }
     }
 
+    /// 負けは中立色のため、強く出すと画面が濁る。効いている結果だけ濃く出す。
+    private var accentStrength: Double {
+        !isDraft && result == .loss ? 0.45 : 1
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
@@ -113,7 +119,14 @@ struct GameRecordCard: View {
                     .foregroundStyle(badgeTint)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 3)
-                    .background(badgeTint.opacity(0.14), in: .capsule)
+                    .background {
+                        Capsule(style: .continuous)
+                            .fill(badgeTint.opacity(0.14))
+                            .overlay {
+                                Capsule(style: .continuous)
+                                    .strokeBorder(badgeTint.opacity(0.28), lineWidth: 0.5)
+                            }
+                    }
 
                 Image(systemName: "chevron.right")
                     .font(.caption.weight(.semibold))
@@ -141,7 +154,39 @@ struct GameRecordCard: View {
                     .lineLimit(1)
             }
         }
-        .cardStyle()
+        .padding(16)
+        .padding(.leading, showsResultAccent ? 6 : 0)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background { cardSurface }
+        .clipShape(.rect(cornerRadius: AppTheme.cardCornerRadius, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: AppTheme.cardCornerRadius, style: .continuous)
+                .strokeBorder(colors.cardBorder, lineWidth: colors.cardBorderWidth)
+        }
+        .shadow(color: colors.cardShadow, radius: 10, y: 4)
         .contentShape(.rect(cornerRadius: AppTheme.cardCornerRadius, style: .continuous))
+    }
+
+    /// 勝敗を文字より先に伝える左端の帯と、平坦さを消すための淡い色被り。
+    @ViewBuilder
+    private var cardSurface: some View {
+        if showsResultAccent {
+            colors.cardBackground
+                .overlay {
+                    LinearGradient(
+                        colors: [badgeTint.opacity(accentStrength * 0.14), .clear],
+                        startPoint: .leading,
+                        endPoint: UnitPoint(x: 0.5, y: 0.5)
+                    )
+                }
+                .overlay(alignment: .leading) {
+                    Rectangle()
+                        .fill(badgeTint.gradient)
+                        .frame(width: 6)
+                        .opacity(accentStrength)
+                }
+        } else {
+            colors.cardBackground
+        }
     }
 }

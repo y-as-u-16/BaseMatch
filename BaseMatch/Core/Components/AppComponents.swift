@@ -37,6 +37,15 @@ struct PrimaryPanel<Content: View>: View {
             .background {
                 HeroBackground(colorScheme: colorScheme)
                     .overlay(.black.opacity(colorScheme == .dark ? 0.1 : 0))
+                    // 濃色面が単色に見えないよう、上端に光を当てて厚みを作る。
+                    .overlay(alignment: .top) {
+                        LinearGradient(
+                            colors: [.white.opacity(0.16), .clear],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(height: 96)
+                    }
             }
             .clipShape(.rect(cornerRadius: AppTheme.heroCornerRadius, style: .continuous))
             .shadow(color: AppTheme.fieldGreen.opacity(colorScheme == .dark ? 0.35 : 0.22), radius: 16, y: 10)

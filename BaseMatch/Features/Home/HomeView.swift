@@ -331,6 +331,20 @@ private struct DraftGameCard: View {
         PrimaryPanel(padding: EdgeInsets(top: 18, leading: 18, bottom: 18, trailing: 18)) {
             content
         }
+        // 進行中であることを色で伝えるため、バッジと同系の熱を上端に灯す。
+        .overlay {
+            RoundedRectangle(cornerRadius: AppTheme.heroCornerRadius, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [colors.tertiary.opacity(0.55), .white.opacity(0.12)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+                .allowsHitTesting(false)
+        }
+        .shadow(color: colors.tertiary.opacity(0.28), radius: 14, y: 6)
     }
 
     private var content: some View {
@@ -353,7 +367,7 @@ private struct DraftGameCard: View {
             }
 
             Text(title)
-                .font(.headline)
+                .font(.title3.weight(.bold))
                 .foregroundStyle(.white)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
@@ -383,75 +397,171 @@ private struct DraftGameCard: View {
 /// デフォルト選手の今季成績。数字だけでなく連続安打を添えて動機づけにする。
 struct HomePlayerHighlightSection: View {
     @Environment(\.appColors) private var colors
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     let highlight: PlayerHighlight
+
+    private var isLargeText: Bool { dynamicTypeSize >= .accessibility1 }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             SectionHeaderBar(title: L10n.homePlayerSectionTitle)
 
-            VStack(alignment: .leading, spacing: 16) {
-                Text(highlight.playerName)
-                    .font(.headline)
-                    .foregroundStyle(colors.onSurface)
-                    .lineLimit(1)
+            VStack(alignment: .leading, spacing: 18) {
+                playerRow
 
-                HStack(spacing: 0) {
-                    metricColumn(
-                        label: L10n.seasonAverageMetricLabel,
-                        value: highlight.batting.averageLabel,
-                        emphasized: true
-                    )
-                    metricColumn(
-                        label: L10n.homePlayerHitsLabel,
-                        value: "\(highlight.batting.hits)"
-                    )
-                    metricColumn(
-                        label: L10n.homePlayerHomeRunsLabel,
-                        value: "\(highlight.batting.hr)"
-                    )
-                    metricColumn(
-                        label: L10n.homePlayerOpsLabel,
-                        value: highlight.batting.opsLabel,
-                        emphasized: true
-                    )
-                }
+                averageFeature
+
+                Divider()
+                    .overlay(colors.outlineVariant)
+
+                supportingMetrics
 
                 // 1試合では「連続」と言えないため、2試合以上のときだけ出す。
                 if highlight.hitStreak >= 2 {
-                    Label(
-                        String(localized: L10n.homePlayerHitStreak(highlight.hitStreak)),
-                        systemImage: "flame.fill"
-                    )
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(colors.gold)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(colors.gold.opacity(0.14), in: .capsule)
+                    streakChip
                 }
             }
-            .cardStyle(padding: 20)
+            .padding(20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background { cardSurface }
+            .clipShape(.rect(cornerRadius: AppTheme.cardCornerRadius, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: AppTheme.cardCornerRadius, style: .continuous)
+                    .strokeBorder(colors.cardBorder, lineWidth: colors.cardBorderWidth)
+            }
+            .shadow(color: colors.cardShadow, radius: 14, y: 6)
             .accessibilityIdentifier("playerHighlight")
         }
     }
 
+    /// 白いカードを平坦に見せないため、主役の数値側にブランド色の淡い光を差す。
+    private var cardSurface: some View {
+        colors.cardBackground
+            .overlay {
+                RadialGradient(
+                    colors: [colors.primary.opacity(0.16), .clear],
+                    center: UnitPoint(x: 0.08, y: 0.42),
+                    startRadius: 0,
+                    endRadius: 260
+                )
+            }
+            .overlay(alignment: .topTrailing) {
+                RadialGradient(
+                    colors: [colors.gold.opacity(0.12), .clear],
+                    center: .topTrailing,
+                    startRadius: 0,
+                    endRadius: 190
+                )
+            }
+    }
+
+    private var playerRow: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "person.crop.circle.fill")
+                .font(.system(size: 34))
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(colors.onPrimary, colors.primary.gradient)
+
+            Text(highlight.playerName)
+                .font(.title3.weight(.bold))
+                .foregroundStyle(colors.onSurface)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+
+            Spacer(minLength: 0)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    /// 打率をカードの主役に据える。3秒で読める1つの数字を作るため他項目より大きくする。
+    private var averageFeature: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            StatValueText(
+                value: highlight.batting.averageLabel,
+                size: isLargeText ? 44 : 56,
+                weight: .heavy,
+                color: colors.primary
+            )
+            .lineLimit(1)
+            .minimumScaleFactor(0.5)
+
+            Text(L10n.seasonAverageMetricLabel)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(colors.onSurfaceVariant)
+                .lineLimit(1)
+
+            Spacer(minLength: 0)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private var supportingMetrics: some View {
+        HStack(spacing: 0) {
+            metricColumn(
+                label: L10n.homePlayerHitsLabel,
+                value: "\(highlight.batting.hits)"
+            )
+
+            metricDivider
+
+            metricColumn(
+                label: L10n.homePlayerHomeRunsLabel,
+                value: "\(highlight.batting.hr)"
+            )
+
+            metricDivider
+
+            metricColumn(
+                label: L10n.homePlayerOpsLabel,
+                value: highlight.batting.opsLabel
+            )
+        }
+    }
+
+    private var metricDivider: some View {
+        Divider()
+            .overlay(colors.outlineVariant)
+            .frame(height: 30)
+    }
+
+    private var streakChip: some View {
+        Label(
+            String(localized: L10n.homePlayerHitStreak(highlight.hitStreak)),
+            systemImage: "flame.fill"
+        )
+        .font(.subheadline.weight(.bold))
+        // gold は明度が高く白文字が沈むため、ライト／ダークとも濃色を載せる。
+        .foregroundStyle(colors.onGold)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background {
+            Capsule(style: .continuous)
+                .fill(colors.gold.gradient)
+                .overlay {
+                    Capsule(style: .continuous)
+                        .strokeBorder(.white.opacity(0.3), lineWidth: 0.5)
+                }
+        }
+        .shadow(color: colors.gold.opacity(0.35), radius: 8, y: 3)
+    }
+
     private func metricColumn(
         label: LocalizedStringResource,
-        value: String,
-        emphasized: Bool = false
+        value: String
     ) -> some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 3) {
             StatValueText(
                 value: value,
-                size: 24,
+                size: 22,
                 weight: .semibold,
-                color: emphasized ? colors.primary : colors.onSurface
+                color: colors.onSurface
             )
             .lineLimit(1)
             .minimumScaleFactor(0.5)
 
             Text(label)
-                .font(.caption)
+                .font(.caption.weight(.medium))
                 .foregroundStyle(colors.onSurfaceVariant)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
@@ -476,7 +586,11 @@ struct HomeRecentGamesSection: View {
             } else {
                 ForEach(games) { game in
                     NavigationLink(value: GameRoute.detail(gameId: game.id)) {
-                        GameRecordCard(game: game, title: cardTitle(for: game))
+                        GameRecordCard(
+                            game: game,
+                            title: cardTitle(for: game),
+                            showsResultAccent: true
+                        )
                     }
                     .buttonStyle(.plain)
                     .listItemTransition()
