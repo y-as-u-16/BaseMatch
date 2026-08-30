@@ -264,7 +264,17 @@ struct PitchingInputView: View {
     }
 
     private func populateIfNeeded() {
-        guard !isPopulated, let record = editingRecord else { return }
+        guard !isPopulated else { return }
+
+        guard let record = editingRecord else {
+            // 新規入力はデフォルト選手から始める。毎回選び直させない。
+            if let name = defaultName {
+                isPopulated = true
+                pitcherName = name
+            }
+            return
+        }
+
         isPopulated = true
         pitcherName = record.pitcherName
         outsPitched = record.outsPitched
@@ -274,6 +284,11 @@ struct PitchingInputView: View {
         walks = record.walks
         strikeouts = record.strikeouts
         homeRunsAllowed = record.homeRunsAllowed
+    }
+
+    private var defaultName: String? {
+        let myTeamId = gameId.flatMap { store.game(id: $0)?.myTeamId }
+        return store.defaultPlayerName(myTeamId: myTeamId)
     }
 }
 

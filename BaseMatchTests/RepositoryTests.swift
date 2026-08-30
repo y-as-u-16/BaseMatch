@@ -176,12 +176,66 @@ struct PlayerRepositoryTests {
         _ = try games.addPlateAppearance(
             gameId: game.id, batterName: "田中", resultType: .hit, resultDetail: .single
         )
-
+        _ = try games.addPitchingAppearance(
+            gameId: game.id, pitcherName: "田中", outsPitched: 3,
+            runs: 0, earnedRuns: 0, hitsAllowed: 0, walks: 0, strikeouts: 1, homeRunsAllowed: 0
+        )
         try players.deletePlayer(id: player.id)
 
-        // 記録は名前で持っているため、選手を消しても成績は失われない。
+        // 名簿からは消えるが、チームの通算成績が変わらないよう記録は残す。
         #expect(try players.players(myTeamId: team.id).isEmpty)
         #expect(try games.plateAppearances().count == 1)
+        #expect(try games.pitchingAppearances().count == 1)
+    }
+
+    @Test("選手名を変更すると過去の記録も追従する")
+    func renamingPlayerUpdatesRecords() throws {
+        let context = try makeContext()
+        let players = PlayerRepository(context: context)
+        let teams = MyTeamRepository(context: context)
+        let games = GameRepository(context: context)
+
+        let team = try teams.createMyTeam(name: "A")
+        let player = try players.createPlayer(name: "田中", myTeamId: team.id)
+        let game = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+        _ = try games.addPlateAppearance(
+            gameId: game.id, batterName: "田中", resultType: .hit, resultDetail: .single
+        )
+
+        try players.renamePlayer(id: player.id, name: "田中太郎", myTeamId: team.id)
+
+        // 記録は名前で紐づくため、改名したら記録側も直さないと成績が分断される。
+        #expect(try players.players(myTeamId: team.id).first?.name == "田中太郎")
+        #expect(try games.plateAppearances().first?.batterName == "田中太郎")
+    }
+
+    @Test("改名で同名が生まれる場合は弾かれる")
+    func renamingToDuplicateThrows() throws {
+        let (players, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        _ = try players.createPlayer(name: "田中", myTeamId: team.id)
+        let second = try players.createPlayer(name: "佐藤", myTeamId: team.id)
+
+        #expect(throws: AppError.self) {
+            try players.renamePlayer(id: second.id, name: "田中", myTeamId: team.id)
+        }
+    }
+
+    @Test("デフォルト選手は1人だけ")
+    func defaultPlayerIsExclusive() throws {
+        let (players, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let first = try players.createPlayer(name: "田中", myTeamId: team.id)
+        let second = try players.createPlayer(name: "佐藤", myTeamId: team.id)
+
+        // 最初の選手は自動的にデフォルト。
+        #expect(first.isDefault)
+        #expect(!second.isDefault)
+
+        try players.setDefaultPlayer(id: second.id, myTeamId: team.id)
+
+        #expect(!first.isDefault)
+        #expect(second.isDefault)
     }
 }
 
@@ -750,5 +804,75 @@ struct LegacyGameCompatibilityTests {
         #expect(try games.inningScores(gameId: game.id).count == 6)
         let updated = try #require(try games.game(id: game.id))
         #expect(updated.homeScore == 0)
+    }
+}
+
+@Suite("チームの編集・削除")
+@MainActor
+struct MyTeamEditingTests {
+    @Test("チームを削除すると試合と記録も消える")
+    func deletingTeamRemovesGamesAndRecords() throws {
+        let context = try makeContext()
+        let teams = MyTeamRepository(context: context)
+        let players = PlayerRepository(context: context)
+        let games = GameRepository(context: context)
+
+        let target = try teams.createMyTeam(name: "A")
+        let other = try teams.createMyTeam(name: "B")
+        _ = try players.createPlayer(name: "田中", myTeamId: target.id)
+
+        let game = try games.createGame(date: Date(), myTeamId: target.id, awayTeamName: "相手")
+        _ = try games.addPlateAppearance(
+            gameId: game.id, batterName: "田中", resultType: .hit, resultDetail: .single
+        )
+        try games.replaceInningScores(gameId: game.id, home: [1], away: [0])
+
+        // 別チームの試合は巻き添えにしない。
+        let keptGame = try games.createGame(date: Date(), myTeamId: other.id, awayTeamName: "別")
+
+        try teams.deleteMyTeam(id: target.id, gameRepository: games, playerRepository: players)
+
+        #expect(try teams.myTeams().map(\.id) == [other.id])
+        #expect(try games.games().map(\.id) == [keptGame.id])
+        #expect(try games.plateAppearances().isEmpty)
+        #expect(try games.inningScores(gameId: game.id).isEmpty)
+        #expect(try players.players(myTeamId: target.id).isEmpty)
+    }
+
+    @Test("削除後は残ったチームがデフォルトになる")
+    func deletingDefaultTeamPromotesAnother() throws {
+        let context = try makeContext()
+        let teams = MyTeamRepository(context: context)
+        let players = PlayerRepository(context: context)
+        let games = GameRepository(context: context)
+
+        let first = try teams.createMyTeam(name: "A")
+        let second = try teams.createMyTeam(name: "B")
+        #expect(first.isDefault)
+
+        try teams.deleteMyTeam(id: first.id, gameRepository: games, playerRepository: players)
+
+        // デフォルトが居なくなると試合作成で自チームを選べなくなる。
+        #expect(try teams.defaultMyTeam()?.id == second.id)
+    }
+
+    @Test("チーム名を変更できる")
+    func renamingTeam() throws {
+        let teams = MyTeamRepository(context: try makeContext())
+        let team = try teams.createMyTeam(name: "A")
+
+        try teams.renameMyTeam(id: team.id, name: "  ホークス  ")
+
+        #expect(try teams.myTeams().first?.name == "ホークス")
+    }
+
+    @Test("空の名前への変更は弾かれる")
+    func renamingToBlankThrows() throws {
+        let teams = MyTeamRepository(context: try makeContext())
+        let team = try teams.createMyTeam(name: "A")
+
+        #expect(throws: AppError.self) {
+            try teams.renameMyTeam(id: team.id, name: "   ")
+        }
     }
 }

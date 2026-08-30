@@ -207,6 +207,18 @@ enum L10n {
     static var deletePlateAppearanceTitle: LocalizedStringResource { t("plateAppearance.delete.title") }
     static var deletePitchingTitle: LocalizedStringResource { t("pitching.delete.title") }
 
+    static var renameMyTeamAction: LocalizedStringResource { t("myTeam.renameAction") }
+    static var renameMyTeamTitle: LocalizedStringResource { t("myTeam.renameTitle") }
+    static var deleteMyTeamTitle: LocalizedStringResource { t("myTeam.deleteTitle") }
+    static var deleteMyTeamMessage: LocalizedStringResource { t("myTeam.deleteMessage") }
+    static var deleteMyTeamLastHint: LocalizedStringResource { t("myTeam.deleteLastHint") }
+
+    static var renamePlayerAction: LocalizedStringResource { t("player.renameAction") }
+    static var renamePlayerTitle: LocalizedStringResource { t("player.renameTitle") }
+    static var setDefaultPlayerAction: LocalizedStringResource { t("player.setDefaultAction") }
+    static var setDefaultPlayerHint: LocalizedStringResource { t("player.setDefaultHint") }
+    static var defaultPlayerBadge: LocalizedStringResource { t("player.defaultBadge") }
+
     static var defaultMyTeamBadge: LocalizedStringResource { t("myTeam.defaultBadge") }
     static var setDefaultMyTeamHint: LocalizedStringResource { t("myTeam.setDefaultHint") }
     static var setDefaultMyTeamAccessibility: LocalizedStringResource { t("myTeam.setDefaultAccessibility") }

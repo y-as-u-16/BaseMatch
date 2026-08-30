@@ -193,6 +193,36 @@
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "選手を登録すると、記録するときに一覧から選べます。" } }
       }
     },
+    "player.renameAction" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rename" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "名前を変更" } }
+      }
+    },
+    "player.renameTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rename Player" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "選手名を変更" } }
+      }
+    },
+    "player.setDefaultAction" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Set as Default" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "デフォルトにする" } }
+      }
+    },
+    "player.setDefaultHint" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Touch and hold a player to rename, set as default, or delete." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "選手を長押しすると、名前の変更・デフォルト指定・削除ができます。" } }
+      }
+    },
+    "player.defaultBadge" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "デフォルト" } }
+      }
+    },
     "player.deleteTitle" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete this player?" } },
@@ -731,6 +761,36 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "You need your own team before you can create a game." } },
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "試合を作成するには、先に自分のチームが必要です。" } }
+      }
+    },
+    "myTeam.renameAction" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rename" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "名前を変更" } }
+      }
+    },
+    "myTeam.renameTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rename Team" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "チーム名を変更" } }
+      }
+    },
+    "myTeam.deleteTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete this team?" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "このチームを削除しますか？" } }
+      }
+    },
+    "myTeam.deleteMessage" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All games, at-bats, and pitching records for this team will also be deleted. This cannot be undone." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "このチームの試合・打席・投球記録もすべて削除されます。取り消せません。" } }
+      }
+    },
+    "myTeam.deleteLastHint" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The last team cannot be deleted." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "最後の1チームは削除できません。" } }
       }
     },
     "myTeam.defaultBadge" : {

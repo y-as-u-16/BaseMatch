@@ -100,13 +100,16 @@ final class AppStore {
         players.filter { $0.myTeamId == myTeamId }
     }
 
-    /// 記録入力の候補。所属選手に加え、過去に入力された名前も拾う。
-    /// Player を作る前に入れた記録の名前が候補から漏れないようにする。
+    /// 記録入力の候補。名簿に載っている選手だけを出す。
+    /// 削除した選手の記録は残るが、候補に出続けると消したつもりが伝わらない。
     func playerNameSuggestions(myTeamId: String?) -> [String] {
-        let registered = myTeamId.map { players(myTeamId: $0).map(\.name) } ?? []
-        let recorded = plateAppearances.map(\.batterName) + pitchingAppearances.map(\.pitcherName)
-        var seen = Set<String>()
-        return (registered + recorded).filter { seen.insert($0).inserted }
+        guard let myTeamId else { return [] }
+        return players(myTeamId: myTeamId).map(\.name)
+    }
+
+    func defaultPlayerName(myTeamId: String?) -> String? {
+        guard let myTeamId else { return nil }
+        return players(myTeamId: myTeamId).first { $0.isDefault }?.name
     }
 
     @discardableResult
@@ -122,6 +125,45 @@ final class AppStore {
         perform {
             try playerRepository.deletePlayer(id: id)
             players = try playerRepository.allPlayers()
+        }
+    }
+
+    func renamePlayer(id: String, name: String, myTeamId: String) {
+        perform {
+            try playerRepository.renamePlayer(id: id, name: name, myTeamId: myTeamId)
+            players = try playerRepository.allPlayers()
+            plateAppearances = try gameRepository.plateAppearances()
+            pitchingAppearances = try gameRepository.pitchingAppearances()
+        }
+    }
+
+    func setDefaultPlayer(id: String, myTeamId: String) {
+        perform {
+            try playerRepository.setDefaultPlayer(id: id, myTeamId: myTeamId)
+            players = try playerRepository.allPlayers()
+        }
+    }
+
+    func renameMyTeam(id: String, name: String) {
+        perform {
+            try myTeamRepository.renameMyTeam(id: id, name: name)
+            myTeams = try myTeamRepository.myTeams()
+        }
+    }
+
+    func deleteMyTeam(id: String) {
+        perform {
+            try myTeamRepository.deleteMyTeam(
+                id: id,
+                gameRepository: gameRepository,
+                playerRepository: playerRepository
+            )
+            myTeams = try myTeamRepository.myTeams()
+            players = try playerRepository.allPlayers()
+            games = try gameRepository.games()
+            plateAppearances = try gameRepository.plateAppearances()
+            pitchingAppearances = try gameRepository.pitchingAppearances()
+            inningScores = try gameRepository.allInningScores()
         }
     }
 
