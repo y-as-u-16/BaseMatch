@@ -163,6 +163,18 @@
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "この日の試合はありません" } }
       }
     },
+    "record.selectMonth" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select month" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "年月を選ぶ" } }
+      }
+    },
+    "record.jumpToToday" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Today" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "今日" } }
+      }
+    },
     "record.previousMonth" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Previous month" } },

@@ -56,6 +56,8 @@ enum L10n {
     static var addGameButton: LocalizedStringResource { t("record.addGame") }
     static var selectedDateGamesTitle: LocalizedStringResource { t("record.selectedDateGames") }
     static var noGamesOnSelectedDate: LocalizedStringResource { t("record.noGamesOnDate") }
+    static var selectMonthTitle: LocalizedStringResource { t("record.selectMonth") }
+    static var jumpToTodayButton: LocalizedStringResource { t("record.jumpToToday") }
     static var previousMonthTooltip: LocalizedStringResource { t("record.previousMonth") }
     static var nextMonthTooltip: LocalizedStringResource { t("record.nextMonth") }
 
