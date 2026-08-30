@@ -35,6 +35,12 @@ struct PitchingInputView: View {
         editRecordId.flatMap { store.pitchingAppearance(id: $0) }
     }
 
+    private var candidates: [String] {
+        let targetGameId = gameId ?? editingRecord?.gameId
+        let myTeamId = targetGameId.flatMap { store.game(id: $0)?.myTeamId }
+        return store.playerNameSuggestions(myTeamId: myTeamId)
+    }
+
     var body: some View {
         Group {
             if isEditMode, editingRecord == nil {
@@ -149,6 +155,8 @@ struct PitchingInputView: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
             }
+
+            PlayerPickerMenu(candidates: candidates) { pitcherName = $0 }
         }
         .cardStyle()
     }

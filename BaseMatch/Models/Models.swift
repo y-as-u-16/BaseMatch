@@ -33,6 +33,35 @@ final class MyTeam {
     }
 }
 
+/// チームに所属する選手。
+/// 打席・投球記録とは `name` の一致で結び付く。既存の記録は名前だけを
+/// 持っているため、ID 参照にすると移行が必要になる。
+@Model
+final class Player {
+    @Attribute(.unique) var id: String = ""
+    var name: String = ""
+    var myTeamId: String = ""
+    var displayOrder: Int = 0
+    var archivedAt: Date?
+    var createdAt: Date = Date()
+
+    init(
+        id: String = UUID().uuidString,
+        name: String,
+        myTeamId: String,
+        displayOrder: Int = 0,
+        archivedAt: Date? = nil,
+        createdAt: Date = Date()
+    ) {
+        self.id = id
+        self.name = name
+        self.myTeamId = myTeamId
+        self.displayOrder = displayOrder
+        self.archivedAt = archivedAt
+        self.createdAt = createdAt
+    }
+}
+
 @Model
 final class Game {
     @Attribute(.unique) var id: String = ""

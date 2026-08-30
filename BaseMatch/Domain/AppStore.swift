@@ -12,15 +12,18 @@ final class AppStore {
     private(set) var plateAppearances: [PlateAppearance] = []
     private(set) var pitchingAppearances: [PitchingAppearance] = []
     private(set) var myTeams: [MyTeam] = []
+    private(set) var players: [Player] = []
     private(set) var isLoaded = false
     var errorMessage: String?
 
     private let gameRepository: GameRepository
     private let myTeamRepository: MyTeamRepository
+    private let playerRepository: PlayerRepository
 
     init(context: ModelContext) {
         self.gameRepository = GameRepository(context: context)
         self.myTeamRepository = MyTeamRepository(context: context)
+        self.playerRepository = PlayerRepository(context: context)
     }
 
     /// 日付降順（移行元の gamesProvider と同じ並び）。
@@ -66,7 +69,37 @@ final class AppStore {
             plateAppearances = try gameRepository.plateAppearances()
             pitchingAppearances = try gameRepository.pitchingAppearances()
             myTeams = try myTeamRepository.myTeams()
+            players = try playerRepository.allPlayers()
             isLoaded = true
+        }
+    }
+
+    func players(myTeamId: String) -> [Player] {
+        players.filter { $0.myTeamId == myTeamId }
+    }
+
+    /// 記録入力の候補。所属選手に加え、過去に入力された名前も拾う。
+    /// Player を作る前に入れた記録の名前が候補から漏れないようにする。
+    func playerNameSuggestions(myTeamId: String?) -> [String] {
+        let registered = myTeamId.map { players(myTeamId: $0).map(\.name) } ?? []
+        let recorded = plateAppearances.map(\.batterName) + pitchingAppearances.map(\.pitcherName)
+        var seen = Set<String>()
+        return (registered + recorded).filter { seen.insert($0).inserted }
+    }
+
+    @discardableResult
+    func createPlayer(name: String, myTeamId: String) -> Player? {
+        perform {
+            let player = try playerRepository.createPlayer(name: name, myTeamId: myTeamId)
+            players = try playerRepository.allPlayers()
+            return player
+        }
+    }
+
+    func deletePlayer(id: String) {
+        perform {
+            try playerRepository.deletePlayer(id: id)
+            players = try playerRepository.allPlayers()
         }
     }
 

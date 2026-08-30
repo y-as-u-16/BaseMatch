@@ -7,6 +7,8 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var isCreateTeamPresented = false
+    @State private var teamForNewPlayer: MyTeam?
+    @State private var playerToDelete: Player?
 
     var body: some View {
         @Bindable var settings = settings
@@ -32,6 +34,33 @@ struct SettingsView: View {
                     Text(L10n.settingsMyTeamEmpty)
                 } else {
                     Text(L10n.setDefaultMyTeamHint)
+                }
+            }
+
+            ForEach(store.myTeams) { team in
+                Section {
+                    ForEach(store.players(myTeamId: team.id)) { player in
+                        Text(player.name)
+                            .foregroundStyle(colors.onSurface)
+                            .contextMenu {
+                                Button(L10n.deleteButton, systemImage: "trash", role: .destructive) {
+                                    playerToDelete = player
+                                }
+                            }
+                    }
+
+                    Button {
+                        teamForNewPlayer = team
+                    } label: {
+                        Label(L10n.addPlayerButton, systemImage: "person.badge.plus")
+                            .foregroundStyle(colors.primary)
+                    }
+                } header: {
+                    Text("\(team.name) — \(String(localized: L10n.playerSectionTitle))")
+                } footer: {
+                    if store.players(myTeamId: team.id).isEmpty {
+                        Text(L10n.playerEmptyHint)
+                    }
                 }
             }
 
@@ -81,6 +110,27 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $isCreateTeamPresented) {
             CreateMyTeamSheet()
+        }
+        .sheet(item: $teamForNewPlayer) { team in
+            CreatePlayerSheet(myTeamId: team.id)
+        }
+        .confirmationDialog(
+            L10n.deletePlayerTitle,
+            isPresented: .init(
+                get: { playerToDelete != nil },
+                set: { if !$0 { playerToDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(L10n.deleteButton, role: .destructive) {
+                if let target = playerToDelete {
+                    store.deletePlayer(id: target.id)
+                }
+                playerToDelete = nil
+            }
+            Button(L10n.cancelButton, role: .cancel) { playerToDelete = nil }
+        } message: {
+            Text(L10n.deletePlayerMessage)
         }
     }
 
