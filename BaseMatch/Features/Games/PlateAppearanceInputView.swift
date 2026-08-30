@@ -223,12 +223,27 @@ struct PlateAppearanceInputView: View {
     }
 
     private func populateIfNeeded() {
-        guard !isPopulated, let record = editingRecord else { return }
-        isPopulated = true
-        batterName = record.batterName
-        inning = record.inning ?? 1
-        rbi = record.rbi ?? 0
-        selected = PlateAppearanceResultOption.all.first { $0.detail == record.resultDetail }
+        guard !isPopulated else { return }
+
+        if let record = editingRecord {
+            isPopulated = true
+            batterName = record.batterName
+            inning = record.inning ?? 1
+            rbi = record.rbi ?? 0
+            selected = PlateAppearanceResultOption.all.first { $0.detail == record.resultDetail }
+            return
+        }
+
+        // 新規入力はデフォルト選手から始める。毎回選び直させない。
+        if let name = defaultName {
+            isPopulated = true
+            batterName = name
+        }
+    }
+
+    private var defaultName: String? {
+        let myTeamId = gameId.flatMap { store.game(id: $0)?.myTeamId }
+        return store.defaultPlayerName(myTeamId: myTeamId)
     }
 
     private func save() {

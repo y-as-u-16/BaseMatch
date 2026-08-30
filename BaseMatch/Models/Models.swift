@@ -41,6 +41,7 @@ final class Player {
     @Attribute(.unique) var id: String = ""
     var name: String = ""
     var myTeamId: String = ""
+    var isDefault: Bool = false
     var displayOrder: Int = 0
     var archivedAt: Date?
     var createdAt: Date = Date()
@@ -49,6 +50,7 @@ final class Player {
         id: String = UUID().uuidString,
         name: String,
         myTeamId: String,
+        isDefault: Bool = false,
         displayOrder: Int = 0,
         archivedAt: Date? = nil,
         createdAt: Date = Date()
@@ -56,6 +58,7 @@ final class Player {
         self.id = id
         self.name = name
         self.myTeamId = myTeamId
+        self.isDefault = isDefault
         self.displayOrder = displayOrder
         self.archivedAt = archivedAt
         self.createdAt = createdAt
