@@ -1,6 +1,5 @@
 import Foundation
 import SwiftData
-import SwiftUI
 
 /// 移行元の Riverpod StateNotifier（LocalGameStore / MyTeamStore）に相当する単一ストア。
 /// SwiftData の @Query は View 単位になるため、集計や絞り込みを共有できるよう

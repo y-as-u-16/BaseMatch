@@ -479,3 +479,14 @@ struct PlayerPickerMenu: View {
         }
     }
 }
+
+extension Binding {
+    /// Optional の有無を isPresented に橋渡しする。
+    /// 削除確認のたびに同じ get/set を書いていたため共通化した。
+    static func isPresent<Wrapped>(_ value: Binding<Wrapped?>) -> Binding<Bool> {
+        Binding<Bool>(
+            get: { value.wrappedValue != nil },
+            set: { if !$0 { value.wrappedValue = nil } }
+        )
+    }
+}

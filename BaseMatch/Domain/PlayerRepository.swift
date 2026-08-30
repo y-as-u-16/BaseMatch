@@ -96,10 +96,6 @@ struct PlayerRepository {
         try context.save()
     }
 
-    func defaultPlayer(myTeamId: String) throws -> Player? {
-        try players(myTeamId: myTeamId).first { $0.isDefault }
-    }
-
     private func validatedName(
         _ name: String,
         myTeamId: String,

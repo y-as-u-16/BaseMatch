@@ -382,10 +382,7 @@ private struct SelectedDateGameSection: View {
         .animation(.smooth, value: selectedDate)
         .confirmationDialog(
             L10n.deleteGameTitle,
-            isPresented: .init(
-                get: { gameToDelete != nil },
-                set: { if !$0 { gameToDelete = nil } }
-            ),
+            isPresented: .isPresent($gameToDelete),
             titleVisibility: .visible
         ) {
             Button(L10n.deleteButton, role: .destructive) {

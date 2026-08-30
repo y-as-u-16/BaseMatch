@@ -175,10 +175,7 @@ struct SettingsView: View {
         }
         .confirmationDialog(
             L10n.deleteMyTeamTitle,
-            isPresented: .init(
-                get: { teamToDelete != nil },
-                set: { if !$0 { teamToDelete = nil } }
-            ),
+            isPresented: .isPresent($teamToDelete),
             titleVisibility: .visible
         ) {
             Button(L10n.deleteButton, role: .destructive) {
@@ -193,10 +190,7 @@ struct SettingsView: View {
         }
         .confirmationDialog(
             L10n.deletePlayerTitle,
-            isPresented: .init(
-                get: { playerToDelete != nil },
-                set: { if !$0 { playerToDelete = nil } }
-            ),
+            isPresented: .isPresent($playerToDelete),
             titleVisibility: .visible
         ) {
             Button(L10n.deleteButton, role: .destructive) {

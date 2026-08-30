@@ -55,22 +55,6 @@ enum GameRecordResult {
         case .loss: colors.outline
         }
     }
-
-    func containerColor(_ colors: AppColors) -> Color {
-        switch self {
-        case .win: colors.primaryContainer
-        case .draw: colors.tertiaryContainer
-        case .loss: colors.surfaceContainerHighest
-        }
-    }
-
-    func onContainerColor(_ colors: AppColors) -> Color {
-        switch self {
-        case .win: colors.onPrimaryContainer
-        case .draw: colors.onTertiaryContainer
-        case .loss: colors.onSurfaceVariant
-        }
-    }
 }
 
 /// ホームと記録タブで共有する試合カード。
