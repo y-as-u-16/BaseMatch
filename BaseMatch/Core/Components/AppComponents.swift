@@ -1,63 +1,27 @@
 import SwiftUI
 
-/// グループ化セル相当のカード。枠線を持たず、余白と1段の影で階層を作る。
-struct AppPanel<Content: View>: View {
+/// ヒーロー／サマリー用の濃色パネル。ブランド色のベタ塗りで、装飾は重ねない。
+struct PrimaryPanel<Content: View>: View {
     @Environment(\.appColors) private var colors
 
-    var padding: EdgeInsets = EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
-    /// 旧 Material 実装との互換のため引数は残すが、枠線は描かない。
-    var borderOpacity: Double = 0.5
-    var shadowOpacity: Double = 0.045
+    var padding = EdgeInsets(top: Spacing.md, leading: Spacing.md, bottom: Spacing.md, trailing: Spacing.md)
     @ViewBuilder var content: Content
 
     var body: some View {
         content
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(colors.cardBackground, in: .rect(cornerRadius: AppTheme.cardCornerRadius, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: AppTheme.cardCornerRadius, style: .continuous)
-                    .strokeBorder(colors.cardBorder, lineWidth: colors.cardBorderWidth)
-            }
-            .shadow(color: colors.cardShadow.opacity(shadowOpacity > 0 ? 1 : 0), radius: 10, y: 4)
+            .background(colors.primary, in: .rect(cornerRadius: Radius.large, style: .continuous))
     }
 }
 
-/// ヒーロー／サマリー用の濃色パネル。fieldGreen → leatherBrown のメッシュで深みを出す。
-struct PrimaryPanel<Content: View>: View {
-    @Environment(\.colorScheme) private var colorScheme
-
-    var padding = EdgeInsets(top: 22, leading: 20, bottom: 20, trailing: 20)
-    @ViewBuilder var content: Content
-
-    var body: some View {
-        content
-            .padding(padding)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background {
-                HeroBackground(colorScheme: colorScheme)
-                    .overlay(.black.opacity(colorScheme == .dark ? 0.1 : 0))
-                    // 濃色面が単色に見えないよう、上端に光を当てて厚みを作る。
-                    .overlay(alignment: .top) {
-                        LinearGradient(
-                            colors: [.white.opacity(0.16), .clear],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                        .frame(height: 96)
-                    }
-            }
-            .clipShape(.rect(cornerRadius: AppTheme.heroCornerRadius, style: .continuous))
-            .shadow(color: AppTheme.fieldGreen.opacity(colorScheme == .dark ? 0.35 : 0.22), radius: 16, y: 10)
-    }
-}
-
+/// セクション見出し。List/Form の header と同じ重みに揃える。
 struct SectionHeaderBar: View {
     let title: LocalizedStringResource
 
     var body: some View {
         Text(title)
-            .font(.title3.bold())
+            .font(.headline)
             .foregroundStyle(Color(.label))
             .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -71,29 +35,30 @@ struct CountBadge: View {
             .font(.footnote.weight(.semibold))
             .monospacedDigit()
             .foregroundStyle(Color(.secondaryLabel))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background(Color(.tertiarySystemFill), in: .capsule)
+            .padding(.horizontal, Spacing.xs)
+            .padding(.vertical, Spacing.xxs)
+            .background(Color(.tertiarySystemFill), in: .rect(cornerRadius: Radius.small, style: .continuous))
             .contentTransition(.numericText())
             .animation(.smooth, value: count)
     }
 }
 
-struct EmptyTextPanel: View {
-    let text: LocalizedStringResource
-
-    init(_ text: LocalizedStringResource) { self.text = text }
+/// 勝敗・打席結果などの状態バッジ。画面ごとに散っていた Capsule 実装を集約する。
+struct StatusBadge: View {
+    let title: LocalizedStringResource
+    var tint: Color
+    /// 濃色面に載せるときは、地の色を透かさずベタ塗りにする。
+    var onDarkBackground = false
 
     var body: some View {
-        Text(text)
-            .font(.subheadline)
-            .foregroundStyle(Color(.secondaryLabel))
-            .frame(maxWidth: .infinity, alignment: .center)
-            .padding(.vertical, 28)
-            .padding(.horizontal, 16)
+        Text(title)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(onDarkBackground ? Color.white : tint)
+            .padding(.horizontal, Spacing.xs)
+            .padding(.vertical, Spacing.xxs)
             .background(
-                Color(.secondarySystemGroupedBackground),
-                in: .rect(cornerRadius: AppTheme.cardCornerRadius, style: .continuous)
+                onDarkBackground ? Color.white.opacity(0.2) : tint.opacity(0.15),
+                in: .rect(cornerRadius: Radius.small, style: .continuous)
             )
     }
 }
@@ -117,49 +82,42 @@ struct EmptyStateView: View {
             }
         } actions: {
             if let actionLabel, let action {
-                if #available(iOS 26, *) {
-                    Button(actionLabel, action: action)
-                        .buttonStyle(.glassProminent)
-                        .tint(colors.primary)
-                } else {
-                    Button(actionLabel, action: action)
-                        .buttonStyle(PrimaryActionButtonStyle(height: 44))
-                        .fixedSize(horizontal: true, vertical: false)
-                }
+                Button(actionLabel, action: action)
+                    .buttonStyle(.borderedProminent)
+                    .tint(colors.primary)
             }
         }
     }
 }
 
-/// 主要アクション。Capsule のプロミネントグラスに押下スケールと Haptics を足す。
+/// 主要アクション。塗りつぶしの角丸で、押下は不透明度だけで返す。
 struct PrimaryActionButtonStyle: ButtonStyle {
     @Environment(\.appColors) private var colors
     @Environment(\.isEnabled) private var isEnabled
 
-    var height: CGFloat = 52
+    var height: CGFloat = 50
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.headline)
             .foregroundStyle(isEnabled ? colors.onPrimary : Color(.tertiaryLabel))
             .frame(maxWidth: .infinity, minHeight: height)
-            .background {
-                Capsule(style: .continuous)
-                    .fill(isEnabled ? AnyShapeStyle(colors.primary.gradient) : AnyShapeStyle(Color(.tertiarySystemFill)))
-            }
-            .contentShape(.capsule)
-            .scaleEffect(configuration.isPressed ? 0.96 : 1)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+            .background(
+                isEnabled ? colors.primary : Color(.tertiarySystemFill),
+                in: .rect(cornerRadius: Radius.medium, style: .continuous)
+            )
+            .contentShape(.rect(cornerRadius: Radius.medium, style: .continuous))
+            .opacity(configuration.isPressed ? 0.85 : 1)
             .sensoryFeedback(.impact(weight: .light), trigger: configuration.isPressed) { _, pressed in pressed }
     }
 }
 
-/// 副次アクション。グラス素材で背景に馴染ませる。
+/// 副次アクション。面を持たず、文字色だけで主要アクションと差をつける。
 struct SecondaryActionButtonStyle: ButtonStyle {
     @Environment(\.appColors) private var colors
     @Environment(\.isEnabled) private var isEnabled
 
-    var height: CGFloat = 52
+    var height: CGFloat = 50
     var foreground: Color?
 
     func makeBody(configuration: Configuration) -> some View {
@@ -167,10 +125,12 @@ struct SecondaryActionButtonStyle: ButtonStyle {
             .font(.headline)
             .foregroundStyle(isEnabled ? (foreground ?? colors.primary) : Color(.tertiaryLabel))
             .frame(maxWidth: .infinity, minHeight: height)
-            .adaptiveInteractiveGlass(in: .capsule)
-            .contentShape(.capsule)
-            .scaleEffect(configuration.isPressed ? 0.96 : 1)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+            .background(
+                Color(.tertiarySystemFill),
+                in: .rect(cornerRadius: Radius.medium, style: .continuous)
+            )
+            .contentShape(.rect(cornerRadius: Radius.medium, style: .continuous))
+            .opacity(configuration.isPressed ? 0.85 : 1)
     }
 }
 
@@ -188,13 +148,13 @@ struct CounterRow: View {
     @State private var tapCount = 0
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             Text(label)
-                .font(.subheadline.weight(.medium))
+                .font(.subheadline)
                 .foregroundStyle(colors.onSurface)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            HStack(spacing: 4) {
+            HStack(spacing: Spacing.xxs) {
                 stepperButton(systemImage: "minus", action: onDecrease)
 
                 Text(valueLabel)
@@ -208,11 +168,11 @@ struct CounterRow: View {
                 stepperButton(systemImage: "plus", action: onIncrease)
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
+        .padding(.horizontal, Spacing.sm)
+        .padding(.vertical, Spacing.xs)
         .background(
             Color(.tertiarySystemFill),
-            in: .rect(cornerRadius: AppTheme.controlCornerRadius, style: .continuous)
+            in: .rect(cornerRadius: Radius.medium, style: .continuous)
         )
         .sensoryFeedback(.selection, trigger: tapCount)
     }
@@ -236,15 +196,37 @@ struct CounterRow: View {
 // MARK: - 追加部品
 
 /// 打率・防御率など、主役になる数値の表示。
+/// 固定 pt をやめ Dynamic Type に追随させるため、段階は `Scale` で選ぶ。
 struct StatValueText: View {
+    enum Scale {
+        /// 画面の主役になる 1 つの数値。
+        case hero
+        /// セクション内で目立たせる数値。
+        case prominent
+        /// 一覧に並ぶ数値。
+        case standard
+        /// 補足の数値。
+        case compact
+
+        var font: Font {
+            switch self {
+            case .hero: .largeTitle
+            case .prominent: .title
+            case .standard: .title3
+            case .compact: .headline
+            }
+        }
+    }
+
     let value: String
-    var size: CGFloat = 34
+    var scale: Scale = .prominent
     var weight: Font.Weight = .bold
     var color: Color?
 
     var body: some View {
         Text(value)
-            .font(.system(size: size, weight: weight, design: .rounded))
+            .font(scale.font.weight(weight))
+            .fontDesign(.rounded)
             .monospacedDigit()
             .contentTransition(.numericText())
             .foregroundStyle(color ?? Color(.label))
@@ -252,7 +234,7 @@ struct StatValueText: View {
     }
 }
 
-/// 選択肢の Capsule チップ。選択時に Haptics と軽いスケールが付く。
+/// 選択肢のチップ。選択は塗りつぶしで示し、形の変化は付けない。
 struct SelectionChip: View {
     @Environment(\.appColors) private var colors
 
@@ -266,33 +248,32 @@ struct SelectionChip: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
+            HStack(spacing: Spacing.xxs) {
                 if let systemImage {
                     Image(systemName: systemImage)
-                        .symbolEffect(.bounce, value: isSelected)
                 }
                 Text(title)
-                    .font(.subheadline.weight(.semibold))
+                    .font(.subheadline.weight(isSelected ? .semibold : .regular))
             }
-            .foregroundStyle(isSelected ? .white : colors.onSurface)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .frame(maxWidth: .infinity)
-            .background {
-                Capsule(style: .continuous)
-                    .fill(isSelected ? AnyShapeStyle(activeTint.gradient) : AnyShapeStyle(Color(.tertiarySystemFill)))
-            }
-            .contentShape(.capsule)
-            .scaleEffect(isSelected ? 1.03 : 1)
-            .animation(.spring(response: 0.3, dampingFraction: 0.65), value: isSelected)
+            .foregroundStyle(isSelected ? colors.onPrimary : colors.onSurface)
+            .padding(.horizontal, Spacing.sm)
+            .padding(.vertical, Spacing.xs)
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .background(
+                isSelected ? activeTint : Color(.tertiarySystemFill),
+                in: .rect(cornerRadius: Radius.small, style: .continuous)
+            )
+            .contentShape(.rect(cornerRadius: Radius.small, style: .continuous))
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.selection, trigger: isSelected)
     }
 }
 
-/// グラス素材の Capsule ボタン。下部固定アクションやクイック操作に使う。
-struct GlassCapsuleButton: View {
+/// 下部固定アクションやクイック操作に使うボタン。
+struct ActionButton: View {
+    @Environment(\.appColors) private var colors
+
     let title: LocalizedStringResource
     var systemImage: String?
     var isProminent = false
@@ -301,7 +282,7 @@ struct GlassCapsuleButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
+            HStack(spacing: Spacing.xxs) {
                 if let systemImage {
                     Image(systemName: systemImage)
                 }
@@ -310,35 +291,37 @@ struct GlassCapsuleButton: View {
             .font(.subheadline.weight(.semibold))
             .frame(maxWidth: .infinity, minHeight: 44)
         }
-        .buttonStyle(GlassCapsuleButtonStyle(isProminent: isProminent, tint: tint))
+        .buttonStyle(ActionButtonStyle(isProminent: isProminent, tint: tint ?? colors.primary))
     }
 }
 
-private struct GlassCapsuleButtonStyle: ButtonStyle {
+private struct ActionButtonStyle: ButtonStyle {
     @Environment(\.appColors) private var colors
     @Environment(\.isEnabled) private var isEnabled
 
     let isProminent: Bool
-    let tint: Color?
+    let tint: Color
 
     func makeBody(configuration: Configuration) -> some View {
-        let accent = tint ?? colors.primary
-        let foreground: AnyShapeStyle = isEnabled
-            ? AnyShapeStyle(isProminent ? AnyShapeStyle(colors.onPrimary) : AnyShapeStyle(accent))
-            : AnyShapeStyle(Color(.tertiaryLabel))
+        let foreground: Color = if !isEnabled {
+            Color(.tertiaryLabel)
+        } else if isProminent {
+            colors.onPrimary
+        } else {
+            tint
+        }
+
         return configuration.label
             .foregroundStyle(foreground)
-            .padding(.horizontal, 18)
-            .background {
-                if isProminent {
-                    Capsule(style: .continuous)
-                        .fill(isEnabled ? AnyShapeStyle(accent.gradient) : AnyShapeStyle(Color(.tertiarySystemFill)))
-                }
-            }
-            .adaptiveInteractiveGlass(in: .capsule)
-            .contentShape(.capsule)
-            .scaleEffect(configuration.isPressed ? 0.96 : 1)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+            .padding(.horizontal, Spacing.md)
+            .background(
+                isProminent
+                    ? (isEnabled ? tint : Color(.tertiarySystemFill))
+                    : Color(.tertiarySystemFill),
+                in: .rect(cornerRadius: Radius.medium, style: .continuous)
+            )
+            .contentShape(.rect(cornerRadius: Radius.medium, style: .continuous))
+            .opacity(configuration.isPressed ? 0.85 : 1)
             .sensoryFeedback(.impact(weight: .light), trigger: configuration.isPressed) { _, pressed in pressed }
     }
 }
@@ -356,51 +339,46 @@ struct ScoreBoardView: View {
     var compact = false
     var onDarkBackground = false
 
-    private var primaryText: Color { onDarkBackground ? .white : colors.onSurface }
+    private var primaryText: Color { onDarkBackground ? colors.onDark : colors.onSurface }
     private var secondaryText: Color {
-        onDarkBackground ? .white.opacity(0.75) : colors.onSurfaceVariant
+        onDarkBackground ? colors.onDarkVariant : colors.onSurfaceVariant
     }
 
     var body: some View {
-        VStack(spacing: compact ? 8 : 14) {
-            HStack(alignment: .center, spacing: 12) {
+        VStack(spacing: compact ? Spacing.xs : Spacing.sm) {
+            HStack(alignment: .center, spacing: Spacing.sm) {
                 teamColumn(name: homeName, score: homeScore)
 
-                Text("-")
-                    .font(.system(size: compact ? 20 : 28, weight: .light, design: .rounded))
+                Text(verbatim: "–")
+                    .font(compact ? .title3 : .title)
+                    .fontDesign(.rounded)
                     .foregroundStyle(secondaryText)
 
                 teamColumn(name: awayName, score: awayScore)
             }
 
             if let resultLabel {
-                Text(resultLabel)
-                    .font(.footnote.weight(.bold))
-                    .foregroundStyle(onDarkBackground ? .white : (resultTint ?? colors.primary))
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 5)
-                    .background {
-                        Capsule(style: .continuous)
-                            .fill(onDarkBackground
-                                ? AnyShapeStyle(.white.opacity(0.22))
-                                : AnyShapeStyle((resultTint ?? colors.primary).opacity(0.14)))
-                    }
+                StatusBadge(
+                    title: resultLabel,
+                    tint: resultTint ?? colors.primary,
+                    onDarkBackground: onDarkBackground
+                )
             }
         }
         .frame(maxWidth: .infinity)
     }
 
     private func teamColumn(name: String, score: Int) -> some View {
-        VStack(spacing: compact ? 2 : 6) {
+        VStack(spacing: compact ? Spacing.xxs : Spacing.xs) {
             Text(name)
-                .font(.caption.weight(.semibold))
+                .font(.caption)
                 .foregroundStyle(secondaryText)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
 
             StatValueText(
                 value: "\(score)",
-                size: compact ? 26 : 44,
+                scale: compact ? .standard : .hero,
                 weight: .semibold,
                 color: primaryText
             )
@@ -411,6 +389,7 @@ struct ScoreBoardView: View {
 
 // MARK: - ViewModifier
 
+/// 影ではなく背景色の差で面を分ける。ダークだけ、輪郭が消えないよう境界線を足す。
 private struct CardStyleModifier: ViewModifier {
     @Environment(\.appColors) private var colors
 
@@ -429,25 +408,15 @@ private struct CardStyleModifier: ViewModifier {
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .strokeBorder(colors.cardBorder, lineWidth: colors.cardBorderWidth)
             }
-            .shadow(color: colors.cardShadow, radius: 10, y: 4)
     }
 }
 
 extension View {
     func cardStyle(
-        cornerRadius: CGFloat = AppTheme.cardCornerRadius,
-        padding: CGFloat = 16
+        cornerRadius: CGFloat = Radius.medium,
+        padding: CGFloat = Spacing.md
     ) -> some View {
         modifier(CardStyleModifier(cornerRadius: cornerRadius, padding: padding))
-    }
-
-    /// スクロール入場の軽いフェード＋スケール。リスト項目に使う。
-    func listItemTransition() -> some View {
-        scrollTransition(.interactive, axis: .vertical) { content, phase in
-            content
-                .opacity(phase.isIdentity ? 1 : 0.4)
-                .scaleEffect(phase.isIdentity ? 1 : 0.96)
-        }
     }
 }
 

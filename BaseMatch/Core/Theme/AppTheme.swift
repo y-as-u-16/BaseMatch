@@ -7,12 +7,6 @@ enum AppTheme {
     static let baseWhite = Color(hex: 0xFFF8F0)
     static let trophyGold = Color(hex: 0xD4A017)
 
-    /// iOS 標準のグループ化セルに合わせた角丸。旧 Material の 8pt から拡大。
-    static let cornerRadius: CGFloat = 22
-    static let cardCornerRadius: CGFloat = 22
-    static let heroCornerRadius: CGFloat = 28
-    static let controlCornerRadius: CGFloat = 16
-
     /// フローティングタブバーはセーフエリアに含まれないため、スクロール末尾に手動で確保する余白。
     static let floatingTabBarInset: CGFloat = 88
 
@@ -21,41 +15,32 @@ enum AppTheme {
     static let leatherBrownDark = Color(hex: 0xC9A98C)
     static let stitchRedDark = Color(hex: 0xFF8A80)
     static let trophyGoldDark = Color(hex: 0xEFC15A)
+}
 
-    static func heroGradient(for colorScheme: ColorScheme) -> LinearGradient {
-        let isDark = colorScheme == .dark
-        return LinearGradient(
-            colors: isDark
-                ? [Color(hex: 0x14301F), Color(hex: 0x2E2119)]
-                : [fieldGreen, leatherBrown],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
+/// 4pt グリッド。レイアウトの余白はこのトークンだけを使い、直値を書かない。
+enum Spacing {
+    /// 4pt — アイコンとラベルなど、密着した要素の間。
+    static let xxs: CGFloat = 4
+    /// 8pt — 行内の要素間。
+    static let xs: CGFloat = 8
+    /// 12pt — 小見出しと本文など、まとまりの内側。
+    static let sm: CGFloat = 12
+    /// 16pt — 画面の左右余白、カード内側の標準。
+    static let md: CGFloat = 16
+    /// 24pt — セクション間。
+    static let lg: CGFloat = 24
+    /// 32pt — 画面上の大きな区切り。
+    static let xl: CGFloat = 32
+}
 
-    @available(iOS 18, *)
-    static func heroMesh(for colorScheme: ColorScheme) -> MeshGradient {
-        let isDark = colorScheme == .dark
-        let deep = isDark ? Color(hex: 0x0F2618) : fieldGreen
-        let mid = isDark ? Color(hex: 0x1D3F2B) : Color(hex: 0x2C6446)
-        let warm = isDark ? Color(hex: 0x33241B) : leatherBrown
-        let glow = isDark ? Color(hex: 0x3D5A46) : Color(hex: 0x3F7C57)
-
-        return MeshGradient(
-            width: 3,
-            height: 3,
-            points: [
-                [0.0, 0.0], [0.5, 0.0], [1.0, 0.0],
-                [0.0, 0.5], [0.5, 0.5], [1.0, 0.5],
-                [0.0, 1.0], [0.5, 1.0], [1.0, 1.0],
-            ],
-            colors: [
-                deep, mid, deep,
-                mid, glow, warm,
-                deep, warm, warm,
-            ]
-        )
-    }
+/// 角丸。iOS のグループ化セル（10pt）を基準に、少数のトークンへ寄せる。
+enum Radius {
+    /// 8pt — バッジ・チップなど小さな面。
+    static let small: CGFloat = 8
+    /// 12pt — カード・パネルの標準。
+    static let medium: CGFloat = 12
+    /// 16pt — 画面幅いっぱいの大きな面。
+    static let large: CGFloat = 16
 }
 
 /// 役割ベースの配色。背景・文字・区切りはシステム色に委ね、
@@ -126,8 +111,33 @@ struct AppColors {
     var errorContainer: Color { tertiary.opacity(isDark ? 0.22 : 0.12) }
     var onErrorContainer: Color { tertiary }
 
+    // MARK: - カレンダー
+
+    /// 日本のカレンダー慣習に合わせ、日曜と土曜だけ文字色を変える。
+    /// 週の並びは日曜始まりで、index は Calendar の weekday - 1。
+    func weekdayColor(_ index: Int, default defaultColor: Color) -> Color {
+        switch index {
+        case 0: Color(.systemRed)
+        case 6: Color(.systemBlue)
+        default: defaultColor
+        }
+    }
+
+    // MARK: - 濃色面の上の文字
+
+    /// ヒーローなどブランド色のベタ塗りに載せる文字。透明度の直書きを防ぐ。
+    var onDark: Color { .white }
+    var onDarkVariant: Color { .white.opacity(0.8) }
+    var onDarkTertiary: Color { .white.opacity(0.6) }
+
+    /// 濃色面の上に置く区切り・面。
+    var onDarkSeparator: Color { .white.opacity(0.2) }
+    var onDarkFill: Color { .white.opacity(0.15) }
+
     var shadow: Color { .black }
-    var cardShadow: Color { .black.opacity(isDark ? 0.5 : 0.08) }
+
+    /// カードは影で浮かせず、面の色差で分ける。ダークだけ境界線で輪郭を補う。
+    var cardShadow: Color { .clear }
 }
 
 private struct AppColorsKey: EnvironmentKey {

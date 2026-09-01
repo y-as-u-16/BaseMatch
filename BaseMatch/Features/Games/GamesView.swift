@@ -23,7 +23,7 @@ struct GamesView: View {
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
-                VStack(spacing: 28) {
+                VStack(spacing: Spacing.lg) {
                     CalendarCard(
                         month: focusedMonth,
                         selectedDate: selectedDate,
@@ -219,7 +219,7 @@ private struct CalendarMonthGrid: View {
     }
 
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: Spacing.xxs) {
             HStack(spacing: 0) {
                 ForEach(Array(Self.weekdayLabels.enumerated()), id: \.offset) { index, label in
                     Text(label)
@@ -228,10 +228,10 @@ private struct CalendarMonthGrid: View {
                         .frame(maxWidth: .infinity)
                 }
             }
-            .padding(.bottom, 2)
+            .padding(.bottom, Spacing.xxs)
 
             LazyVGrid(
-                columns: Array(repeating: GridItem(.flexible(), spacing: 2), count: 7),
+                columns: Array(repeating: GridItem(.flexible(), spacing: Spacing.xxs), count: 7),
                 spacing: 4
             ) {
                 ForEach(Array(days.enumerated()), id: \.offset) { _, day in
@@ -243,20 +243,15 @@ private struct CalendarMonthGrid: View {
                             onTap: { onSelect(day) }
                         )
                     } else {
-                        Color.clear.frame(height: 44)
+                        Color.clear.frame(minHeight: 44)
                     }
                 }
             }
         }
     }
 
-    /// 日本のカレンダー慣習に合わせ、土日だけ文字色を変える。
     static func weekdayColor(_ index: Int, colors: AppColors) -> Color {
-        switch index {
-        case 0: Color(.systemRed)
-        case 6: Color(.systemBlue)
-        default: colors.onSurfaceVariant
-        }
+        colors.weekdayColor(index, default: colors.onSurfaceVariant)
     }
 }
 
@@ -272,48 +267,42 @@ private struct CalendarDayCell: View {
     private var weekdayIndex: Int { Calendar.current.component(.weekday, from: day) - 1 }
 
     private var foreground: Color {
-        if isSelected { return .white }
+        if isSelected { return colors.onPrimary }
         if isToday { return colors.primary }
-        switch weekdayIndex {
-        case 0: return Color(.systemRed)
-        case 6: return Color(.systemBlue)
-        default: return colors.onSurface
-        }
+        return colors.weekdayColor(weekdayIndex, default: colors.onSurface)
     }
 
     private var dotCount: Int { min(gameCount, 3) }
 
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 3) {
+            VStack(spacing: Spacing.xxs) {
                 Text("\(Calendar.current.component(.day, from: day))")
                     .font(.body)
                     .monospacedDigit()
                     .fontWeight(isToday || isSelected ? .semibold : .regular)
                     .foregroundStyle(foreground)
-                    .frame(width: 34, height: 34)
+                    .frame(minWidth: 34, minHeight: 34)
                     .background {
                         if isSelected {
-                            Circle().fill(colors.primary.gradient)
+                            Circle().fill(colors.primary)
                         }
                     }
 
-                HStack(spacing: 3) {
+                HStack(spacing: Spacing.xxs) {
                     ForEach(0..<dotCount, id: \.self) { _ in
                         Circle()
-                            .fill(isSelected ? colors.primary : colors.primary.opacity(0.75))
+                            .fill(colors.primary)
                             .frame(width: 4, height: 4)
                     }
                 }
                 .frame(height: 4)
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: 44)
+            .frame(maxWidth: .infinity, minHeight: 44)
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.selection, trigger: isSelected)
-        .animation(.spring(response: 0.28, dampingFraction: 0.75), value: isSelected)
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : [.isButton])
         .accessibilityLabel(day.slashDateLabel)
         .accessibilityValue(gameCount > 0 ? L10n.seasonGamesCount(gameCount) : "")
@@ -341,8 +330,8 @@ private struct SelectedDateGameSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .firstTextBaseline, spacing: 10) {
-                VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
                     SectionHeaderBar(title: L10n.selectedDateGamesTitle)
 
                     Text(selectedDate.formatted(dayFormat))
@@ -370,7 +359,6 @@ private struct SelectedDateGameSection: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("gameCard")
-                    .listItemTransition()
                     .contextMenu {
                         Button(L10n.deleteButton, systemImage: "trash", role: .destructive) {
                             gameToDelete = game
@@ -494,7 +482,7 @@ private struct MonthPickerSheet: View {
                 }
             }
         }
-        .presentationDetents([.height(320)])
+        .presentationDetents([.medium])
     }
 }
 

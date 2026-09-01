@@ -253,11 +253,11 @@ private struct GameScoreHeader: View {
     private func metaChip(systemImage: String, label: String) -> some View {
         Label(label, systemImage: systemImage)
             .font(.caption.weight(.medium))
-            .foregroundStyle(.white.opacity(0.85))
+            .foregroundStyle(colors.onDarkVariant)
             .lineLimit(1)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(.white.opacity(0.15), in: .capsule)
+            .padding(.horizontal, Spacing.xs)
+            .padding(.vertical, Spacing.xxs)
+            .background(colors.onDarkFill, in: .rect(cornerRadius: Radius.small, style: .continuous))
     }
 }
 
@@ -373,15 +373,14 @@ private struct GameDetailActionBar: View {
     let gameId: String
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             NavigationLink(value: GameRoute.plateAppearanceInput(gameId: gameId)) {
                 Label(L10n.addPlateAppearanceButton, systemImage: "figure.baseball")
                     .font(.subheadline.weight(.semibold))
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .foregroundStyle(colors.onPrimary)
-                    .padding(.horizontal, 18)
-                    .background(Capsule(style: .continuous).fill(colors.primary.gradient))
-                    .adaptiveInteractiveGlass(in: .capsule)
+                    .padding(.horizontal, Spacing.md)
+                    .background(colors.primary, in: .rect(cornerRadius: Radius.medium, style: .continuous))
             }
             .accessibilityIdentifier("addPlateAppearance")
 
@@ -390,13 +389,13 @@ private struct GameDetailActionBar: View {
                     .font(.subheadline.weight(.semibold))
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .foregroundStyle(colors.primary)
-                    .padding(.horizontal, 18)
-                    .adaptiveInteractiveGlass(in: .capsule)
+                    .padding(.horizontal, Spacing.md)
+                    .background(Color(.tertiarySystemFill), in: .rect(cornerRadius: Radius.medium, style: .continuous))
             }
         }
         .buttonStyle(.plain)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.horizontal, Spacing.md)
+        .padding(.vertical, Spacing.sm)
         .background(.bar)
     }
 }
@@ -410,14 +409,18 @@ private struct RecordSection<Content: View>: View {
     @ViewBuilder var content: Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            HStack(spacing: Spacing.xs) {
                 SectionHeaderBar(title: title)
                 CountBadge(count: count)
             }
 
             if count == 0 {
-                EmptyTextPanel(emptyText)
+                ContentUnavailableView {
+                    Label(emptyText, systemImage: "list.bullet")
+                        .symbolRenderingMode(.hierarchical)
+                }
+                .cardStyle()
             } else {
                 VStack(spacing: 0) {
                     content
@@ -441,14 +444,14 @@ private struct RecordRow: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
+            HStack(spacing: Spacing.sm) {
                 Image(systemName: systemImage)
                     .font(.body)
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(tint)
                     .frame(width: 28)
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
                     Text(title)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(colors.onSurface)
@@ -462,22 +465,16 @@ private struct RecordRow: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                Text(trailing)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(trailingTint)
-                    .lineLimit(1)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(trailingTint.opacity(0.14), in: .capsule)
+                StatusBadge(title: trailing, tint: trailingTint)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.sm)
 
             if showsDivider {
+                // アイコン幅 28 + 左余白 16 + 間隔 12 に合わせ、本文の頭で区切る。
                 Divider()
                     .padding(.leading, 56)
             }
         }
-        .listItemTransition()
     }
 }

@@ -71,7 +71,7 @@ struct PlateAppearanceInputView: View {
 
     private var formBody: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: Spacing.md) {
                 summaryHeader
                 batterCard
                 resultSection(
@@ -107,36 +107,38 @@ struct PlateAppearanceInputView: View {
     }
 
     private var summaryHeader: some View {
-        VStack(spacing: 8) {
-            if let selected {
-                Text(selected.detail.localizedLabel)
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
-                    .contentTransition(.opacity)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-            } else {
-                Text(L10n.selectPlateAppearanceResultMessage)
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.white.opacity(0.9))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-            }
+        PrimaryPanel {
+            VStack(spacing: Spacing.xxs) {
+                if let selected {
+                    Text(selected.detail.localizedLabel)
+                        .font(.title2.weight(.bold))
+                        .fontDesign(.rounded)
+                        .foregroundStyle(colors.onDark)
+                        .contentTransition(.opacity)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                } else {
+                    Text(L10n.selectPlateAppearanceResultMessage)
+                        .font(.subheadline)
+                        .foregroundStyle(colors.onDarkVariant)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
 
-            Text(L10n.plateAppearanceSummary(
-                inning,
-                String(localized: selected?.detail.localizedLabel ?? L10n.notSelectedLabel),
-                rbi
-            ))
-            .font(.footnote)
-            .monospacedDigit()
-            .contentTransition(.numericText())
-            .foregroundStyle(.white.opacity(0.8))
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
+                Text(L10n.plateAppearanceSummary(
+                    inning,
+                    String(localized: selected?.detail.localizedLabel ?? L10n.notSelectedLabel),
+                    rbi
+                ))
+                .font(.footnote)
+                .monospacedDigit()
+                .contentTransition(.numericText())
+                .foregroundStyle(colors.onDarkVariant)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            }
+            .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity)
-        .modifier(PrimaryPanelBackground(isCompact: selected == nil))
         .animation(.smooth, value: selected)
         .animation(.smooth, value: inning)
         .animation(.smooth, value: rbi)
@@ -144,12 +146,12 @@ struct PlateAppearanceInputView: View {
 
     private var batterCard: some View {
         VStack(spacing: 12) {
-            HStack(spacing: 10) {
+            HStack(spacing: Spacing.xs) {
                 Image(systemName: "person")
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(colors.primary)
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
                     Text(L10n.batterNameLabel)
                         .font(.caption)
                         .foregroundStyle(colors.onSurfaceVariant)
@@ -192,8 +194,8 @@ struct PlateAppearanceInputView: View {
             SectionHeaderBar(title: title)
 
             LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: 100), spacing: 10)],
-                spacing: 10
+                columns: [GridItem(.adaptive(minimum: 100), spacing: Spacing.xs)],
+                spacing: Spacing.xs
             ) {
                 ForEach(options) { option in
                     SelectionChip(
@@ -210,7 +212,7 @@ struct PlateAppearanceInputView: View {
     }
 
     private var saveBar: some View {
-        GlassCapsuleButton(
+        ActionButton(
             title: L10n.saveButton,
             systemImage: "checkmark",
             isProminent: true,
@@ -277,22 +279,3 @@ struct PlateAppearanceInputView: View {
     }
 }
 
-/// PrimaryPanel は ViewBuilder 型のためモディファイア経由で使えず、同じ質感を再現する。
-private struct PrimaryPanelBackground: ViewModifier {
-    @Environment(\.colorScheme) private var colorScheme
-
-    var isCompact = false
-
-    private var verticalPadding: CGFloat { isCompact ? 14 : 22 }
-
-    func body(content: Content) -> some View {
-        content
-            .padding(EdgeInsets(top: verticalPadding, leading: 20, bottom: verticalPadding - 2, trailing: 20))
-            .background {
-                HeroBackground(colorScheme: colorScheme)
-                    .overlay(.black.opacity(colorScheme == .dark ? 0.1 : 0))
-            }
-            .clipShape(.rect(cornerRadius: AppTheme.heroCornerRadius, style: .continuous))
-            .shadow(color: AppTheme.fieldGreen.opacity(colorScheme == .dark ? 0.35 : 0.22), radius: 16, y: 10)
-    }
-}

@@ -241,14 +241,14 @@ struct CreateGameView: View {
     }
 
     private func totalValue(label: LocalizedStringResource, score: Int) -> some View {
-        VStack(spacing: 2) {
+        VStack(spacing: Spacing.xxs) {
             Text(label)
                 .font(.caption2)
                 .foregroundStyle(colors.onSurfaceVariant)
                 .lineLimit(1)
-            StatValueText(value: "\(score)", size: 22, weight: .semibold, color: colors.primary)
+            StatValueText(value: "\(score)", scale: .standard, weight: .semibold, color: colors.primary)
         }
-        .frame(width: 72)
+        .frame(minWidth: 60)
     }
 
     /// イニング数を増やしたときに配列が短いままだと落ちるため、読み出し時に 0 で補う。
@@ -380,12 +380,12 @@ private struct InningScoreRow: View {
     let range: ClosedRange<Int>
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             Text(L10n.inningNumberLabel(inning))
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(colors.onSurface)
                 .monospacedDigit()
-                .frame(width: 52, alignment: .leading)
+                .frame(minWidth: 52, alignment: .leading)
 
             halfStepper(half: L10n.topHalfLabel, value: $awayRuns)
             halfStepper(half: L10n.bottomHalfLabel, value: $homeRuns)
@@ -394,13 +394,13 @@ private struct InningScoreRow: View {
 
     private func halfStepper(half: LocalizedStringResource, value: Binding<Int>) -> some View {
         Stepper(value: value, in: range) {
-            HStack(spacing: 6) {
+            HStack(spacing: Spacing.xxs) {
                 Text(half)
                     .font(.caption)
                     .foregroundStyle(colors.onSurfaceVariant)
                 StatValueText(
                     value: "\(value.wrappedValue)",
-                    size: 20,
+                    scale: .compact,
                     weight: .semibold,
                     color: colors.primary
                 )
