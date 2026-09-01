@@ -52,7 +52,7 @@ struct StatsView: View {
         let pitchingRows = stats.pitching.filter { playerFilter == nil || $0.playerName == playerFilter }
 
         return ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: Spacing.md) {
                 StatsPeriodSelector(
                     period: $period,
                     availableMonths: availableMonths(store.games)
@@ -106,11 +106,15 @@ struct StatsView: View {
         emptyLabel: LocalizedStringResource,
         @ViewBuilder rows: () -> some View
     ) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             SectionHeaderBar(title: title)
 
             if isEmpty {
-                EmptyTextPanel(emptyLabel)
+                ContentUnavailableView {
+                    Label(emptyLabel, systemImage: "chart.bar")
+                        .symbolRenderingMode(.hierarchical)
+                }
+                .cardStyle()
             } else {
                 rows()
             }
@@ -123,6 +127,35 @@ private struct StatsMiniMetric: Identifiable {
     let value: String
 
     var id: String { String(localized: label) }
+}
+
+/// 期間・選手の絞り込みメニューのラベル。SelectionChip と同じ見た目に揃える。
+private struct FilterMenuLabel: View {
+    @Environment(\.appColors) private var colors
+
+    let systemImage: String
+    let title: String
+    let isActive: Bool
+
+    var body: some View {
+        HStack(spacing: Spacing.xxs) {
+            Image(systemName: systemImage)
+            Text(title)
+                .font(.subheadline.weight(isActive ? .semibold : .regular))
+                .lineLimit(1)
+            Image(systemName: "chevron.up.chevron.down")
+                .font(.caption2.weight(.semibold))
+        }
+        .foregroundStyle(isActive ? colors.onPrimary : colors.onSurface)
+        .padding(.horizontal, Spacing.sm)
+        .padding(.vertical, Spacing.xs)
+        .frame(maxWidth: .infinity, minHeight: 44)
+        .background(
+            isActive ? colors.primary : Color(.tertiarySystemFill),
+            in: .rect(cornerRadius: Radius.small, style: .continuous)
+        )
+        .contentShape(.rect(cornerRadius: Radius.small, style: .continuous))
+    }
 }
 
 private struct StatsPeriodSelector: View {
@@ -141,7 +174,7 @@ private struct StatsPeriodSelector: View {
     }
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Spacing.xs) {
             SelectionChip(
                 title: L10n.statsPeriodAll,
                 systemImage: "infinity",
@@ -161,25 +194,11 @@ private struct StatsPeriodSelector: View {
                         }
                     }
                 } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "calendar")
-                        Text(monthLabel)
-                            .font(.subheadline.weight(.semibold))
-                            .lineLimit(1)
-                        Image(systemName: "chevron.up.chevron.down")
-                            .font(.caption2.weight(.semibold))
-                    }
-                    .foregroundStyle(period.isAll ? colors.onSurface : .white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .frame(maxWidth: .infinity)
-                    .background {
-                        Capsule(style: .continuous)
-                            .fill(period.isAll
-                                ? AnyShapeStyle(Color(.tertiarySystemFill))
-                                : AnyShapeStyle(colors.primary.gradient))
-                    }
-                    .contentShape(.capsule)
+                    FilterMenuLabel(
+                        systemImage: "calendar",
+                        title: String(localized: monthLabel),
+                        isActive: !period.isAll
+                    )
                 }
                 .buttonStyle(.plain)
                 .sensoryFeedback(.selection, trigger: period)
@@ -214,13 +233,12 @@ private struct StatsPlayerCard: View {
 
             metricRow
         }
-        .cardStyle(padding: 18)
-        .listItemTransition()
+        .cardStyle()
     }
 
     private var headline: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            StatValueText(value: primaryValue, size: 44, color: colors.primary)
+        VStack(alignment: .leading, spacing: Spacing.xxs) {
+            StatValueText(value: primaryValue, scale: .hero, color: colors.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
 
@@ -234,22 +252,22 @@ private struct StatsPlayerCard: View {
     @ViewBuilder
     private var metricRow: some View {
         if isAccessibilitySize {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
                 ForEach(metrics) { metric in
                     HStack {
                         Text(metric.label)
                             .font(.caption)
                             .foregroundStyle(colors.onSurfaceVariant)
-                        Spacer(minLength: 12)
-                        StatValueText(value: metric.value, size: 17, weight: .semibold)
+                        Spacer(minLength: Spacing.sm)
+                        StatValueText(value: metric.value, scale: .compact, weight: .semibold)
                     }
                 }
             }
         } else {
-            HStack(alignment: .top, spacing: 8) {
+            HStack(alignment: .top, spacing: Spacing.xs) {
                 ForEach(metrics) { metric in
-                    VStack(spacing: 3) {
-                        StatValueText(value: metric.value, size: 19, weight: .semibold)
+                    VStack(spacing: Spacing.xxs) {
+                        StatValueText(value: metric.value, scale: .compact, weight: .semibold)
                             .lineLimit(1)
                             .minimumScaleFactor(0.6)
 
@@ -275,7 +293,7 @@ private struct PlayerFilterSelector: View {
 
     var body: some View {
         if candidates.count > 1 {
-            HStack(spacing: 10) {
+            HStack(spacing: Spacing.xs) {
                 SelectionChip(
                     title: L10n.statsFilterAllPlayers,
                     systemImage: "person.2",
@@ -289,24 +307,11 @@ private struct PlayerFilterSelector: View {
                         Button(name) { selected = name }
                     }
                 } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "person")
-                        Text(selected ?? String(localized: L10n.playerSectionTitle))
-                            .font(.subheadline.weight(.semibold))
-                            .lineLimit(1)
-                        Image(systemName: "chevron.up.chevron.down")
-                            .font(.caption2.weight(.semibold))
-                    }
-                    .foregroundStyle(selected == nil ? colors.onSurface : .white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .frame(maxWidth: .infinity)
-                    .background {
-                        Capsule(style: .continuous)
-                            .fill(selected == nil
-                                ? AnyShapeStyle(Color(.tertiarySystemFill))
-                                : AnyShapeStyle(colors.primary.gradient))
-                    }
+                    FilterMenuLabel(
+                        systemImage: "person",
+                        title: selected ?? String(localized: L10n.playerSectionTitle),
+                        isActive: selected != nil
+                    )
                 }
                 .accessibilityIdentifier("playerFilter")
             }

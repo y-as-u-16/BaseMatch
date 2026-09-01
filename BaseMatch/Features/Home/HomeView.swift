@@ -12,10 +12,10 @@ struct HomeView: View {
         NavigationStack(path: $path) {
             GeometryReader { proxy in
                 ScrollView {
-                VStack(spacing: 28) {
+                VStack(spacing: Spacing.lg) {
                     HomeHero(summary: store.seasonSummary, topInset: proxy.safeAreaInsets.top)
 
-                    VStack(spacing: 28) {
+                    VStack(spacing: Spacing.lg) {
                         if let draft = store.draftGames.first {
                             HomeDraftGameSection(
                                 game: draft,
@@ -35,7 +35,7 @@ struct HomeView: View {
 
                         HomeRecentGamesSection(games: Array(store.sortedGames.prefix(3)))
                     }
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, Spacing.md)
                 }
                 // ignoresSafeArea が下側の安全余白も打ち消すため、タブバー分を内容側で確保する。
                 .padding(.bottom, AppTheme.floatingTabBarInset)
@@ -43,20 +43,6 @@ struct HomeView: View {
                 .background(colors.groupedBackground)
                 // ヒーローの背景だけを端まで伸ばす。前景はセーフエリア分の余白で守る。
                 .ignoresSafeArea(edges: .top)
-                // スクロールでヒーローがバー下を通るとき、時刻と設定ギアを読ませるための下地。
-                .overlay(alignment: .top) {
-                    Rectangle()
-                        .fill(.clear)
-                        .background(.ultraThinMaterial)
-                        .mask(LinearGradient(
-                            colors: [.black, .black, .clear],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        ))
-                        .frame(height: proxy.safeAreaInsets.top + 52)
-                        .ignoresSafeArea(edges: .top)
-                        .allowsHitTesting(false)
-                }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -64,8 +50,9 @@ struct HomeView: View {
                         isSettingsPresented = true
                     } label: {
                         Image(systemName: "gearshape")
-                            .symbolRenderingMode(.hierarchical)
                     }
+                    // ヒーローの濃色地に載るため、システム標準の accent 色では沈む。
+                    .tint(colors.onDark)
                     .accessibilityLabel(L10n.settingsTooltipOpen)
                 }
             }
@@ -83,203 +70,106 @@ struct HomeView: View {
 }
 
 struct HomeHero: View {
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appColors) private var colors
 
     let summary: SeasonSummary
     var topInset: CGFloat = 0
 
     var body: some View {
-        VStack(spacing: 20) {
-            SeasonPill(label: L10n.seasonSummarySubtitle(summary.year))
+        VStack(spacing: Spacing.md) {
+            VStack(spacing: Spacing.xxs) {
+                Text(L10n.seasonSummarySubtitle(summary.year))
+                    .font(.subheadline)
+                    .foregroundStyle(colors.onDarkVariant)
 
-            VStack(spacing: 10) {
                 Text(L10n.homeHeadline)
                     .font(.largeTitle.bold())
-                    .foregroundStyle(.white)
-
-                Text(L10n.homeDescription)
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.78))
-                    .lineSpacing(3)
+                    .foregroundStyle(colors.onDark)
             }
             .multilineTextAlignment(.center)
 
             HeroScoreboard(summary: summary)
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, Spacing.md)
         // ステータスバーと、その下に重なるツールバー（設定ギア）の両方を避ける。
         .padding(.top, topInset + 56)
-        .padding(.bottom, 32)
+        .padding(.bottom, Spacing.lg)
         .frame(maxWidth: .infinity)
-        .background(alignment: .bottom) {
-            ZStack {
-                HeroBackground(colorScheme: colorScheme)
-                BallparkLines(
-                    lineColor: .white.opacity(0.16),
-                    accentColor: .white.opacity(0.07)
-                )
-            }
-            // 引き下げ時に隙間が出ないよう、背景だけ上方向へ余分に伸ばす。
-            .padding(.top, -400)
+        .background {
+            // 引き下げ時に隙間が出ないよう、背景だけ上方向へ伸ばす。
+            colors.primary
+                .padding(.top, -600)
         }
-        .scrollTransition(.interactive, axis: .vertical) { content, phase in
-            content
-                .scaleEffect(phase.value < 0 ? 1 - phase.value * 0.12 : 1, anchor: .bottom)
-                .opacity(phase.value < 0 ? 1 + phase.value * 0.5 : 1)
-        }
-    }
-}
-
-/// 移行元の CustomPainter（ダイヤモンドと外野の弧）を Canvas で再現。
-private struct BallparkLines: View {
-    let lineColor: Color
-    let accentColor: Color
-
-    var body: some View {
-        Canvas { context, size in
-            let center = CGPoint(x: size.width * 0.78, y: size.height * 0.60)
-            let base = min(size.width, size.height) * 0.16
-
-            let accentCenter = CGPoint(x: center.x + base * 0.08, y: center.y + base * 0.08)
-            let accentRadius = base * 1.9
-            context.fill(
-                Path(ellipseIn: CGRect(
-                    x: accentCenter.x - accentRadius,
-                    y: accentCenter.y - accentRadius,
-                    width: accentRadius * 2,
-                    height: accentRadius * 2
-                )),
-                with: .color(accentColor)
-            )
-
-            var diamond = Path()
-            diamond.move(to: CGPoint(x: center.x, y: center.y - base))
-            diamond.addLine(to: CGPoint(x: center.x + base, y: center.y))
-            diamond.addLine(to: CGPoint(x: center.x, y: center.y + base))
-            diamond.addLine(to: CGPoint(x: center.x - base, y: center.y))
-            diamond.closeSubpath()
-            context.stroke(diamond, with: .color(lineColor), lineWidth: 1.2)
-
-            var arc = Path()
-            arc.addArc(
-                center: center,
-                radius: base * 2.35,
-                startAngle: .radians(3.40),
-                endAngle: .radians(3.40 + 2.30),
-                clockwise: false
-            )
-            context.stroke(arc, with: .color(lineColor), lineWidth: 1.2)
-        }
-        .allowsHitTesting(false)
-    }
-}
-
-private struct SeasonPill: View {
-    let label: LocalizedStringResource
-
-    var body: some View {
-        Label(label, systemImage: "calendar")
-            .font(.footnote.weight(.semibold))
-            .foregroundStyle(.white.opacity(0.9))
-            .padding(.horizontal, 14)
-            .padding(.vertical, 7)
-            .adaptiveGlass(in: .capsule)
     }
 }
 
 /// 今季の5項目をヒーローに集約する。5つを1行に並べると桁が潰れるため、
 /// チーム成績（試合数・勝敗）と内訳（得点・打率・防御率）の2段に分ける。
 private struct HeroScoreboard: View {
+    @Environment(\.appColors) private var colors
+
     let summary: SeasonSummary
 
     var body: some View {
-        VStack(spacing: 14) {
-            HStack(spacing: 0) {
+        VStack(spacing: Spacing.sm) {
+            HStack(alignment: .top, spacing: Spacing.xs) {
                 statChip(
                     label: L10n.seasonGamesMetricLabel,
                     value: "\(summary.games)",
-                    size: 30
+                    scale: .prominent
                 )
-
-                heroDivider
 
                 statChip(
                     label: L10n.seasonRecordMetricLabel,
                     value: String(localized: L10n.seasonRecordLabel(
                         summary.wins, summary.losses, summary.draws
                     )),
-                    size: 30
+                    scale: .prominent
                 )
             }
 
             Divider()
-                .overlay(.white.opacity(0.2))
+                .overlay(colors.onDarkSeparator)
 
-            HStack(spacing: 0) {
+            HStack(alignment: .top, spacing: Spacing.xs) {
                 statChip(
                     label: L10n.seasonRunsMetricLabel,
                     value: "\(summary.totalRuns)",
-                    size: 22
+                    scale: .standard
                 )
-
-                heroDivider
 
                 statChip(
                     label: L10n.seasonAverageMetricLabel,
                     value: summary.battingAverage,
-                    size: 22
+                    scale: .standard
                 )
-
-                heroDivider
 
                 statChip(
                     label: L10n.seasonEraMetricLabel,
                     value: summary.era,
-                    size: 22
+                    scale: .standard
                 )
             }
         }
-        .padding(.vertical, 14)
-        .padding(.horizontal, 8)
-        // 背景のメッシュは色幅が広く、透過だけだと明るい部分で数字が沈む。
-        // 暗いベースを敷いてどこでも同じ読みやすさにする。
-        .background {
-            RoundedRectangle(cornerRadius: AppTheme.heroCornerRadius, style: .continuous)
-                .fill(.black.opacity(0.42))
-        }
-        .adaptiveGlass(in: .rect(cornerRadius: AppTheme.heroCornerRadius, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: AppTheme.heroCornerRadius, style: .continuous)
-                .strokeBorder(.white.opacity(0.22), lineWidth: 0.5)
-        }
         .accessibilityIdentifier("heroScoreboard")
-    }
-
-    private var heroDivider: some View {
-        Divider()
-            .overlay(.white.opacity(0.2))
-            .frame(height: 36)
     }
 
     private func statChip(
         label: LocalizedStringResource,
         value: String,
-        size: CGFloat
+        scale: StatValueText.Scale
     ) -> some View {
-        VStack(spacing: 4) {
-            StatValueText(value: value, size: size, weight: .bold, color: .white)
+        VStack(spacing: Spacing.xxs) {
+            StatValueText(value: value, scale: scale, weight: .semibold, color: colors.onDark)
                 .lineLimit(1)
-                .minimumScaleFactor(0.5)
-                .shadow(color: .black.opacity(0.35), radius: 3, y: 1)
+                .minimumScaleFactor(0.6)
 
             Text(label)
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.white.opacity(0.85))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
+                .font(.caption)
+                .foregroundStyle(colors.onDarkVariant)
+                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, 8)
         .accessibilityElement(children: .combine)
     }
 }
@@ -289,15 +179,15 @@ struct HomePrimaryActions: View {
     let onStats: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
-            GlassCapsuleButton(
+        HStack(spacing: Spacing.sm) {
+            ActionButton(
                 title: L10n.recordGameButton,
                 systemImage: "plus",
                 isProminent: true,
                 action: onRecord
             )
 
-            GlassCapsuleButton(
+            ActionButton(
                 title: L10n.viewStatsButton,
                 systemImage: "chart.bar",
                 action: onStats
@@ -315,7 +205,7 @@ struct HomeDraftGameSection: View {
     let remainingCount: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             SectionHeaderBar(title: L10n.homeDraftSectionTitle)
 
             NavigationLink(value: GameRoute.detail(gameId: game.id)) {
@@ -328,7 +218,7 @@ struct HomeDraftGameSection: View {
                 Text(L10n.homeDraftMoreCount(remainingCount))
                     .font(.footnote)
                     .foregroundStyle(colors.onSurfaceVariant)
-                    .padding(.leading, 4)
+                    .padding(.leading, Spacing.xxs)
             }
         }
     }
@@ -341,47 +231,23 @@ private struct DraftGameCard: View {
     let title: String
 
     var body: some View {
-        PrimaryPanel(padding: EdgeInsets(top: 18, leading: 18, bottom: 18, trailing: 18)) {
-            content
-        }
-        // 進行中であることを色で伝えるため、バッジと同系の熱を上端に灯す。
-        .overlay {
-            RoundedRectangle(cornerRadius: AppTheme.heroCornerRadius, style: .continuous)
-                .strokeBorder(
-                    LinearGradient(
-                        colors: [colors.tertiary.opacity(0.55), .white.opacity(0.12)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1
-                )
-                .allowsHitTesting(false)
-        }
-        .shadow(color: colors.tertiary.opacity(0.28), radius: 14, y: 6)
-    }
-
-    private var content: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            HStack(spacing: Spacing.xs) {
                 Label(L10n.homeDraftBadge, systemImage: "record.circle")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(colors.tertiary.gradient, in: .capsule)
-                    .symbolEffect(.pulse)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(colors.tertiary)
 
                 Spacer(minLength: 0)
 
                 Text(game.date.slashDateLabel)
                     .font(.caption)
                     .monospacedDigit()
-                    .foregroundStyle(.white.opacity(0.75))
+                    .foregroundStyle(colors.onSurfaceVariant)
             }
 
             Text(title)
-                .font(.title3.weight(.bold))
-                .foregroundStyle(.white)
+                .font(.headline)
+                .foregroundStyle(colors.onSurface)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
 
@@ -390,20 +256,19 @@ private struct DraftGameCard: View {
                 homeScore: game.homeScore ?? 0,
                 awayName: "AWAY",
                 awayScore: game.awayScore ?? 0,
-                compact: true,
-                onDarkBackground: true
+                compact: true
             )
 
-            HStack(spacing: 6) {
+            HStack(spacing: Spacing.xxs) {
                 Text(L10n.homeDraftResume)
                 Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
             }
             .font(.subheadline.weight(.semibold))
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 10)
-            .adaptiveGlass(in: .capsule)
+            .foregroundStyle(colors.primary)
+            .frame(maxWidth: .infinity, alignment: .trailing)
         }
+        .cardStyle()
     }
 }
 
@@ -417,10 +282,10 @@ struct HomePlayerHighlightSection: View {
     private var isLargeText: Bool { dynamicTypeSize >= .accessibility1 }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             SectionHeaderBar(title: L10n.homePlayerSectionTitle)
 
-            VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: Spacing.md) {
                 playerRow
 
                 averageFeature
@@ -435,49 +300,20 @@ struct HomePlayerHighlightSection: View {
                     streakChip
                 }
             }
-            .padding(20)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background { cardSurface }
-            .clipShape(.rect(cornerRadius: AppTheme.cardCornerRadius, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: AppTheme.cardCornerRadius, style: .continuous)
-                    .strokeBorder(colors.cardBorder, lineWidth: colors.cardBorderWidth)
-            }
-            .shadow(color: colors.cardShadow, radius: 14, y: 6)
+            .cardStyle()
             .accessibilityIdentifier("playerHighlight")
         }
     }
 
-    /// 白いカードを平坦に見せないため、主役の数値側にブランド色の淡い光を差す。
-    private var cardSurface: some View {
-        colors.cardBackground
-            .overlay {
-                RadialGradient(
-                    colors: [colors.primary.opacity(0.16), .clear],
-                    center: UnitPoint(x: 0.08, y: 0.42),
-                    startRadius: 0,
-                    endRadius: 260
-                )
-            }
-            .overlay(alignment: .topTrailing) {
-                RadialGradient(
-                    colors: [colors.gold.opacity(0.12), .clear],
-                    center: .topTrailing,
-                    startRadius: 0,
-                    endRadius: 190
-                )
-            }
-    }
-
     private var playerRow: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.xs) {
             Image(systemName: "person.crop.circle.fill")
-                .font(.system(size: 34))
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(colors.onPrimary, colors.primary.gradient)
+                .font(.title2)
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(colors.primary)
 
             Text(highlight.playerName)
-                .font(.title3.weight(.bold))
+                .font(.headline)
                 .foregroundStyle(colors.onSurface)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
@@ -489,18 +325,18 @@ struct HomePlayerHighlightSection: View {
 
     /// 打率をカードの主役に据える。3秒で読める1つの数字を作るため他項目より大きくする。
     private var averageFeature: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 12) {
+        HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
             StatValueText(
                 value: highlight.batting.averageLabel,
-                size: isLargeText ? 44 : 56,
-                weight: .heavy,
+                scale: .hero,
+                weight: .bold,
                 color: colors.primary
             )
             .lineLimit(1)
             .minimumScaleFactor(0.5)
 
             Text(L10n.seasonAverageMetricLabel)
-                .font(.subheadline.weight(.semibold))
+                .font(.subheadline)
                 .foregroundStyle(colors.onSurfaceVariant)
                 .lineLimit(1)
 
@@ -535,7 +371,7 @@ struct HomePlayerHighlightSection: View {
     private var metricDivider: some View {
         Divider()
             .overlay(colors.outlineVariant)
-            .frame(height: 30)
+            .frame(height: 28)
     }
 
     private var streakChip: some View {
@@ -543,30 +379,18 @@ struct HomePlayerHighlightSection: View {
             String(localized: L10n.homePlayerHitStreak(highlight.hitStreak)),
             systemImage: "flame.fill"
         )
-        .font(.subheadline.weight(.bold))
-        // gold は明度が高く白文字が沈むため、ライト／ダークとも濃色を載せる。
-        .foregroundStyle(colors.onGold)
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
-        .background {
-            Capsule(style: .continuous)
-                .fill(colors.gold.gradient)
-                .overlay {
-                    Capsule(style: .continuous)
-                        .strokeBorder(.white.opacity(0.3), lineWidth: 0.5)
-                }
-        }
-        .shadow(color: colors.gold.opacity(0.35), radius: 8, y: 3)
+        .font(.subheadline.weight(.semibold))
+        .foregroundStyle(colors.gold)
     }
 
     private func metricColumn(
         label: LocalizedStringResource,
         value: String
     ) -> some View {
-        VStack(spacing: 3) {
+        VStack(spacing: Spacing.xxs) {
             StatValueText(
                 value: value,
-                size: 22,
+                scale: .standard,
                 weight: .semibold,
                 color: colors.onSurface
             )
@@ -574,10 +398,9 @@ struct HomePlayerHighlightSection: View {
             .minimumScaleFactor(0.5)
 
             Text(label)
-                .font(.caption.weight(.medium))
+                .font(.caption)
                 .foregroundStyle(colors.onSurfaceVariant)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
+                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
@@ -591,11 +414,15 @@ struct HomeRecentGamesSection: View {
     let games: [Game]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             SectionHeaderBar(title: L10n.recentGamesTitle)
 
             if games.isEmpty {
-                EmptyTextPanel(L10n.homeEmptyGames)
+                ContentUnavailableView {
+                    Label(L10n.homeEmptyGames, systemImage: "baseball")
+                        .symbolRenderingMode(.hierarchical)
+                }
+                .cardStyle()
             } else {
                 ForEach(games) { game in
                     NavigationLink(value: GameRoute.detail(gameId: game.id)) {
@@ -606,7 +433,6 @@ struct HomeRecentGamesSection: View {
                         )
                     }
                     .buttonStyle(.plain)
-                    .listItemTransition()
                 }
             }
         }

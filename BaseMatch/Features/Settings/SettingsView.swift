@@ -123,7 +123,7 @@ struct SettingsView: View {
                     HStack {
                         Label(L10n.settingsPrivacyPolicy, systemImage: "hand.raised")
                             .foregroundStyle(colors.onSurface)
-                        Spacer(minLength: 8)
+                        Spacer(minLength: Spacing.xs)
                         Image(systemName: "arrow.up.right")
                             .font(.footnote)
                             .foregroundStyle(colors.onSurfaceTertiary)
@@ -227,15 +227,15 @@ private struct PlayerRow: View {
                 .foregroundStyle(colors.onSurface)
                 .lineLimit(1)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: Spacing.xs)
 
             if player.isDefault {
                 Text(L10n.defaultPlayerBadge)
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(colors.onPrimaryContainer)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(colors.primaryContainer, in: .capsule)
+                    .padding(.horizontal, Spacing.xs)
+                    .padding(.vertical, Spacing.xxs)
+                    .background(colors.primaryContainer, in: .rect(cornerRadius: Radius.small, style: .continuous))
                     .transition(.scale.combined(with: .opacity))
             }
         }
@@ -260,15 +260,15 @@ private struct MyTeamRow: View {
                     .foregroundStyle(colors.onSurface)
                     .lineLimit(1)
 
-                Spacer(minLength: 8)
+                Spacer(minLength: Spacing.xs)
 
                 if team.isDefault {
                     Text(L10n.defaultMyTeamBadge)
                         .font(.caption2.weight(.semibold))
                         .foregroundStyle(colors.onPrimaryContainer)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(colors.primaryContainer, in: .capsule)
+                        .padding(.horizontal, Spacing.xs)
+                        .padding(.vertical, Spacing.xxs)
+                        .background(colors.primaryContainer, in: .rect(cornerRadius: Radius.small, style: .continuous))
                         .transition(.scale.combined(with: .opacity))
                 }
             }

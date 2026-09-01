@@ -98,19 +98,7 @@ struct GameRecordCard: View {
                 Spacer(minLength: 0)
 
                 // 記録途中の試合に勝敗を出すと確定済みに見えてしまう。
-                Text(isDraft ? L10n.homeDraftBadge : result.label)
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(badgeTint)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 3)
-                    .background {
-                        Capsule(style: .continuous)
-                            .fill(badgeTint.opacity(0.14))
-                            .overlay {
-                                Capsule(style: .continuous)
-                                    .strokeBorder(badgeTint.opacity(0.28), lineWidth: 0.5)
-                            }
-                    }
+                StatusBadge(title: isDraft ? L10n.homeDraftBadge : result.label, tint: badgeTint)
 
                 Image(systemName: "chevron.right")
                     .font(.caption.weight(.semibold))
@@ -138,39 +126,17 @@ struct GameRecordCard: View {
                     .lineLimit(1)
             }
         }
-        .padding(16)
-        .padding(.leading, showsResultAccent ? 6 : 0)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background { cardSurface }
-        .clipShape(.rect(cornerRadius: AppTheme.cardCornerRadius, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: AppTheme.cardCornerRadius, style: .continuous)
-                .strokeBorder(colors.cardBorder, lineWidth: colors.cardBorderWidth)
+        .cardStyle()
+        // 勝敗はバッジの文字でも示すため、この帯は色だけに依存しない補助。
+        .overlay(alignment: .leading) {
+            if showsResultAccent {
+                Rectangle()
+                    .fill(badgeTint)
+                    .frame(width: 4)
+                    .opacity(accentStrength)
+            }
         }
-        .shadow(color: colors.cardShadow, radius: 10, y: 4)
-        .contentShape(.rect(cornerRadius: AppTheme.cardCornerRadius, style: .continuous))
-    }
-
-    /// 勝敗を文字より先に伝える左端の帯と、平坦さを消すための淡い色被り。
-    @ViewBuilder
-    private var cardSurface: some View {
-        if showsResultAccent {
-            colors.cardBackground
-                .overlay {
-                    LinearGradient(
-                        colors: [badgeTint.opacity(accentStrength * 0.14), .clear],
-                        startPoint: .leading,
-                        endPoint: UnitPoint(x: 0.5, y: 0.5)
-                    )
-                }
-                .overlay(alignment: .leading) {
-                    Rectangle()
-                        .fill(badgeTint.gradient)
-                        .frame(width: 6)
-                        .opacity(accentStrength)
-                }
-        } else {
-            colors.cardBackground
-        }
+        .clipShape(.rect(cornerRadius: Radius.medium, style: .continuous))
+        .contentShape(.rect(cornerRadius: Radius.medium, style: .continuous))
     }
 }

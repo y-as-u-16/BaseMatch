@@ -1,123 +1,156 @@
-# BaseMatch UI リデザイン仕様（iOS 26 ネイティブ化）
+# BaseMatch デザイン仕様
 
-目的: Flutter/Material の直訳UIを捨て、**iOS 26 らしい上質なUI**へ作り替える。
-機能・文言・データ構造は一切変えない。**見た目と操作感だけ**を変える。
+目的: 機能・ビジネスロジック・アーキテクチャを変えずに、UI の一貫性と情報の優先順位を保つ。
+装飾を足して「おしゃれ」にするのではなく、Typography・Spacing・Visual Hierarchy・Alignment の
+一貫性で品質を出す。
 
-環境: iOS 26.5 / Swift 6.3 / Xcode 26.6 → **Liquid Glass など iOS 26 API を積極的に使ってよい**
+環境: デプロイターゲット iOS 17 / Swift 6
 
 ---
 
-## 1. デザイン原則（Material の名残を消す）
+## 1. 基本方針
 
-| 捨てるもの（Material 由来） | 置き換え（iOS ネイティブ） |
+Minimal / Clean / Native / Content-first / Consistent。
+
+**使わないもの**（AI 生成 UI に頻出し、階層を伝えないわりに視覚ノイズになる）:
+
+- Card の乱用（全要素をカード背景にする、カードの入れ子）
+- 大きすぎる Corner Radius（20pt 超）
+- 影で要素を浮かせる表現
+- Gradient / Glassmorphism / MeshGradient
+- 何でも Pill（Capsule）型にする
+- Floating Action Button
+- Decorative Icon の大量配置
+- 過剰な Animation（選択時のスケール変化など）
+
+階層は **Typography・Whitespace・Alignment・Contrast** で作る。
+Border・Card・Background Color だけに依存しない。
+
+---
+
+## 2. Design Token
+
+トークンは `Core/Theme/AppTheme.swift` に定義する。**レイアウトに数値を直書きしない。**
+
+### Spacing（4pt グリッド）
+
+| Token | 値 | 用途 |
+|---|---|---|
+| `Spacing.xxs` | 4 | アイコンとラベルなど密着した要素 |
+| `Spacing.xs` | 8 | 行内の要素間 |
+| `Spacing.sm` | 12 | まとまりの内側 |
+| `Spacing.md` | 16 | 画面の左右余白、カード内側 |
+| `Spacing.lg` | 24 | セクション間 |
+| `Spacing.xl` | 32 | 画面上の大きな区切り |
+
+### Radius
+
+| Token | 値 | 用途 |
+|---|---|---|
+| `Radius.small` | 8 | バッジ・チップ |
+| `Radius.medium` | 12 | カード・パネル・ボタン |
+| `Radius.large` | 16 | 画面幅いっぱいの面 |
+
+### Color
+
+ブランド 5 色の 16 進値は資産なので変更しない（fieldGreen `#1B4332` / leatherBrown `#5C4033` /
+stitchRed `#C62828` / baseWhite `#FFF8F0` / trophyGold `#D4A017`）。
+
+色は `AppColors` の役割名でのみ参照する。`Color.red` や `.white.opacity(0.8)` を直書きしない。
+
+- 背景・文字・区切りはシステム色に委ね、ダークモード対応を OS に任せる
+- ブランド色はアクセントとして使う
+- 濃色面に載る文字は `onDark` / `onDarkVariant` / `onDarkTertiary` を使う
+- 勝敗: 勝 = `winColor` / 分 = `drawColor` / 負 = `lossColor`。
+  **色だけで状態を伝えず、必ず文字（バッジ）を併記する**
+
+### Typography
+
+SwiftUI のセマンティックフォント（`.largeTitle` `.title` `.headline` `.subheadline`
+`.footnote` `.caption`）を使い、**`.system(size:)` で固定 pt を指定しない**（Dynamic Type が効かなくなる）。
+
+主役の数値は `StatValueText` の `Scale`（`.hero` / `.prominent` / `.standard` / `.compact`）で
+段階を選ぶ。数値には `.monospacedDigit()` を付けて桁揺れを防ぐ。
+
+---
+
+## 3. 共通コンポーネント
+
+複数画面で実際に再利用されるものだけを `Core/Components/AppComponents.swift` に置く。
+過剰な抽象化はしない。
+
+| コンポーネント | 用途 |
 |---|---|
-| 角丸 8pt の四角いカード | 角丸 **20〜28pt** の `.rect(cornerRadius:style: .continuous)` |
-| 1pt の枠線で仕切る | 枠線を消し、**余白・階層・微細な影**で分ける |
-| ベタ塗りの `surfaceContainer` 段階 | `.regularMaterial` / `.thinMaterial` / `.glassEffect()` |
-| `.system(size: 15, weight: .black)` 固定 | `.font(.headline)` など**セマンティックフォント**（Dynamic Type 対応） |
-| 塗り+枠線の Material ボタン | `.buttonStyle(.glass)` / `.glassProminent`、または Capsule の塗り |
-| FloatingActionButton | ツールバーの `+` か、下部の Capsule グラスボタン |
-| ChoiceChip の格子 | 選択肢は Capsule チップ + `.symbolEffect` / Haptics |
-| 影を全要素に付ける | 影は**浮くもの限定**（カード1段、シート、FAB） |
+| `.cardStyle()` | カード。**影は使わず**背景色の差で分ける（ダークのみ境界線を足す） |
+| `PrimaryPanel` | ブランド色ベタ塗りの濃色パネル |
+| `SectionHeaderBar` | セクション見出し |
+| `StatusBadge` | 勝敗・打席結果などの状態バッジ |
+| `CountBadge` | 件数バッジ |
+| `StatValueText` | 主役になる数値 |
+| `SelectionChip` | 選択肢のチップ |
+| `ActionButton` | 下部固定アクション・クイック操作 |
+| `PrimaryActionButtonStyle` / `SecondaryActionButtonStyle` | 主要／副次アクション |
+| `CounterRow` | ± ステッパー行 |
+| `ScoreBoardView` | HOME / AWAY のスコア表示 |
+| `EmptyStateView` | 空状態（`ContentUnavailableView` ラッパー） |
 
-### 必ず入れる iOS らしさ
-- **Dynamic Type**: サイズは原則セマンティック（`.largeTitle` `.title2` `.headline` `.subheadline` `.footnote` `.caption`）。
-  数値を大きく見せたい所だけ `.font(.system(size:weight:design:))` を使ってよいが、`.rounded` か `.serif` を指定して意図を持たせる。
-- **数字は `.monospacedDigit()`**（スコア・打率・防御率など。桁揺れ防止）
-- **Haptics**: 選択・保存・カウンタ操作に `.sensoryFeedback(.selection, trigger:)` / `.impact` / `.success`
-- **アニメーション**: `.animation(.smooth, value:)` `.spring(response:dampingFraction:)`。数値変化は `.contentTransition(.numericText())`
-- **SF Symbols**: `.symbolRenderingMode(.hierarchical)` か `.palette`、状態変化に `.symbolEffect(.bounce)` `.contentTransition(.symbolEffect(.replace))`
-- **スクロール演出**: ヘッダーに `.scrollTransition`、リスト項目に軽いフェード/スケール
-- **`.safeAreaInset(edge: .bottom)`** で下部固定ボタンを置く（今の自前オーバーレイをやめる）
+**カードを入れ子にしない。** カードは階層を表すために使い、全要素の背景にしない。
 
 ---
 
-## 2. カラー（**16進コードは変更禁止**）
+## 4. iOS 標準コンポーネントを優先する
 
-`AppTheme` の 5 色はブランド資産なので**そのまま維持**する。
-- fieldGreen `#1B4332` / leatherBrown `#5C4033` / stitchRed `#C62828` / baseWhite `#FFF8F0` / trophyGold `#D4A017`
+独自 UI を作ること自体を目的にしない。以下がある場合はそれを使う。
 
-変えるのは**使い方**:
-- 背景は `Color(.systemGroupedBackground)` 系や `.thinMaterial` を基調にし、緑はアクセントとして使う
-- ヒーローやサマリーは **fieldGreen → leatherBrown のメッシュ/グラデーション**で深みを出す
-  （iOS 18+ の `MeshGradient` を使ってよい）
-- 勝敗色: 勝=fieldGreen系 / 分=trophyGold / 負=グレー（stitchRed は「危険」ではなく差し色に）
-- ダークモードでも破綻しないこと（`Color(.systemBackground)` などシステム色を併用）
+`NavigationStack` / `TabView` / `Form` / `List(.insetGrouped)` / `Sheet` / `Toolbar` / `Menu` /
+`Context Menu` / `Swipe Actions` / `Picker` / `DatePicker` / `Stepper` / `Toggle` /
+`ContentUnavailableView` / SF Symbols
 
----
-
-## 3. 画面ごとの方針
-
-### ホーム
-- ヒーローを**フルブリード**に。上端はセーフエリアまで伸ばし、スクロールで視差（parallax）が付くと良い
-- `MeshGradient` か `LinearGradient` + 野球ダイヤモンドの Canvas（既存の描画は流用可）
-- 「今季サマリー」は枠線カードをやめ、**数値主役のレイアウト**へ。
-  打率・防御率は `.monospacedDigit()` + `.contentTransition(.numericText())`
-- 主要アクションは Capsule の `.glassProminent` / `.glass`
-- 直近の試合は `NavigationLink` + カード。`.scrollTransition` で入場アニメーション
-
-### 記録（カレンダー）
-- カレンダーは**枠線を消し**、選択日を塗り円（Capsule）で示す iOS カレンダー風に
-- 試合がある日は**ドット**（今の「N試合」ピルは情報過多）。複数試合なら小さく数字
-- 月切り替えは左右スワイプ（`.gesture` か `TabView(.page)`）＋ヘッダーのボタン
-- 「試合を追加」はツールバーの `+`（`.toolbar`）に移し、FAB を廃止
-- 選択日の試合セクションはカード群として自然に流す
-
-### 試合作成/編集
-- **`Form` + `Section`** を使う（iOS 標準の設定画面の質感）。自前パネルをやめる
-- 日付は `DatePicker(.compact)`、イニングは `Picker(.segmented)`、得点は `Stepper` か `TextField(.numberPad)`
-- 自チームは `Picker(.menu)` かカスタムの Capsule 選択
-- 保存はツールバー右上の「保存」（iOS 慣習）。破棄はキャンセル
-
-### 試合詳細
-- 上部にスコアボードを**主役**として大きく（チーム名 + 大きな数字 + 勝敗バッジ）
-- グラス素材のスコアカード。数字は `.rounded` デザイン + `.monospacedDigit()`
-- 打席/投球の追加は下部の `.safeAreaInset` にグラスボタン2つ
-- 記録リストは枠線なしの行 + 区切り、右端に結果 Capsule
-
-### 打席入力（最重要・使用頻度が高い）
-- **結果選択を主役**に。上部にサマリー、中央に大きな選択グリッド
-- チップは Capsule。選択時に `.symbolEffect(.bounce)` + Haptics + スケール
-- カテゴリ（ヒット/アウト/出塁）は色で区別（緑系/グレー系/ゴールド系）
-- イニング・打点は `Stepper` ではなく**タップしやすい大きめの ± Capsule**
-- 保存ボタンは `.safeAreaInset(edge: .bottom)` にグラスで固定
-
-### 投球入力
-- 投球回は**大きな数値ディスプレイ**（`.rounded`, `.monospacedDigit()`, `.contentTransition(.numericText())`）
-- クイックボタン（+1/3回, +1回, リセット）は Capsule グラス
-- 6つのカウンタは 2 列グリッドのコンパクトなカード（各カードに ± ）
-
-### 成績
-- 期間セレクタは `Picker(.segmented)` か Capsule のセグメント
-- 選手カードは**大きな主指標**（打率/防御率）を主役に。`.rounded` + `.monospacedDigit()`
-- 副指標は小さく整列。可能なら簡易バー/ゲージ（`Gauge` でも可）で視覚化
-- 空状態は `ContentUnavailableView` を使う（iOS 標準）
-
-### 設定
-- **`List` + `Section`（`.insetGrouped`）** に置き換える。自前カードをやめる
-- チーム行は `Label` + デフォルトバッジ
-- チーム追加シートは `.presentationDetents([.medium])` + `Form`
+独自コンポーネントは、UX 上の明確なメリットがある場合のみ使う
+（例: カレンダーの試合数ドットは `DatePicker` で表現できないため自前実装を維持）。
 
 ---
 
-## 4. 実装ルール（厳守）
+## 5. 状態設計
 
-- **機能・文言・データは変更しない**。`L10n` の文言をそのまま使う（新規文言が要るなら `L10n` に追加）
-- **`BaseMatch/Domain/` 配下は一切触らない**（`StatsCalculator.swift` はテスト35件が通っている）
-- **`BaseMatch/Models/` も触らない**
-- `AppTheme` の 5 色の 16 進値は変えない（`AppColors` の役割色は再設計してよい）
-- 既存の画面ファイルは**中身を作り替えてよい**（ファイルの追加・分割も可）
-- ビルドと既存テスト 35 件が通ること
-- ダークモード・Dynamic Type（特大サイズ）で破綻しないこと
-- コメントは原則不要。書くなら「なぜ」だけ1-2行
+通常状態だけでなく Empty / Loading / Error / Disabled / First Use も設計対象とする。
 
-## 5. 完了確認コマンド
+- **Empty**: `ContentUnavailableView` に統一する。単に「データがありません」ではなく、
+  次に取るべき行動を示す（`EmptyStateView` の CTA）
+- **Loading**: `ProgressView`
+- **Error**: `alert` か Form の footer にインライン表示する。**無言で握り潰さない**
+
+---
+
+## 6. Accessibility / Localization
+
+- **Dynamic Type**: セマンティックフォントを使う。固定幅・固定高さは `minWidth` / `minHeight` にする
+- **Touch Target**: 44pt 以上
+- **VoiceOver**: 意味のまとまりに `.accessibilityElement(children: .combine)`、
+  アイコンのみのボタンに `.accessibilityLabel`
+- **色だけに依存しない**: 状態は文字やアイコンでも示す
+- **Localization**: 日本語・英語の両方でレイアウトが成立すること。
+  英語化による Text Expansion に耐えるよう固定幅を避ける
+
+---
+
+## 7. 実装ルール
+
+- 機能・文言・データ構造は変更しない。文言は `L10n` を使う（新規は `L10n` に追加）
+- `Domain/` `Models/` は触らない
+- `AppTheme` のブランド 5 色の 16 進値は変えない
+- ビルドと既存ユニットテストが通ること
+- コメントは「なぜ」だけを 1-2 行。コードを読めば分かることは書かない
+
+## 8. 確認コマンド
 
 ```bash
 cd /Users/egiyasuyuki/dev/personal/BaseMatch
+
 xcodebuild -project BaseMatch.xcodeproj -scheme BaseMatch \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build 2>&1 | grep -E "error:|BUILD"
 
 xcodebuild test -project BaseMatch.xcodeproj -scheme BaseMatch \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -only-testing:BaseMatchTests 2>&1 | grep -E "error:|failed|passed on" | tail -5
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -only-testing:BaseMatchTests 2>&1 | grep -E "error:|TEST SUCCEEDED|TEST FAILED"
 ```

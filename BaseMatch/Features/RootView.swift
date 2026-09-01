@@ -46,26 +46,23 @@ struct RootView: View {
 }
 
 struct SplashView: View {
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appColors) private var colors
 
     @State private var isVisible = false
 
     var body: some View {
         ZStack {
-            HeroBackground(colorScheme: colorScheme)
+            colors.primary
                 .ignoresSafeArea()
 
             Image("SplashLogo")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 200, height: 200)
-                .shadow(color: .black.opacity(0.25), radius: 24, y: 12)
                 .opacity(isVisible ? 1 : 0)
-                .scaleEffect(isVisible ? 1 : 0.86)
-                .blur(radius: isVisible ? 0 : 6)
         }
         .onAppear {
-            withAnimation(.smooth(duration: 0.9)) { isVisible = true }
+            withAnimation(.smooth(duration: 0.6)) { isVisible = true }
         }
     }
 }

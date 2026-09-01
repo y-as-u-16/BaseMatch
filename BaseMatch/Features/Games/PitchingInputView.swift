@@ -75,7 +75,7 @@ struct PitchingInputView: View {
 
     private var formBody: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: Spacing.md) {
                 summaryHeader
                 pitcherCard
                 inningsCard
@@ -99,16 +99,16 @@ struct PitchingInputView: View {
 
     private var summaryHeader: some View {
         PrimaryPanel {
-            VStack(spacing: 6) {
+            VStack(spacing: Spacing.xxs) {
                 Text(L10n.pitchingInningsLabel)
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.75))
+                    .foregroundStyle(colors.onDarkVariant)
 
                 StatValueText(
                     value: String(localized: L10n.inningsFromOuts(outsPitched)),
-                    size: 48,
+                    scale: .hero,
                     weight: .semibold,
-                    color: .white
+                    color: colors.onDark
                 )
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
@@ -117,7 +117,7 @@ struct PitchingInputView: View {
                     .font(.footnote)
                     .monospacedDigit()
                     .contentTransition(.numericText())
-                    .foregroundStyle(.white.opacity(0.75))
+                    .foregroundStyle(colors.onDarkVariant)
 
                 Text(L10n.pitchingInputSummary(
                     String(localized: L10n.inningsFromOuts(outsPitched)),
@@ -127,7 +127,7 @@ struct PitchingInputView: View {
                 .font(.caption)
                 .monospacedDigit()
                 .contentTransition(.numericText())
-                .foregroundStyle(.white.opacity(0.7))
+                .foregroundStyle(colors.onDarkVariant)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .padding(.top, 4)
@@ -140,12 +140,12 @@ struct PitchingInputView: View {
     }
 
     private var pitcherCard: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Spacing.xs) {
             Image(systemName: "person")
                 .symbolRenderingMode(.hierarchical)
                 .foregroundStyle(colors.primary)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(L10n.pitcherNameLabel)
                     .font(.caption)
                     .foregroundStyle(colors.onSurfaceVariant)
@@ -172,13 +172,13 @@ struct PitchingInputView: View {
             )
 
             HStack(spacing: 8) {
-                GlassCapsuleButton(title: L10n.addOneThirdInningButton) {
+                ActionButton(title: L10n.addOneThirdInningButton) {
                     outsPitched = clampOuts(outsPitched + 1)
                 }
-                GlassCapsuleButton(title: L10n.addOneInningButton) {
+                ActionButton(title: L10n.addOneInningButton) {
                     outsPitched = clampOuts(outsPitched + 3)
                 }
-                GlassCapsuleButton(title: L10n.resetOneInningButton) {
+                ActionButton(title: L10n.resetOneInningButton) {
                     outsPitched = 3
                 }
             }
@@ -213,14 +213,14 @@ struct PitchingInputView: View {
     }
 
     private var saveBar: some View {
-        GlassCapsuleButton(
+        ActionButton(
             title: L10n.saveButton,
             systemImage: "checkmark",
             isProminent: true,
             action: save
         )
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, Spacing.sm)
         .background(.bar)
     }
 
@@ -302,7 +302,7 @@ private struct CompactCounterCard: View {
     @State private var tapCount = 0
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: Spacing.xs) {
             Label(label, systemImage: systemImage)
                 .font(.caption.weight(.semibold))
                 .symbolRenderingMode(.hierarchical)
@@ -311,12 +311,12 @@ private struct CompactCounterCard: View {
                 .minimumScaleFactor(0.7)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            HStack(spacing: 2) {
+            HStack(spacing: Spacing.xxs) {
                 stepButton(systemImage: "minus") { value = max(0, value - 1) }
 
                 StatValueText(
                     value: "\(value)",
-                    size: 26,
+                    scale: .standard,
                     weight: .semibold,
                     color: value > 0 ? colors.primary : colors.onSurfaceVariant
                 )
@@ -325,14 +325,13 @@ private struct CompactCounterCard: View {
                 stepButton(systemImage: "plus") { value = min(99, value + 1) }
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 12)
+        .padding(.horizontal, Spacing.xs)
+        .padding(.vertical, Spacing.sm)
         .frame(maxWidth: .infinity)
         .background(
             colors.cardBackground,
-            in: .rect(cornerRadius: AppTheme.cardCornerRadius, style: .continuous)
+            in: .rect(cornerRadius: Radius.medium, style: .continuous)
         )
-        .shadow(color: colors.cardShadow, radius: 10, y: 4)
         .sensoryFeedback(.selection, trigger: tapCount)
     }
 

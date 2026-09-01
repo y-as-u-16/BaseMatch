@@ -41,7 +41,7 @@ struct CreateMyTeamSheet: View {
                 }
             }
         }
-        .presentationDetents([.height(200)])
+        .presentationDetents([.medium])
         // onAppear 時点ではシートの presentation が完了しておらずフォーカスが無視されるため、
         // 1 フレーム分遅らせる。
         .task {
