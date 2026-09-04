@@ -16,14 +16,6 @@ struct HomeView: View {
                     HomeHero(summary: store.seasonSummary, topInset: proxy.safeAreaInsets.top)
 
                     VStack(spacing: Spacing.lg) {
-                        if let draft = store.draftGames.first {
-                            HomeDraftGameSection(
-                                game: draft,
-                                title: draftTitle(for: draft),
-                                remainingCount: store.draftGames.count - 1
-                            )
-                        }
-
                         HomePrimaryActions(
                             onRecord: { path.append(GameRoute.create(date: Date())) },
                             onStats: { selection = .stats }
@@ -69,10 +61,6 @@ struct HomeView: View {
                 NavigationStack { SettingsView() }
             }
         }
-    }
-
-    private func draftTitle(for game: Game) -> String {
-        "\(store.teamName(for: game)) vs \(game.awayTeamName)"
     }
 }
 
@@ -200,83 +188,6 @@ struct HomePrimaryActions: View {
                 action: onStats
             )
         }
-    }
-}
-
-/// 記録の途中で止まっている試合。ホームで最も目立たせ、続きへ直行させる。
-struct HomeDraftGameSection: View {
-    @Environment(\.appColors) private var colors
-
-    let game: Game
-    let title: String
-    let remainingCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            SectionHeaderBar(title: L10n.homeDraftSectionTitle)
-
-            NavigationLink(value: GameRoute.detail(gameId: game.id)) {
-                DraftGameCard(game: game, title: title)
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("draftGameCard")
-
-            if remainingCount > 0 {
-                Text(L10n.homeDraftMoreCount(remainingCount))
-                    .font(.footnote)
-                    .foregroundStyle(colors.onSurfaceVariant)
-                    .padding(.leading, Spacing.xxs)
-            }
-        }
-    }
-}
-
-private struct DraftGameCard: View {
-    @Environment(\.appColors) private var colors
-
-    let game: Game
-    let title: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
-            HStack(spacing: Spacing.xs) {
-                Label(L10n.homeDraftBadge, systemImage: "record.circle")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(colors.tertiary)
-
-                Spacer(minLength: 0)
-
-                Text(game.date.slashDateLabel)
-                    .font(.caption)
-                    .monospacedDigit()
-                    .foregroundStyle(colors.onSurfaceVariant)
-            }
-
-            Text(title)
-                .font(.headline)
-                .foregroundStyle(colors.onSurface)
-                .lineLimit(2)
-                .multilineTextAlignment(.leading)
-
-            // タイトルが「自チーム vs 相手」の順のため、スコアも同じ並びにする。
-            ScoreBoardView(
-                homeName: String(localized: L10n.myTeamScoreboardLabel),
-                homeScore: game.myTeamScore ?? 0,
-                awayName: String(localized: L10n.opponentScoreboardLabel),
-                awayScore: game.opponentScore ?? 0,
-                compact: true
-            )
-
-            HStack(spacing: Spacing.xxs) {
-                Text(L10n.homeDraftResume)
-                Image(systemName: "chevron.right")
-                    .font(.caption.weight(.semibold))
-            }
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(colors.primary)
-            .frame(maxWidth: .infinity, alignment: .trailing)
-        }
-        .cardStyle()
     }
 }
 
@@ -441,6 +352,7 @@ struct HomeRecentGamesSection: View {
                         )
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("recentGameCard")
                 }
             }
         }

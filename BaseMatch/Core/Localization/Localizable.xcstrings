@@ -139,30 +139,6 @@
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "%lld点" } }
       }
     },
-    "home.draft.sectionTitle" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "In Progress" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "記録中の試合" } }
-      }
-    },
-    "home.draft.badge" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recording" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "記録中" } }
-      }
-    },
-    "home.draft.resume" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue recording" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "続きを記録する" } }
-      }
-    },
-    "home.draft.moreCount %lld" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld more in progress" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "他に%lld件が記録中" } }
-      }
-    },
     "home.player.sectionTitle" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Your Season" } },
@@ -507,12 +483,6 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "R" } },
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "計" } }
-      }
-    },
-    "game.field.inningRunsAccessibility %lld %@" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inning %1$lld, %2$@" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%1$lld回%2$@" } }
       }
     },
     "common.create" : {

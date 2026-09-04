@@ -284,12 +284,6 @@ final class AppStore {
         }
     }
 
-    func finalizeGame(id: String) {
-        perform {
-            try gameRepository.finalizeGame(id: id)
-            games = try gameRepository.games()
-        }
-    }
 
     func updatePlateAppearance(
         id: String,
@@ -383,10 +377,6 @@ final class AppStore {
         }
     }
 
-    /// 記録の途中で止まっている試合。ホームから続きへ戻す導線に使う。
-    var draftGames: [Game] {
-        games.filter { $0.status == .draft }.sorted { $0.date > $1.date }
-    }
 
     /// デフォルトチームのデフォルト選手のハイライト。
     var defaultPlayerHighlight: PlayerHighlight? {

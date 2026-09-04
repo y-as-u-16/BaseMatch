@@ -53,7 +53,6 @@ struct GameRepository {
             awayTeamName: awayTeamName.trimmed,
             homeScore: homeScore,
             awayScore: awayScore,
-            status: .draft,
             innings: innings,
             isMyTeamHome: isMyTeamHome
         )
@@ -168,11 +167,6 @@ struct GameRepository {
         return appearance
     }
 
-    func finalizeGame(id: String) throws {
-        guard let game = try game(id: id) else { return }
-        game.status = .final_
-        try context.save()
-    }
 
     func allInningScores() throws -> [InningScore] {
         try context.fetch(FetchDescriptor<InningScore>())

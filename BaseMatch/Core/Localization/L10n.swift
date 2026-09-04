@@ -51,17 +51,11 @@ enum L10n {
         t("home.metric.runsValue \(runs)")
     }
 
-    static var homeDraftSectionTitle: LocalizedStringResource { t("home.draft.sectionTitle") }
-    static var homeDraftBadge: LocalizedStringResource { t("home.draft.badge") }
-    static var homeDraftResume: LocalizedStringResource { t("home.draft.resume") }
     static var homePlayerSectionTitle: LocalizedStringResource { t("home.player.sectionTitle") }
     static var homePlayerHitsLabel: LocalizedStringResource { t("home.player.metric.hits") }
     static var homePlayerHomeRunsLabel: LocalizedStringResource { t("home.player.metric.hr") }
     static var homePlayerOpsLabel: LocalizedStringResource { t("home.player.metric.ops") }
 
-    static func homeDraftMoreCount(_ count: Int) -> LocalizedStringResource {
-        t("home.draft.moreCount \(count)")
-    }
     static func homePlayerHitStreak(_ games: Int) -> LocalizedStringResource {
         t("home.player.hitStreak \(games)")
     }
@@ -122,9 +116,6 @@ enum L10n {
     static var totalScoreLabel: LocalizedStringResource { t("game.field.totalScore") }
     static func inningNumberLabel(_ inning: Int) -> LocalizedStringResource {
         t("game.field.inningNumber \(inning)")
-    }
-    static func inningRunsAccessibilityLabel(_ inning: Int, _ half: String) -> LocalizedStringResource {
-        t("game.field.inningRunsAccessibility \(inning) \(half)")
     }
     static var createButton: LocalizedStringResource { t("common.create") }
     static var saveChangesButton: LocalizedStringResource { t("common.saveChanges") }

@@ -49,8 +49,6 @@ enum DemoDataSeeder {
                 awayTeamName: plan.opponent,
                 homeScore: plan.home,
                 awayScore: plan.away,
-                // 当日の試合は記録途中。ホームの「続きから」導線を見せるため。
-                status: plan.dayOffset == 0 ? .draft : .final_,
                 createdAt: date,
                 innings: Self.inningsPerGame
             )

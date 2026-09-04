@@ -262,7 +262,6 @@ struct GameRepositoryTests {
             awayScore: 2
         )
 
-        #expect(game.status == .draft)
         #expect(game.awayTeamName == "相手")
         #expect(game.location == "東京ドーム")
         #expect(try games.games().count == 1)
@@ -531,8 +530,8 @@ struct GameRepositoryTests {
         }
     }
 
-    @Test("試合を更新しても status と createdAt は保持される")
-    func updateKeepsStatus() throws {
+    @Test("試合を更新しても createdAt は保持される")
+    func updateKeepsCreatedAt() throws {
         let (games, teams) = try makeRepositories()
         let team = try teams.createMyTeam(name: "A")
         let game = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "旧")
@@ -551,7 +550,6 @@ struct GameRepositoryTests {
 
         #expect(updated.awayTeamName == "新")
         #expect(updated.innings == 9)
-        #expect(updated.status == .draft)
         #expect(updated.createdAt == createdAt)
     }
 
@@ -660,16 +658,6 @@ struct GameRepositoryTests {
         }
     }
 
-    @Test("finalizeGame で status が final になる")
-    func finalizeGame() throws {
-        let (games, teams) = try makeRepositories()
-        let team = try teams.createMyTeam(name: "A")
-        let game = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
-
-        try games.finalizeGame(id: game.id)
-
-        #expect(try games.game(id: game.id)?.status == .final_)
-    }
 }
 
 @Suite("SeasonSummary")

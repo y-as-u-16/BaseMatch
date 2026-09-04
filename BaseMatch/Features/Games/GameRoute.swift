@@ -73,10 +73,7 @@ struct GameRecordCard: View {
     private var opponentScore: Int { game.opponentScore ?? 0 }
     private var result: GameRecordResult { .from(game: game) }
 
-    private var isDraft: Bool { game.status == .draft }
-
     private var badgeTint: Color {
-        guard !isDraft else { return colors.tertiary }
         switch result {
         case .win: return colors.winColor
         case .draw: return colors.drawColor
@@ -86,7 +83,7 @@ struct GameRecordCard: View {
 
     /// 負けは中立色のため、強く出すと画面が濁る。効いている結果だけ濃く出す。
     private var accentStrength: Double {
-        !isDraft && result == .loss ? 0.45 : 1
+        result == .loss ? 0.45 : 1
     }
 
     var body: some View {
@@ -99,8 +96,7 @@ struct GameRecordCard: View {
 
                 Spacer(minLength: 0)
 
-                // 記録途中の試合に勝敗を出すと確定済みに見えてしまう。
-                StatusBadge(title: isDraft ? L10n.homeDraftBadge : result.label, tint: badgeTint)
+                StatusBadge(title: result.label, tint: badgeTint)
 
                 Image(systemName: "chevron.right")
                     .font(.caption.weight(.semibold))

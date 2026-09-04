@@ -32,13 +32,11 @@ struct GameDetailView: View {
         .toolbarBackground(colors.groupedBackground, for: .navigationBar)
         .toolbar {
             if let game = store.game(id: gameId) {
-                if game.status != .final_ {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        NavigationLink(value: GameRoute.edit(gameId: game.id)) {
-                            Image(systemName: "pencil")
-                        }
-                        .accessibilityLabel(L10n.editGameTitle)
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink(value: GameRoute.edit(gameId: game.id)) {
+                        Image(systemName: "pencil")
                     }
+                    .accessibilityLabel(L10n.editGameTitle)
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
