@@ -1,6 +1,6 @@
 import XCTest
 
-/// ホーム画面の「記録中の試合」導線を確認する。
+/// ホーム画面から試合詳細へ入る導線を確認する。
 final class HomeTests: XCTestCase {
     private var app: XCUIApplication!
 
@@ -12,26 +12,17 @@ final class HomeTests: XCTestCase {
         Thread.sleep(forTimeInterval: 4)
     }
 
-    func testDraftGameCardOpensTheGame() throws {
+    func testRecentGameCardOpensTheGame() throws {
         let card = app.descendants(matching: .any)
-            .matching(identifier: "draftGameCard").firstMatch
-        XCTAssertTrue(card.waitForExistence(timeout: 10), "記録中のカードが出ていない")
+            .matching(identifier: "recentGameCard").firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 10), "直近の試合カードが出ていない")
 
         card.tap()
         Thread.sleep(forTimeInterval: 2)
 
-        // 試合詳細へ遷移している。
         XCTAssertTrue(
             app.buttons["deleteGame"].firstMatch.waitForExistence(timeout: 10),
             "試合詳細へ遷移していない"
         )
-    }
-
-    /// 記録途中の試合に勝敗を出すと確定済みに見えてしまう。
-    func testDraftGameShowsRecordingInsteadOfResult() throws {
-        let badge = app.staticTexts.matching(
-            NSPredicate(format: "label == %@", "記録中")
-        ).firstMatch
-        XCTAssertTrue(badge.waitForExistence(timeout: 10), "記録中バッジが無い")
     }
 }

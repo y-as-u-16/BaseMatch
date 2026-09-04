@@ -1,9 +1,5 @@
 import Foundation
 
-enum GameStatus: String, Codable, CaseIterable, Sendable {
-    case draft
-    case final_ = "final"
-}
 
 enum PlateAppearanceResultType: String, Codable, CaseIterable, Sendable {
     case hit

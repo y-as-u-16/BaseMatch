@@ -262,7 +262,6 @@ struct GameRepositoryTests {
             awayScore: 2
         )
 
-        #expect(game.status == .draft)
         #expect(game.awayTeamName == "相手")
         #expect(game.location == "東京ドーム")
         #expect(try games.games().count == 1)
@@ -531,8 +530,8 @@ struct GameRepositoryTests {
         }
     }
 
-    @Test("試合を更新しても status と createdAt は保持される")
-    func updateKeepsStatus() throws {
+    @Test("試合を更新しても createdAt は保持される")
+    func updateKeepsCreatedAt() throws {
         let (games, teams) = try makeRepositories()
         let team = try teams.createMyTeam(name: "A")
         let game = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "旧")
@@ -551,7 +550,6 @@ struct GameRepositoryTests {
 
         #expect(updated.awayTeamName == "新")
         #expect(updated.innings == 9)
-        #expect(updated.status == .draft)
         #expect(updated.createdAt == createdAt)
     }
 
@@ -660,16 +658,6 @@ struct GameRepositoryTests {
         }
     }
 
-    @Test("finalizeGame で status が final になる")
-    func finalizeGame() throws {
-        let (games, teams) = try makeRepositories()
-        let team = try teams.createMyTeam(name: "A")
-        let game = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
-
-        try games.finalizeGame(id: game.id)
-
-        #expect(try games.game(id: game.id)?.status == .final_)
-    }
 }
 
 @Suite("SeasonSummary")
@@ -874,5 +862,119 @@ struct MyTeamEditingTests {
         #expect(throws: AppError.self) {
             try teams.renameMyTeam(id: team.id, name: "   ")
         }
+    }
+}
+
+@Suite("先攻・後攻")
+@MainActor
+struct BattingOrderTests {
+    private func game(isMyTeamHome: Bool, home: Int, away: Int) -> Game {
+        Game(
+            date: Date(),
+            myTeamId: "team-1",
+            awayTeamName: "Away",
+            homeScore: home,
+            awayScore: away,
+            isMyTeamHome: isMyTeamHome
+        )
+    }
+
+    @Test("後攻なら home 側が自チームの得点")
+    func homeGameReadsHomeScore() {
+        let target = game(isMyTeamHome: true, home: 5, away: 3)
+
+        #expect(target.myTeamScore == 5)
+        #expect(target.opponentScore == 3)
+    }
+
+    @Test("先攻なら away 側が自チームの得点")
+    func awayGameReadsAwayScore() {
+        let target = game(isMyTeamHome: false, home: 5, away: 3)
+
+        #expect(target.myTeamScore == 3)
+        #expect(target.opponentScore == 5)
+    }
+
+    /// 先攻・後攻を持たなかった頃の記録は自チーム＝後攻として保存されている。
+    @Test("既定は後攻")
+    func defaultsToHome() throws {
+        let context = try makeContext()
+        let games = GameRepository(context: context)
+        let teams = MyTeamRepository(context: context)
+        let team = try teams.createMyTeam(name: "A")
+
+        let created = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+
+        #expect(created.isMyTeamHome)
+    }
+
+    @Test("先攻で保存すると読み出しても先攻のまま")
+    func persistsBattingFirst() throws {
+        let context = try makeContext()
+        let games = GameRepository(context: context)
+        let teams = MyTeamRepository(context: context)
+        let team = try teams.createMyTeam(name: "A")
+
+        let created = try games.createGame(
+            date: Date(), myTeamId: team.id, awayTeamName: "相手",
+            homeScore: 2, awayScore: 6, isMyTeamHome: false
+        )
+
+        let stored = try #require(try games.game(id: created.id))
+        #expect(!stored.isMyTeamHome)
+        #expect(stored.myTeamScore == 6)
+    }
+
+    @Test("編集で後攻から先攻へ切り替えられる")
+    func updatingSwitchesBattingOrder() throws {
+        let context = try makeContext()
+        let games = GameRepository(context: context)
+        let teams = MyTeamRepository(context: context)
+        let team = try teams.createMyTeam(name: "A")
+
+        let created = try games.createGame(date: Date(), myTeamId: team.id, awayTeamName: "相手")
+        _ = try games.updateGame(
+            gameId: created.id,
+            date: created.date,
+            myTeamId: team.id,
+            awayTeamName: "相手",
+            innings: 7,
+            homeScore: 1,
+            awayScore: 4,
+            isMyTeamHome: false
+        )
+
+        let updated = try #require(try games.game(id: created.id))
+        #expect(!updated.isMyTeamHome)
+        #expect(updated.myTeamScore == 4)
+        #expect(updated.opponentScore == 1)
+    }
+
+    @Test("勝敗は自チーム視点で判定される")
+    func resultFollowsMyTeam() {
+        #expect(GameRecordResult.from(game: game(isMyTeamHome: true, home: 5, away: 3)) == .win)
+        #expect(GameRecordResult.from(game: game(isMyTeamHome: false, home: 5, away: 3)) == .loss)
+        #expect(GameRecordResult.from(game: game(isMyTeamHome: false, home: 2, away: 2)) == .draw)
+    }
+
+    @Test("シーズン集計は先攻の試合も自チーム視点で数える")
+    func seasonSummaryFollowsMyTeam() {
+        let calendar = Calendar.current
+        let now = calendar.date(from: DateComponents(year: 2026, month: 8, day: 1))!
+        let date = calendar.date(from: DateComponents(year: 2026, month: 5, day: 1))!
+
+        // 先攻で 6-2 の勝ち。away 側を素直に読むと敗けとして数えられる。
+        let awayWin = Game(
+            id: "g1", date: date, myTeamId: "team-1", awayTeamName: "Away",
+            homeScore: 2, awayScore: 6, createdAt: date, isMyTeamHome: false
+        )
+
+        let summary = SeasonSummary.from(
+            games: [awayWin], plateAppearances: [], pitchingAppearances: [], now: now
+        )
+
+        #expect(summary.wins == 1)
+        #expect(summary.losses == 0)
+        #expect(summary.totalRuns == 6)
     }
 }

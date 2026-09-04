@@ -33,12 +33,12 @@ struct SeasonSummary: Equatable, Sendable {
         var draws = 0
         var totalRuns = 0
         for game in seasonGames {
-            let home = game.homeScore ?? 0
-            let away = game.awayScore ?? 0
-            totalRuns += home
-            if home > away {
+            let mine = game.myTeamScore ?? 0
+            let opponent = game.opponentScore ?? 0
+            totalRuns += mine
+            if mine > opponent {
                 wins += 1
-            } else if home < away {
+            } else if mine < opponent {
                 losses += 1
             } else {
                 draws += 1

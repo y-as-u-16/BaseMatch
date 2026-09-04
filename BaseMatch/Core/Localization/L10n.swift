@@ -51,17 +51,11 @@ enum L10n {
         t("home.metric.runsValue \(runs)")
     }
 
-    static var homeDraftSectionTitle: LocalizedStringResource { t("home.draft.sectionTitle") }
-    static var homeDraftBadge: LocalizedStringResource { t("home.draft.badge") }
-    static var homeDraftResume: LocalizedStringResource { t("home.draft.resume") }
     static var homePlayerSectionTitle: LocalizedStringResource { t("home.player.sectionTitle") }
     static var homePlayerHitsLabel: LocalizedStringResource { t("home.player.metric.hits") }
     static var homePlayerHomeRunsLabel: LocalizedStringResource { t("home.player.metric.hr") }
     static var homePlayerOpsLabel: LocalizedStringResource { t("home.player.metric.ops") }
 
-    static func homeDraftMoreCount(_ count: Int) -> LocalizedStringResource {
-        t("home.draft.moreCount \(count)")
-    }
     static func homePlayerHitStreak(_ games: Int) -> LocalizedStringResource {
         t("home.player.hitStreak \(games)")
     }
@@ -106,12 +100,22 @@ enum L10n {
     static var inningScoresHint: LocalizedStringResource { t("game.field.inningScoresHint") }
     static var topHalfLabel: LocalizedStringResource { t("game.field.topHalf") }
     static var bottomHalfLabel: LocalizedStringResource { t("game.field.bottomHalf") }
+    static var battingOrderLabel: LocalizedStringResource { t("game.field.battingOrder") }
+    static var battingOrderHint: LocalizedStringResource { t("game.field.battingOrderHint") }
+    static var battingFirstLabel: LocalizedStringResource { t("game.field.battingFirst") }
+    static var battingSecondLabel: LocalizedStringResource { t("game.field.battingSecond") }
+    static var myTeamScoreboardLabel: LocalizedStringResource { t("game.scoreboard.myTeam") }
+    static var opponentScoreboardLabel: LocalizedStringResource { t("game.scoreboard.opponent") }
+    static func inningHalfTeamAccessibilityLabel(
+        _ inning: Int,
+        _ half: String,
+        _ team: String
+    ) -> LocalizedStringResource {
+        t("game.field.inningRunsTeamAccessibility \(inning) \(half) \(team)")
+    }
     static var totalScoreLabel: LocalizedStringResource { t("game.field.totalScore") }
     static func inningNumberLabel(_ inning: Int) -> LocalizedStringResource {
         t("game.field.inningNumber \(inning)")
-    }
-    static func inningRunsAccessibilityLabel(_ inning: Int, _ half: String) -> LocalizedStringResource {
-        t("game.field.inningRunsAccessibility \(inning) \(half)")
     }
     static var createButton: LocalizedStringResource { t("common.create") }
     static var saveChangesButton: LocalizedStringResource { t("common.saveChanges") }

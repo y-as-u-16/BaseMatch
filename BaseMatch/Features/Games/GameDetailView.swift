@@ -32,13 +32,11 @@ struct GameDetailView: View {
         .toolbarBackground(colors.groupedBackground, for: .navigationBar)
         .toolbar {
             if let game = store.game(id: gameId) {
-                if game.status != .final_ {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        NavigationLink(value: GameRoute.edit(gameId: game.id)) {
-                            Image(systemName: "pencil")
-                        }
-                        .accessibilityLabel(L10n.editGameTitle)
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink(value: GameRoute.edit(gameId: game.id)) {
+                        Image(systemName: "pencil")
                     }
+                    .accessibilityLabel(L10n.editGameTitle)
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
@@ -123,15 +121,17 @@ struct GameDetailView: View {
     private func lineScoreSection(for game: Game) -> some View {
         let homeRuns = store.inningRuns(gameId: game.id, isHome: true)
         let awayRuns = store.inningRuns(gameId: game.id, isHome: false)
+        let myTeamName = store.teamName(for: game)
 
         if !homeRuns.isEmpty || !awayRuns.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
                 SectionHeaderBar(title: L10n.lineScoreTitle)
 
+                // ラインスコアは先攻が上段。自チームが先攻なら上下が入れ替わる。
                 LineScoreView(
-                    homeName: store.teamName(for: game),
+                    homeName: game.isMyTeamHome ? myTeamName : game.awayTeamName,
                     homeRuns: homeRuns,
-                    awayName: game.awayTeamName,
+                    awayName: game.isMyTeamHome ? game.awayTeamName : myTeamName,
                     awayRuns: awayRuns
                 )
             }
@@ -219,18 +219,22 @@ private struct GameScoreHeader: View {
     let game: Game
     let myTeamName: String
 
-    private var homeScore: Int { game.homeScore ?? 0 }
-    private var awayScore: Int { game.awayScore ?? 0 }
+    private var myTeamScore: Int { game.myTeamScore ?? 0 }
+    private var opponentScore: Int { game.opponentScore ?? 0 }
 
-    private var result: GameRecordResult {
-        .from(homeScore: homeScore, awayScore: awayScore)
-    }
+    private var result: GameRecordResult { .from(game: game) }
 
     var body: some View {
         PrimaryPanel {
             VStack(spacing: 16) {
                 HStack(spacing: 8) {
                     metaChip(systemImage: "calendar", label: game.date.slashDateLabel)
+                    metaChip(
+                        systemImage: "arrow.left.arrow.right",
+                        label: String(localized: game.isMyTeamHome
+                            ? L10n.battingSecondLabel
+                            : L10n.battingFirstLabel)
+                    )
                     if let location = game.location?.normalizedOptional {
                         metaChip(systemImage: "mappin.and.ellipse", label: location)
                     }
@@ -239,9 +243,9 @@ private struct GameScoreHeader: View {
 
                 ScoreBoardView(
                     homeName: myTeamName,
-                    homeScore: homeScore,
+                    homeScore: myTeamScore,
                     awayName: game.awayTeamName,
-                    awayScore: awayScore,
+                    awayScore: opponentScore,
                     resultLabel: result.label,
                     resultTint: result.color(colors),
                     onDarkBackground: true

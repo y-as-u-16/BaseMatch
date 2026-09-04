@@ -56,7 +56,6 @@ private func makeGame(id: String, year: Int, month: Int, day: Int) -> Game {
         date: date,
         myTeamId: "team-1",
         awayTeamName: "Away",
-        status: .final_,
         createdAt: date
     )
 }

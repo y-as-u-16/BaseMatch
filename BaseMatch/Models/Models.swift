@@ -66,6 +66,8 @@ final class Player {
 }
 
 /// 1イニング分の得点。既存モデルに揃えて `gameId` の手動外部キーで繋ぐ。
+/// `isHome` は「後攻（裏）の枠」を指し、自チームかどうかは `Game.isMyTeamHome` と
+/// 掛け合わせて決まる。
 @Model
 final class InningScore {
     @Attribute(.unique) var id: String = ""
@@ -98,13 +100,22 @@ final class Game {
     var awayTeamName: String = ""
     var homeScore: Int?
     var awayScore: Int?
-    var statusRaw: String = GameStatus.draft.rawValue
+    /// 記録中／確定という区別は廃止したが、既存ストアとの互換のため列は残す。
+    var statusRaw: String = ""
     var createdAt: Date = Date()
     var innings: Int?
+    /// 既定を true にしているのは、この項目が無かった頃の記録がすべて
+    /// 自チーム＝後攻として保存されているため。
+    var isMyTeamHome: Bool = true
 
-    var status: GameStatus {
-        get { GameStatus(rawValue: statusRaw) ?? .draft }
-        set { statusRaw = newValue.rawValue }
+    /// 自チームの得点。`homeScore` / `awayScore` は先攻・後攻の枠であって
+    /// 自チームの枠ではないため、直接読むと先攻の試合で相手の点になる。
+    var myTeamScore: Int? {
+        isMyTeamHome ? homeScore : awayScore
+    }
+
+    var opponentScore: Int? {
+        isMyTeamHome ? awayScore : homeScore
     }
 
     init(
@@ -115,9 +126,9 @@ final class Game {
         awayTeamName: String,
         homeScore: Int? = nil,
         awayScore: Int? = nil,
-        status: GameStatus = .draft,
         createdAt: Date = Date(),
-        innings: Int? = nil
+        innings: Int? = nil,
+        isMyTeamHome: Bool = true
     ) {
         self.id = id
         self.date = date
@@ -126,9 +137,9 @@ final class Game {
         self.awayTeamName = awayTeamName
         self.homeScore = homeScore
         self.awayScore = awayScore
-        self.statusRaw = status.rawValue
         self.createdAt = createdAt
         self.innings = innings
+        self.isMyTeamHome = isMyTeamHome
     }
 }
 
