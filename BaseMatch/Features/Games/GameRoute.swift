@@ -43,9 +43,13 @@ enum GameRecordResult {
         }
     }
 
-    static func from(homeScore: Int, awayScore: Int) -> Self {
-        if homeScore == awayScore { return .draw }
-        return homeScore > awayScore ? .win : .loss
+    static func from(myTeamScore: Int, opponentScore: Int) -> Self {
+        if myTeamScore == opponentScore { return .draw }
+        return myTeamScore > opponentScore ? .win : .loss
+    }
+
+    static func from(game: Game) -> Self {
+        .from(myTeamScore: game.myTeamScore ?? 0, opponentScore: game.opponentScore ?? 0)
     }
 
     func color(_ colors: AppColors) -> Color {
@@ -65,11 +69,9 @@ struct GameRecordCard: View {
     let title: String
     var showsResultAccent = false
 
-    private var homeScore: Int { game.homeScore ?? 0 }
-    private var awayScore: Int { game.awayScore ?? 0 }
-    private var result: GameRecordResult {
-        .from(homeScore: homeScore, awayScore: awayScore)
-    }
+    private var myTeamScore: Int { game.myTeamScore ?? 0 }
+    private var opponentScore: Int { game.opponentScore ?? 0 }
+    private var result: GameRecordResult { .from(game: game) }
 
     private var isDraft: Bool { game.status == .draft }
 
@@ -111,11 +113,12 @@ struct GameRecordCard: View {
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
 
+            // タイトルが「自チーム vs 相手」の順のため、スコアも同じ並びにする。
             ScoreBoardView(
-                homeName: "HOME",
-                homeScore: homeScore,
-                awayName: "AWAY",
-                awayScore: awayScore,
+                homeName: String(localized: L10n.myTeamScoreboardLabel),
+                homeScore: myTeamScore,
+                awayName: String(localized: L10n.opponentScoreboardLabel),
+                awayScore: opponentScore,
                 compact: true
             )
 

@@ -40,6 +40,13 @@ struct HomeView: View {
                 // ignoresSafeArea が下側の安全余白も打ち消すため、タブバー分を内容側で確保する。
                 .padding(.bottom, AppTheme.floatingTabBarInset)
             }
+                // 画面上端は必ずヒーローの濃色。GeometryReader の初回レイアウトでは
+                // safeAreaInsets が 0 でヒーローが縮み、下地の明色が覗いてしまう。
+                .background(alignment: .top) {
+                    colors.primary
+                        .frame(height: proxy.size.height / 2)
+                        .frame(maxWidth: .infinity)
+                }
                 .background(colors.groupedBackground)
                 // ヒーローの背景だけを端まで伸ばす。前景はセーフエリア分の余白で守る。
                 .ignoresSafeArea(edges: .top)
@@ -251,11 +258,12 @@ private struct DraftGameCard: View {
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
 
+            // タイトルが「自チーム vs 相手」の順のため、スコアも同じ並びにする。
             ScoreBoardView(
-                homeName: "HOME",
-                homeScore: game.homeScore ?? 0,
-                awayName: "AWAY",
-                awayScore: game.awayScore ?? 0,
+                homeName: String(localized: L10n.myTeamScoreboardLabel),
+                homeScore: game.myTeamScore ?? 0,
+                awayName: String(localized: L10n.opponentScoreboardLabel),
+                awayScore: game.opponentScore ?? 0,
                 compact: true
             )
 

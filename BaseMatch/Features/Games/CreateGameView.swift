@@ -14,6 +14,7 @@ struct CreateGameView: View {
     @State private var homeInningRuns: [Int] = []
     @State private var awayInningRuns: [Int] = []
     @State private var selectedInnings = 7
+    @State private var isMyTeamHome = true
 
     @State private var isPopulated = false
     @State private var isCreateMyTeamPresented = false
@@ -105,6 +106,7 @@ struct CreateGameView: View {
         Form {
             matchupSection
             myTeamSection
+            battingOrderSection
             scoreSection
             inningsSection
         }
@@ -194,6 +196,69 @@ struct CreateGameView: View {
         }
     }
 
+    /// 自チームの表示名。未選択時もラベルの幅が崩れないよう既定名で埋める。
+    private var myTeamDisplayName: String {
+        effectiveMyTeamId
+            .flatMap { id in store.myTeams.first { $0.id == id }?.name }
+            ?? String(localized: L10n.myTeamScoreboardLabel)
+    }
+
+    private var opponentDisplayName: String {
+        let trimmed = awayTeamName.trimmed
+        return trimmed.isEmpty ? String(localized: L10n.opponentScoreboardLabel) : trimmed
+    }
+
+    private var battingFirstTeamName: String {
+        isMyTeamHome ? opponentDisplayName : myTeamDisplayName
+    }
+
+    private var battingSecondTeamName: String {
+        isMyTeamHome ? myTeamDisplayName : opponentDisplayName
+    }
+
+    private var battingOrderSection: some View {
+        Section {
+            Picker(L10n.battingOrderLabel, selection: $isMyTeamHome) {
+                Text(L10n.battingFirstLabel).tag(false)
+                Text(L10n.battingSecondLabel).tag(true)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+
+            // どちらの枠にどのチームが入るかを名前で示す。表・裏だけだと
+            // 自チームがどちらなのか読み取れず、逆に記録される。
+            HStack(spacing: Spacing.sm) {
+                battingOrderSlot(half: L10n.topHalfLabel, teamName: battingFirstTeamName)
+
+                Divider()
+
+                battingOrderSlot(half: L10n.bottomHalfLabel, teamName: battingSecondTeamName)
+            }
+            .frame(maxWidth: .infinity)
+        } header: {
+            Text(L10n.battingOrderLabel)
+        } footer: {
+            Text(L10n.battingOrderHint)
+        }
+    }
+
+    private func battingOrderSlot(half: LocalizedStringResource, teamName: String) -> some View {
+        VStack(spacing: Spacing.xxs) {
+            Text(half)
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(colors.onSurfaceVariant)
+
+            Text(teamName)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(colors.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
+    }
+
     private var myTeamSelection: Binding<String?> {
         Binding(
             get: { effectiveMyTeamId },
@@ -213,11 +278,15 @@ struct CreateGameView: View {
 
     private var scoreSection: some View {
         Section {
+            inningScoreHeaderRow
+
             ForEach(0..<selectedInnings, id: \.self) { index in
                 InningScoreRow(
                     inning: index + 1,
                     awayRuns: runsBinding(for: $awayInningRuns, index: index),
                     homeRuns: runsBinding(for: $homeInningRuns, index: index),
+                    battingFirstTeamName: battingFirstTeamName,
+                    battingSecondTeamName: battingSecondTeamName,
                     range: Self.scoreRange
                 )
             }
@@ -230,22 +299,51 @@ struct CreateGameView: View {
         }
     }
 
+    /// 各回のステッパーだけだと、どちらの列が自チームか分からなくなる。
+    private var inningScoreHeaderRow: some View {
+        HStack(spacing: Spacing.sm) {
+            Color.clear.frame(width: 52, height: 1)
+
+            inningScoreHeaderCell(half: L10n.topHalfLabel, teamName: battingFirstTeamName)
+            inningScoreHeaderCell(half: L10n.bottomHalfLabel, teamName: battingSecondTeamName)
+        }
+        .accessibilityHidden(true)
+    }
+
+    private func inningScoreHeaderCell(
+        half: LocalizedStringResource,
+        teamName: String
+    ) -> some View {
+        VStack(spacing: 0) {
+            Text(half)
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(colors.onSurfaceVariant)
+            Text(teamName)
+                .font(.caption2)
+                .foregroundStyle(colors.onSurfaceTertiary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
     private var totalRow: some View {
         HStack {
             Text(L10n.totalScoreLabel)
                 .font(.subheadline.weight(.semibold))
             Spacer(minLength: 12)
-            totalValue(label: L10n.awayScoreLabel, score: awayScore)
-            totalValue(label: L10n.homeScoreLabel, score: homeScore)
+            totalValue(name: battingFirstTeamName, score: awayScore)
+            totalValue(name: battingSecondTeamName, score: homeScore)
         }
     }
 
-    private func totalValue(label: LocalizedStringResource, score: Int) -> some View {
+    private func totalValue(name: String, score: Int) -> some View {
         VStack(spacing: Spacing.xxs) {
-            Text(label)
+            Text(name)
                 .font(.caption2)
                 .foregroundStyle(colors.onSurfaceVariant)
                 .lineLimit(1)
+                .minimumScaleFactor(0.7)
             StatValueText(value: "\(score)", scale: .standard, weight: .semibold, color: colors.primary)
         }
         .frame(minWidth: 60)
@@ -301,6 +399,7 @@ struct CreateGameView: View {
         location = game.location ?? ""
         selectedMyTeamId = game.myTeamId
         selectedInnings = game.innings ?? 7
+        isMyTeamHome = game.isMyTeamHome
         // イニング別が未入力の試合は空のまま開く。合計を1回表に押し込むと嘘の記録になる。
         homeInningRuns = store.inningRuns(gameId: game.id, isHome: true)
         awayInningRuns = store.inningRuns(gameId: game.id, isHome: false)
@@ -331,7 +430,8 @@ struct CreateGameView: View {
                 location: location.normalizedOptional,
                 innings: selectedInnings,
                 homeScore: submittedHomeScore,
-                awayScore: submittedAwayScore
+                awayScore: submittedAwayScore,
+                isMyTeamHome: isMyTeamHome
             )
             guard updated != nil else { return }
             if hasInningScores {
@@ -350,7 +450,8 @@ struct CreateGameView: View {
                 location: location.normalizedOptional,
                 innings: selectedInnings,
                 homeScore: submittedHomeScore,
-                awayScore: submittedAwayScore
+                awayScore: submittedAwayScore,
+                isMyTeamHome: isMyTeamHome
             )
             guard let created else { return }
             if hasInningScores {
@@ -377,6 +478,8 @@ private struct InningScoreRow: View {
     let inning: Int
     @Binding var awayRuns: Int
     @Binding var homeRuns: Int
+    let battingFirstTeamName: String
+    let battingSecondTeamName: String
     let range: ClosedRange<Int>
 
     var body: some View {
@@ -387,12 +490,24 @@ private struct InningScoreRow: View {
                 .monospacedDigit()
                 .frame(minWidth: 52, alignment: .leading)
 
-            halfStepper(half: L10n.topHalfLabel, value: $awayRuns)
-            halfStepper(half: L10n.bottomHalfLabel, value: $homeRuns)
+            halfStepper(
+                half: L10n.topHalfLabel,
+                teamName: battingFirstTeamName,
+                value: $awayRuns
+            )
+            halfStepper(
+                half: L10n.bottomHalfLabel,
+                teamName: battingSecondTeamName,
+                value: $homeRuns
+            )
         }
     }
 
-    private func halfStepper(half: LocalizedStringResource, value: Binding<Int>) -> some View {
+    private func halfStepper(
+        half: LocalizedStringResource,
+        teamName: String,
+        value: Binding<Int>
+    ) -> some View {
         Stepper(value: value, in: range) {
             HStack(spacing: Spacing.xxs) {
                 Text(half)
@@ -408,7 +523,11 @@ private struct InningScoreRow: View {
         }
         .sensoryFeedback(.selection, trigger: value.wrappedValue)
         .accessibilityLabel(
-            Text(L10n.inningRunsAccessibilityLabel(inning, String(localized: half)))
+            Text(L10n.inningHalfTeamAccessibilityLabel(
+                inning,
+                String(localized: half),
+                teamName
+            ))
         )
     }
 }

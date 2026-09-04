@@ -439,6 +439,58 @@
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "裏" } }
       }
     },
+    "game.field.battingOrder" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Batting Order" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "先攻・後攻" } }
+      }
+    },
+    "game.field.battingOrderHint" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The team batting first is shown in the top half of each inning." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "先攻のチームが各回の「表」に入ります。" } }
+      }
+    },
+    "game.field.battingFirst" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Bat first (Top)" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "先攻（表）" } }
+      }
+    },
+    "game.field.battingSecond" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Bat second (Bottom)" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "後攻（裏）" } }
+      }
+    },
+    "game.scoreboard.myTeam" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "MY TEAM" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "自チーム" } }
+      }
+    },
+    "game.scoreboard.opponent" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "OPPONENT" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "相手" } }
+      }
+    },
+    "game.field.inningRunsTeamAccessibility %lld %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inning %1$lld %2$@, %3$@ runs"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld回%2$@ %3$@の得点"
+          }
+        }
+      }
+    },
     "game.field.totalScore" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Total" } },

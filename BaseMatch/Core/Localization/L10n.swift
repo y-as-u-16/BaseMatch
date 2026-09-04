@@ -106,6 +106,19 @@ enum L10n {
     static var inningScoresHint: LocalizedStringResource { t("game.field.inningScoresHint") }
     static var topHalfLabel: LocalizedStringResource { t("game.field.topHalf") }
     static var bottomHalfLabel: LocalizedStringResource { t("game.field.bottomHalf") }
+    static var battingOrderLabel: LocalizedStringResource { t("game.field.battingOrder") }
+    static var battingOrderHint: LocalizedStringResource { t("game.field.battingOrderHint") }
+    static var battingFirstLabel: LocalizedStringResource { t("game.field.battingFirst") }
+    static var battingSecondLabel: LocalizedStringResource { t("game.field.battingSecond") }
+    static var myTeamScoreboardLabel: LocalizedStringResource { t("game.scoreboard.myTeam") }
+    static var opponentScoreboardLabel: LocalizedStringResource { t("game.scoreboard.opponent") }
+    static func inningHalfTeamAccessibilityLabel(
+        _ inning: Int,
+        _ half: String,
+        _ team: String
+    ) -> LocalizedStringResource {
+        t("game.field.inningRunsTeamAccessibility \(inning) \(half) \(team)")
+    }
     static var totalScoreLabel: LocalizedStringResource { t("game.field.totalScore") }
     static func inningNumberLabel(_ inning: Int) -> LocalizedStringResource {
         t("game.field.inningNumber \(inning)")

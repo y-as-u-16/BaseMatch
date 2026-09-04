@@ -35,7 +35,8 @@ struct GameRepository {
         location: String? = nil,
         innings: Int? = nil,
         homeScore: Int = 0,
-        awayScore: Int = 0
+        awayScore: Int = 0,
+        isMyTeamHome: Bool = true
     ) throws -> Game {
         try validateGame(
             myTeamId: myTeamId,
@@ -53,7 +54,8 @@ struct GameRepository {
             homeScore: homeScore,
             awayScore: awayScore,
             status: .draft,
-            innings: innings
+            innings: innings,
+            isMyTeamHome: isMyTeamHome
         )
         context.insert(game)
         try context.save()
@@ -69,7 +71,8 @@ struct GameRepository {
         location: String? = nil,
         innings: Int? = nil,
         homeScore: Int,
-        awayScore: Int
+        awayScore: Int,
+        isMyTeamHome: Bool = true
     ) throws -> Game {
         try validateGame(
             myTeamId: myTeamId,
@@ -90,6 +93,7 @@ struct GameRepository {
         game.innings = innings
         game.homeScore = homeScore
         game.awayScore = awayScore
+        game.isMyTeamHome = isMyTeamHome
         try context.save()
         return game
     }

@@ -79,6 +79,16 @@ final class AppStore {
         inningScores.filter { $0.gameId == gameId }
     }
 
+    /// 自チームの回別得点。`isHome` は先攻・後攻の枠なので、自チームの記録を
+    /// 引くには `Game.isMyTeamHome` を経由する必要がある。
+    func myTeamInningRuns(for game: Game) -> [Int] {
+        inningRuns(gameId: game.id, isHome: game.isMyTeamHome)
+    }
+
+    func opponentInningRuns(for game: Game) -> [Int] {
+        inningRuns(gameId: game.id, isHome: !game.isMyTeamHome)
+    }
+
     /// 表・裏それぞれの得点を回順に並べた配列。無ければ空。
     func inningRuns(gameId: String, isHome: Bool) -> [Int] {
         inningScores(gameId: gameId)
@@ -174,7 +184,8 @@ final class AppStore {
         location: String?,
         innings: Int?,
         homeScore: Int,
-        awayScore: Int
+        awayScore: Int,
+        isMyTeamHome: Bool
     ) -> Game? {
         perform {
             let game = try gameRepository.createGame(
@@ -184,7 +195,8 @@ final class AppStore {
                 location: location,
                 innings: innings,
                 homeScore: homeScore,
-                awayScore: awayScore
+                awayScore: awayScore,
+                isMyTeamHome: isMyTeamHome
             )
             games = try gameRepository.games()
             return game
@@ -200,7 +212,8 @@ final class AppStore {
         location: String?,
         innings: Int?,
         homeScore: Int,
-        awayScore: Int
+        awayScore: Int,
+        isMyTeamHome: Bool
     ) -> Game? {
         perform {
             let game = try gameRepository.updateGame(
@@ -211,7 +224,8 @@ final class AppStore {
                 location: location,
                 innings: innings,
                 homeScore: homeScore,
-                awayScore: awayScore
+                awayScore: awayScore,
+                isMyTeamHome: isMyTeamHome
             )
             games = try gameRepository.games()
             return game
