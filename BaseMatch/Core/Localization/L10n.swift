@@ -90,8 +90,6 @@ enum L10n {
     static var gameDateLabel: LocalizedStringResource { t("game.field.date") }
     static var awayTeamNameLabel: LocalizedStringResource { t("game.field.awayTeamName") }
     static var awayTeamNameRequired: LocalizedStringResource { t("game.validation.awayTeamNameRequired") }
-    static var homeScoreLabel: LocalizedStringResource { t("game.field.homeScore") }
-    static var awayScoreLabel: LocalizedStringResource { t("game.field.awayScore") }
     static var scoreRequired: LocalizedStringResource { t("game.validation.scoreRequired") }
     static var scoreMustBeNonNegative: LocalizedStringResource { t("game.validation.scoreNonNegative") }
     static var locationOptionalLabel: LocalizedStringResource { t("game.field.locationOptional") }
@@ -102,8 +100,10 @@ enum L10n {
     static var bottomHalfLabel: LocalizedStringResource { t("game.field.bottomHalf") }
     static var battingOrderLabel: LocalizedStringResource { t("game.field.battingOrder") }
     static var battingOrderHint: LocalizedStringResource { t("game.field.battingOrderHint") }
-    static var battingFirstLabel: LocalizedStringResource { t("game.field.battingFirst") }
-    static var battingSecondLabel: LocalizedStringResource { t("game.field.battingSecond") }
+    static var myTeamBattingFirstLabel: LocalizedStringResource { t("game.field.myTeamBattingFirst") }
+    static var myTeamBattingSecondLabel: LocalizedStringResource { t("game.field.myTeamBattingSecond") }
+    static var detailMyTeamBattingFirst: LocalizedStringResource { t("game.detail.myTeamBattingFirst") }
+    static var detailMyTeamBattingSecond: LocalizedStringResource { t("game.detail.myTeamBattingSecond") }
     static var myTeamScoreboardLabel: LocalizedStringResource { t("game.scoreboard.myTeam") }
     static var opponentScoreboardLabel: LocalizedStringResource { t("game.scoreboard.opponent") }
     static func inningHalfTeamAccessibilityLabel(

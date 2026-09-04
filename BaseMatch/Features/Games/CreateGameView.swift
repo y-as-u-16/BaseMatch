@@ -4,6 +4,7 @@ struct CreateGameView: View {
     @Environment(AppStore.self) private var store
     @Environment(\.appColors) private var colors
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private let editGameId: String?
 
@@ -11,8 +12,7 @@ struct CreateGameView: View {
     @State private var selectedMyTeamId: String?
     @State private var awayTeamName = ""
     @State private var location = ""
-    @State private var homeInningRuns: [Int] = []
-    @State private var awayInningRuns: [Int] = []
+    @State private var inningRuns = InningRunsDraft()
     @State private var selectedInnings = 7
     @State private var isMyTeamHome = true
 
@@ -36,6 +36,9 @@ struct CreateGameView: View {
     }
 
     private var isEditMode: Bool { editGameId != nil }
+
+    /// Stepper を横に2つ並べると大きい文字で潰れるため、そこから縦積みに切り替える。
+    private var isStackedLayout: Bool { dynamicTypeSize >= .accessibility1 }
 
     private var title: LocalizedStringResource {
         isEditMode ? L10n.editGameTitle : L10n.createGameTitle
@@ -218,21 +221,29 @@ struct CreateGameView: View {
 
     private var battingOrderSection: some View {
         Section {
-            Picker(L10n.battingOrderLabel, selection: $isMyTeamHome) {
-                Text(L10n.battingFirstLabel).tag(false)
-                Text(L10n.battingSecondLabel).tag(true)
+            Picker(L10n.battingOrderLabel, selection: battingOrderSelection) {
+                Text(L10n.myTeamBattingFirstLabel).tag(false)
+                Text(L10n.myTeamBattingSecondLabel).tag(true)
             }
             .pickerStyle(.segmented)
             .labelsHidden()
+            .accessibilityLabel(Text(L10n.battingOrderLabel))
 
             // どちらの枠にどのチームが入るかを名前で示す。表・裏だけだと
             // 自チームがどちらなのか読み取れず、逆に記録される。
-            HStack(spacing: Spacing.sm) {
-                battingOrderSlot(half: L10n.topHalfLabel, teamName: battingFirstTeamName)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: Spacing.sm) {
+                    battingOrderSlot(half: L10n.topHalfLabel, teamName: battingFirstTeamName)
 
-                Divider()
+                    Divider()
 
-                battingOrderSlot(half: L10n.bottomHalfLabel, teamName: battingSecondTeamName)
+                    battingOrderSlot(half: L10n.bottomHalfLabel, teamName: battingSecondTeamName)
+                }
+
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    battingOrderSlot(half: L10n.topHalfLabel, teamName: battingFirstTeamName)
+                    battingOrderSlot(half: L10n.bottomHalfLabel, teamName: battingSecondTeamName)
+                }
             }
             .frame(maxWidth: .infinity)
         } header: {
@@ -269,22 +280,23 @@ struct CreateGameView: View {
         )
     }
 
-    private var homeScore: Int { homeInningRuns.reduce(0, +) }
-    private var awayScore: Int { awayInningRuns.reduce(0, +) }
+    private var homeScore: Int { inningRuns.homeTotal }
+    private var awayScore: Int { inningRuns.awayTotal }
 
-    private var hasInningScores: Bool {
-        !homeInningRuns.isEmpty || !awayInningRuns.isEmpty
-    }
+    private var hasInningScores: Bool { !inningRuns.isEmpty }
 
     private var scoreSection: some View {
         Section {
-            inningScoreHeaderRow
+            // 大きい文字では各行がチーム名を持つため、ヘッダーは重複になる。
+            if !isStackedLayout {
+                inningScoreHeaderRow
+            }
 
             ForEach(0..<selectedInnings, id: \.self) { index in
                 InningScoreRow(
                     inning: index + 1,
-                    awayRuns: runsBinding(for: $awayInningRuns, index: index),
-                    homeRuns: runsBinding(for: $homeInningRuns, index: index),
+                    awayRuns: runsBinding(isHome: false, index: index),
+                    homeRuns: runsBinding(isHome: true, index: index),
                     battingFirstTeamName: battingFirstTeamName,
                     battingSecondTeamName: battingSecondTeamName,
                     range: Self.scoreRange
@@ -328,12 +340,21 @@ struct CreateGameView: View {
     }
 
     private var totalRow: some View {
-        HStack {
-            Text(L10n.totalScoreLabel)
-                .font(.subheadline.weight(.semibold))
-            Spacer(minLength: 12)
-            totalValue(name: battingFirstTeamName, score: awayScore)
-            totalValue(name: battingSecondTeamName, score: homeScore)
+        ViewThatFits(in: .horizontal) {
+            HStack {
+                Text(L10n.totalScoreLabel)
+                    .font(.subheadline.weight(.semibold))
+                Spacer(minLength: 12)
+                totalValue(name: battingFirstTeamName, score: awayScore)
+                totalValue(name: battingSecondTeamName, score: homeScore)
+            }
+
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text(L10n.totalScoreLabel)
+                    .font(.subheadline.weight(.semibold))
+                totalValue(name: battingFirstTeamName, score: awayScore)
+                totalValue(name: battingSecondTeamName, score: homeScore)
+            }
         }
     }
 
@@ -349,17 +370,16 @@ struct CreateGameView: View {
         .frame(minWidth: 60)
     }
 
-    /// イニング数を増やしたときに配列が短いままだと落ちるため、読み出し時に 0 で補う。
-    private func runsBinding(for source: Binding<[Int]>, index: Int) -> Binding<Int> {
+    private func runsBinding(isHome: Bool, index: Int) -> Binding<Int> {
         Binding(
-            get: { index < source.wrappedValue.count ? source.wrappedValue[index] : 0 },
+            get: { inningRuns.runs(isHome: isHome, inningIndex: index) },
             set: { newValue in
-                var runs = source.wrappedValue
-                if runs.count < selectedInnings {
-                    runs.append(contentsOf: Array(repeating: 0, count: selectedInnings - runs.count))
-                }
-                runs[index] = newValue
-                source.wrappedValue = runs
+                inningRuns.setRuns(
+                    newValue,
+                    isHome: isHome,
+                    inningIndex: index,
+                    innings: selectedInnings
+                )
             }
         )
     }
@@ -374,22 +394,13 @@ struct CreateGameView: View {
             .pickerStyle(.segmented)
             .labelsHidden()
             .onChange(of: selectedInnings) { _, newValue in
-                trimInningRuns(to: newValue)
+                inningRuns.trim(to: newValue)
             }
         } header: {
             Text(L10n.inningsCountLabel)
         }
     }
 
-    /// イニング数を減らしたら余った回の得点は捨てる。合計に紛れ込むのを防ぐ。
-    private func trimInningRuns(to innings: Int) {
-        if homeInningRuns.count > innings {
-            homeInningRuns = Array(homeInningRuns.prefix(innings))
-        }
-        if awayInningRuns.count > innings {
-            awayInningRuns = Array(awayInningRuns.prefix(innings))
-        }
-    }
 
     private func populateIfNeeded() {
         guard !isPopulated, let game = editingGame else { return }
@@ -401,8 +412,25 @@ struct CreateGameView: View {
         selectedInnings = game.innings ?? 7
         isMyTeamHome = game.isMyTeamHome
         // イニング別が未入力の試合は空のまま開く。合計を1回表に押し込むと嘘の記録になる。
-        homeInningRuns = store.inningRuns(gameId: game.id, isHome: true)
-        awayInningRuns = store.inningRuns(gameId: game.id, isHome: false)
+        inningRuns = InningRunsDraft(
+            home: store.inningRuns(gameId: game.id, isHome: true),
+            away: store.inningRuns(gameId: game.id, isHome: false)
+        )
+    }
+
+    /// 表・裏の枠は固定なので、先攻・後攻を変えたら入力済みの得点も入れ替える。
+    /// そうしないと自チームの得点が相手のものとして保存される。
+    /// onChange ではなく setter で捕まえるのは、既存試合の読み込みでの代入と
+    /// ユーザー操作を区別するため。
+    private var battingOrderSelection: Binding<Bool> {
+        Binding(
+            get: { isMyTeamHome },
+            set: { newValue in
+                guard newValue != isMyTeamHome else { return }
+                isMyTeamHome = newValue
+                inningRuns.swapHalves()
+            }
+        )
     }
 
     private func submit() {
@@ -420,6 +448,7 @@ struct CreateGameView: View {
         // イニング別が空なら合計は既存値を保つ。0 で上書きすると旧データの記録が消える。
         let submittedHomeScore = hasInningScores ? homeScore : (editingGame?.homeScore ?? 0)
         let submittedAwayScore = hasInningScores ? awayScore : (editingGame?.awayScore ?? 0)
+        let padded = inningRuns.padded(to: selectedInnings)
 
         if let editGameId {
             let updated = store.updateGame(
@@ -437,8 +466,8 @@ struct CreateGameView: View {
             if hasInningScores {
                 store.replaceInningScores(
                     gameId: editGameId,
-                    home: paddedRuns(homeInningRuns),
-                    away: paddedRuns(awayInningRuns)
+                    home: padded.home,
+                    away: padded.away
                 )
             }
             dismiss()
@@ -457,23 +486,19 @@ struct CreateGameView: View {
             if hasInningScores {
                 store.replaceInningScores(
                     gameId: created.id,
-                    home: paddedRuns(homeInningRuns),
-                    away: paddedRuns(awayInningRuns)
+                    home: padded.home,
+                    away: padded.away
                 )
             }
             dismiss()
         }
     }
 
-    /// 表裏で長さがずれるとラインスコアの列が揃わないため、選んだイニング数まで 0 で埋める。
-    private func paddedRuns(_ runs: [Int]) -> [Int] {
-        guard runs.count < selectedInnings else { return Array(runs.prefix(selectedInnings)) }
-        return runs + Array(repeating: 0, count: selectedInnings - runs.count)
-    }
 }
 
 private struct InningScoreRow: View {
     @Environment(\.appColors) private var colors
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     let inning: Int
     @Binding var awayRuns: Int
@@ -482,37 +507,70 @@ private struct InningScoreRow: View {
     let battingSecondTeamName: String
     let range: ClosedRange<Int>
 
-    var body: some View {
-        HStack(spacing: Spacing.sm) {
-            Text(L10n.inningNumberLabel(inning))
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(colors.onSurface)
-                .monospacedDigit()
-                .frame(minWidth: 52, alignment: .leading)
+    /// Stepper の +/- は文字サイズに応じて広がる。2つを横に並べたままだと
+    /// 数字が潰れて読めなくなるため、大きい文字では縦に積む。
+    private var isStacked: Bool { dynamicTypeSize >= .accessibility1 }
 
-            halfStepper(
-                half: L10n.topHalfLabel,
-                teamName: battingFirstTeamName,
-                value: $awayRuns
-            )
-            halfStepper(
-                half: L10n.bottomHalfLabel,
-                teamName: battingSecondTeamName,
-                value: $homeRuns
-            )
+    var body: some View {
+        if isStacked {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                inningLabel
+
+                halfStepper(
+                    half: L10n.topHalfLabel,
+                    teamName: battingFirstTeamName,
+                    value: $awayRuns,
+                    showsTeamName: true
+                )
+                halfStepper(
+                    half: L10n.bottomHalfLabel,
+                    teamName: battingSecondTeamName,
+                    value: $homeRuns,
+                    showsTeamName: true
+                )
+            }
+        } else {
+            HStack(spacing: Spacing.sm) {
+                inningLabel
+                    .frame(minWidth: 52, alignment: .leading)
+
+                halfStepper(
+                    half: L10n.topHalfLabel,
+                    teamName: battingFirstTeamName,
+                    value: $awayRuns,
+                    showsTeamName: false
+                )
+                halfStepper(
+                    half: L10n.bottomHalfLabel,
+                    teamName: battingSecondTeamName,
+                    value: $homeRuns,
+                    showsTeamName: false
+                )
+            }
         }
     }
 
+    private var inningLabel: some View {
+        Text(L10n.inningNumberLabel(inning))
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(colors.onSurface)
+            .monospacedDigit()
+    }
+
+    /// 縦積みのときは列ヘッダーが遠くなるため、各行にチーム名を出す。
     private func halfStepper(
         half: LocalizedStringResource,
         teamName: String,
-        value: Binding<Int>
+        value: Binding<Int>,
+        showsTeamName: Bool
     ) -> some View {
         Stepper(value: value, in: range) {
             HStack(spacing: Spacing.xxs) {
-                Text(half)
+                Text(showsTeamName ? "\(String(localized: half))　\(teamName)" : String(localized: half))
                     .font(.caption)
                     .foregroundStyle(colors.onSurfaceVariant)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 StatValueText(
                     value: "\(value.wrappedValue)",
                     scale: .compact,

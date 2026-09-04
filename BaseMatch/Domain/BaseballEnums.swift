@@ -1,6 +1,5 @@
 import Foundation
 
-
 enum PlateAppearanceResultType: String, Codable, CaseIterable, Sendable {
     case hit
     case out

@@ -6,7 +6,7 @@ git_branch("main")
 
 type("appstore")
 app_identifier(["com.basematch.app"])
-team_id("TFGTJ2C22L")
+team_id(ENV.fetch("FASTLANE_TEAM_ID"))
 
 # Flutter 版と同じ証明書リポジトリを共有するため、暗号化方式を揃える。
 force_legacy_encryption(true)

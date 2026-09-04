@@ -79,16 +79,6 @@ final class AppStore {
         inningScores.filter { $0.gameId == gameId }
     }
 
-    /// 自チームの回別得点。`isHome` は先攻・後攻の枠なので、自チームの記録を
-    /// 引くには `Game.isMyTeamHome` を経由する必要がある。
-    func myTeamInningRuns(for game: Game) -> [Int] {
-        inningRuns(gameId: game.id, isHome: game.isMyTeamHome)
-    }
-
-    func opponentInningRuns(for game: Game) -> [Int] {
-        inningRuns(gameId: game.id, isHome: !game.isMyTeamHome)
-    }
-
     /// 表・裏それぞれの得点を回順に並べた配列。無ければ空。
     func inningRuns(gameId: String, isHome: Bool) -> [Int] {
         inningScores(gameId: gameId)
@@ -284,7 +274,6 @@ final class AppStore {
         }
     }
 
-
     func updatePlateAppearance(
         id: String,
         batterName: String,
@@ -376,7 +365,6 @@ final class AppStore {
             myTeams = try myTeamRepository.myTeams()
         }
     }
-
 
     /// デフォルトチームのデフォルト選手のハイライト。
     var defaultPlayerHighlight: PlayerHighlight? {
