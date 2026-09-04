@@ -1,0 +1,20 @@
+name: Guards
+
+# Xcode を使わないテキスト検査なので Linux で走らせる。
+# macOS ランナーは無料枠を10倍消費する。
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  guards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: 機密情報の混入を検査
+        run: ./scripts/check-no-secrets.sh
+
+      - name: 依存方向を検査
+        run: ./scripts/check-architecture.sh

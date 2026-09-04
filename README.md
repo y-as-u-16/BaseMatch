@@ -37,9 +37,16 @@ xcodebuild test -project BaseMatch.xcodeproj -scheme BaseMatch \
 ## CI/CD
 
 - **CI**: PR ごとにビルドとテスト（`.github/workflows/ci-main.yml`）
+- **Guards**: 機密情報の混入と依存方向を検査（`.github/workflows/guards.yml`）
 - **CD**: main への push で TestFlight へ配信（`.github/workflows/cd-testflight.yml`）
 
 証明書は fastlane match で管理する。
+
+fastlane をローカルで動かすには Team ID が要る。CI では GitHub Secrets から供給される。
+
+```bash
+echo 'FASTLANE_TEAM_ID=<Apple Developer の Team ID>' > .env
+```
 
 ## ドキュメント
 

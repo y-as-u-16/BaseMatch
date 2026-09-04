@@ -18,3 +18,7 @@ fastlane/test_output
 # 審査担当者向けの連絡先（氏名・電話番号・メール）。
 # パブリックリポジトリのため公開しない。
 fastlane/metadata/review_information/
+
+# fastlane をローカルで動かすときの設定。Team ID を入れるため公開しない。
+.env
+fastlane/.env

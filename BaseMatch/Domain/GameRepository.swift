@@ -71,7 +71,7 @@ struct GameRepository {
         innings: Int? = nil,
         homeScore: Int,
         awayScore: Int,
-        isMyTeamHome: Bool = true
+        isMyTeamHome: Bool
     ) throws -> Game {
         try validateGame(
             myTeamId: myTeamId,
@@ -166,7 +166,6 @@ struct GameRepository {
         try context.save()
         return appearance
     }
-
 
     func allInningScores() throws -> [InningScore] {
         try context.fetch(FetchDescriptor<InningScore>())

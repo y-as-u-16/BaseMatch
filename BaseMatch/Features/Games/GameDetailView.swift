@@ -230,10 +230,10 @@ private struct GameScoreHeader: View {
                 HStack(spacing: 8) {
                     metaChip(systemImage: "calendar", label: game.date.slashDateLabel)
                     metaChip(
-                        systemImage: "arrow.left.arrow.right",
+                        systemImage: game.isMyTeamHome ? "2.circle" : "1.circle",
                         label: String(localized: game.isMyTeamHome
-                            ? L10n.battingSecondLabel
-                            : L10n.battingFirstLabel)
+                            ? L10n.detailMyTeamBattingSecond
+                            : L10n.detailMyTeamBattingFirst)
                     )
                     if let location = game.location?.normalizedOptional {
                         metaChip(systemImage: "mappin.and.ellipse", label: location)

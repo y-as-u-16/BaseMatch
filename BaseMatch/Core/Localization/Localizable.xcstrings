@@ -349,18 +349,6 @@
         "ja" : { "stringUnit" : { "state" : "translated", "value" : "相手チーム名を入力してください" } }
       }
     },
-    "game.field.homeScore" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "My Team Runs" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "自チーム得点" } }
-      }
-    },
-    "game.field.awayScore" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opponent Runs" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "相手チーム得点" } }
-      }
-    },
     "game.validation.scoreRequired" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter a score" } },
@@ -417,26 +405,38 @@
     },
     "game.field.battingOrder" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Batting Order" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "先攻・後攻" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your Team's Batting Order" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "自チームの先攻・後攻" } }
       }
     },
     "game.field.battingOrderHint" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "The team batting first is shown in the top half of each inning." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "先攻のチームが各回の「表」に入ります。" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The team batting first scores in the top half of each inning. Switching keeps each team's runs with that team." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "先攻のチームが各回の「表」に入ります。切り替えると、入力済みの得点も一緒に移動します。" } }
       }
     },
-    "game.field.battingFirst" : {
+    "game.field.myTeamBattingFirst" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Bat first (Top)" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "先攻（表）" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "We bat first" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "自チームが先攻" } }
       }
     },
-    "game.field.battingSecond" : {
+    "game.field.myTeamBattingSecond" : {
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Bat second (Bottom)" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "後攻（裏）" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "We bat second" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "自チームが後攻" } }
+      }
+    },
+    "game.detail.myTeamBattingFirst" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "We batted first" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "自チーム先攻" } }
+      }
+    },
+    "game.detail.myTeamBattingSecond" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "We batted second" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "自チーム後攻" } }
       }
     },
     "game.scoreboard.myTeam" : {

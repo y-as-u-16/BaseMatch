@@ -35,7 +35,11 @@ enum DemoDataSeeder {
         let plans: [GamePlan] = [
             .init(dayOffset: 0, opponent: names.opponents[0], home: 6, away: 2, venue: names.venues[0]),
             .init(dayOffset: -9, opponent: names.opponents[1], home: 3, away: 5, venue: names.venues[1]),
-            .init(dayOffset: -16, opponent: names.opponents[2], home: 7, away: 4, venue: names.venues[2]),
+            // 先攻の試合。ラインスコアの上下が入れ替わることを掲載画像でも見せる。
+            .init(
+                dayOffset: -16, opponent: names.opponents[2], home: 4, away: 7,
+                venue: names.venues[2], isMyTeamHome: false
+            ),
             .init(dayOffset: -38, opponent: names.opponents[3], home: 5, away: 5, venue: names.venues[2]),
             .init(dayOffset: -45, opponent: names.opponents[4], home: 8, away: 1, venue: names.venues[3]),
         ]
@@ -50,7 +54,8 @@ enum DemoDataSeeder {
                 homeScore: plan.home,
                 awayScore: plan.away,
                 createdAt: date,
-                innings: Self.inningsPerGame
+                innings: Self.inningsPerGame,
+                isMyTeamHome: plan.isMyTeamHome
             )
             context.insert(game)
 
@@ -140,6 +145,8 @@ private struct GamePlan {
     let home: Int
     let away: Int
     let venue: String
+    /// home / away は先攻・後攻の枠。自チームの得点がどちらかはこれで決まる。
+    var isMyTeamHome = true
 
     /// 合計が home / away に一致する配分。
     /// 序盤・中盤・終盤に散らしてラインスコアが単調にならないようにする。

@@ -247,8 +247,8 @@ struct GameRepositoryTests {
         return (GameRepository(context: context), MyTeamRepository(context: context))
     }
 
-    @Test("試合を作成すると draft 状態で保存される")
-    func createGameStartsAsDraft() throws {
+    @Test("試合を作成すると入力値が整形されて保存される")
+    func createGameTrimsInput() throws {
         let (games, teams) = try makeRepositories()
         let team = try teams.createMyTeam(name: "A")
 
@@ -545,7 +545,8 @@ struct GameRepositoryTests {
             location: nil,
             innings: 9,
             homeScore: 5,
-            awayScore: 1
+            awayScore: 1,
+            isMyTeamHome: true
         )
 
         #expect(updated.awayTeamName == "新")
@@ -567,7 +568,8 @@ struct GameRepositoryTests {
                 location: nil,
                 innings: nil,
                 homeScore: 0,
-                awayScore: 0
+                awayScore: 0,
+                isMyTeamHome: true
             )
         }
     }
@@ -769,7 +771,8 @@ struct LegacyGameCompatibilityTests {
             awayTeamName: "相手",
             innings: 7,
             homeScore: game.homeScore ?? 0,
-            awayScore: game.awayScore ?? 0
+            awayScore: game.awayScore ?? 0,
+            isMyTeamHome: game.isMyTeamHome
         )
 
         let updated = try #require(try games.game(id: game.id))
@@ -976,5 +979,79 @@ struct BattingOrderTests {
         #expect(summary.wins == 1)
         #expect(summary.losses == 0)
         #expect(summary.totalRuns == 6)
+    }
+}
+
+@Suite("イニング得点の下書き")
+@MainActor
+struct InningRunsDraftTests {
+    /// 先攻・後攻を切り替えても得点が動かないと、自チームの点が相手の点として保存される。
+    @Test("先攻・後攻の切り替えで表裏の中身が入れ替わる")
+    func swapMovesRunsWithTheTeam() {
+        var draft = InningRunsDraft(home: [5, 0], away: [3, 1])
+
+        draft.swapHalves()
+
+        #expect(draft.home == [3, 1])
+        #expect(draft.away == [5, 0])
+        #expect(draft.homeTotal == 4)
+        #expect(draft.awayTotal == 5)
+    }
+
+    @Test("2回切り替えると元に戻る")
+    func swappingTwiceRestores() {
+        let original = InningRunsDraft(home: [5, 0], away: [3, 1])
+        var draft = original
+
+        draft.swapHalves()
+        draft.swapHalves()
+
+        #expect(draft == original)
+    }
+
+    @Test("イニング数を増やしても未入力の回は 0 で読める")
+    func readsZeroBeyondStoredRuns() {
+        let draft = InningRunsDraft(home: [1], away: [])
+
+        #expect(draft.runs(isHome: true, inningIndex: 0) == 1)
+        #expect(draft.runs(isHome: true, inningIndex: 5) == 0)
+        #expect(draft.runs(isHome: false, inningIndex: 0) == 0)
+    }
+
+    @Test("後ろの回に入力すると手前は 0 で埋まる")
+    func setRunsPadsEarlierInnings() {
+        var draft = InningRunsDraft()
+
+        draft.setRuns(3, isHome: true, inningIndex: 2, innings: 7)
+
+        #expect(draft.home == [0, 0, 3, 0, 0, 0, 0])
+        #expect(draft.homeTotal == 3)
+    }
+
+    @Test("イニング数を減らすと余った回の得点は捨てられる")
+    func trimDropsExtraInnings() {
+        var draft = InningRunsDraft(home: [1, 2, 3, 4, 5], away: [0, 0, 0, 9, 9])
+
+        draft.trim(to: 3)
+
+        #expect(draft.home == [1, 2, 3])
+        #expect(draft.away == [0, 0, 0])
+        #expect(draft.homeTotal == 6)
+    }
+
+    @Test("保存時は選んだイニング数まで 0 で埋める")
+    func paddedFillsToInnings() {
+        let draft = InningRunsDraft(home: [1, 2], away: [3])
+
+        let padded = draft.padded(to: 5)
+
+        #expect(padded.home == [1, 2, 0, 0, 0])
+        #expect(padded.away == [3, 0, 0, 0, 0])
+    }
+
+    @Test("空の下書きは isEmpty")
+    func emptyDraft() {
+        #expect(InningRunsDraft().isEmpty)
+        #expect(!InningRunsDraft(home: [0], away: []).isEmpty)
     }
 }

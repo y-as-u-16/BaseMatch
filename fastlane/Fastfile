@@ -1,7 +1,7 @@
 default_platform(:ios)
 
 APP_IDENTIFIER = "com.basematch.app".freeze
-TEAM_ID = "TFGTJ2C22L".freeze
+TEAM_ID = ENV.fetch("FASTLANE_TEAM_ID").freeze
 
 # API キーは複数の lane で使うため一箇所で組み立てる。
 def asc_api_key
