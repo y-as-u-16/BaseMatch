@@ -1055,3 +1055,105 @@ struct InningRunsDraftTests {
         #expect(!InningRunsDraft(home: [0], away: []).isEmpty)
     }
 }
+
+@Suite("先攻・後攻とイニング別得点")
+@MainActor
+struct BattingOrderInningScoresTests {
+    private func makeRepositories() throws -> (GameRepository, MyTeamRepository) {
+        let context = try makeContext()
+        return (GameRepository(context: context), MyTeamRepository(context: context))
+    }
+
+    /// 先攻の試合では自チームの得点が away 側に入る。
+    /// 合計を素直に homeScore から読むと相手の点になる。
+    @Test("先攻の試合はイニング別を保存しても自チームの得点を away から引く")
+    func battingFirstReadsMyTeamScoreFromAway() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let game = try games.createGame(
+            date: Date(), myTeamId: team.id, awayTeamName: "相手",
+            innings: 3, isMyTeamHome: false
+        )
+
+        // 表（away）が自チーム。5-2 で勝っている。
+        try games.replaceInningScores(gameId: game.id, home: [1, 1, 0], away: [2, 0, 3])
+
+        let stored = try #require(try games.game(id: game.id))
+        #expect(stored.homeScore == 2)
+        #expect(stored.awayScore == 5)
+        #expect(stored.myTeamScore == 5)
+        #expect(stored.opponentScore == 2)
+        #expect(GameRecordResult.from(game: stored) == .win)
+    }
+
+    @Test("後攻の試合はこれまでどおり home が自チーム")
+    func battingSecondReadsMyTeamScoreFromHome() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let game = try games.createGame(
+            date: Date(), myTeamId: team.id, awayTeamName: "相手", innings: 3
+        )
+
+        try games.replaceInningScores(gameId: game.id, home: [2, 0, 3], away: [1, 1, 0])
+
+        let stored = try #require(try games.game(id: game.id))
+        #expect(stored.myTeamScore == 5)
+        #expect(stored.opponentScore == 2)
+        #expect(GameRecordResult.from(game: stored) == .win)
+    }
+
+    /// InningScore.isHome は先攻・後攻の枠で、自チームの枠ではない。
+    /// 反転しても回別の値は動かず、どちらが自チームかの解釈だけが変わる。
+    @Test("先攻・後攻を反転しても回別の値は動かず解釈だけ変わる")
+    func flippingBattingOrderKeepsInningValues() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let game = try games.createGame(
+            date: Date(), myTeamId: team.id, awayTeamName: "相手", innings: 3
+        )
+        try games.replaceInningScores(gameId: game.id, home: [2, 0, 3], away: [1, 1, 0])
+
+        _ = try games.updateGame(
+            gameId: game.id,
+            date: game.date,
+            myTeamId: team.id,
+            awayTeamName: "相手",
+            innings: 3,
+            homeScore: game.homeScore ?? 0,
+            awayScore: game.awayScore ?? 0,
+            isMyTeamHome: false
+        )
+
+        let stored = try #require(try games.game(id: game.id))
+        let homeRuns = try games.inningScores(gameId: game.id)
+            .filter(\.isHome).sorted { $0.inning < $1.inning }.map(\.runs)
+        let awayRuns = try games.inningScores(gameId: game.id)
+            .filter { !$0.isHome }.sorted { $0.inning < $1.inning }.map(\.runs)
+
+        #expect(homeRuns == [2, 0, 3])
+        #expect(awayRuns == [1, 1, 0])
+        // 値は同じでも、自チームの得点は away 側になった。
+        #expect(stored.myTeamScore == 2)
+        #expect(GameRecordResult.from(game: stored) == .loss)
+    }
+
+    /// ラインスコアは先攻が上段。表示側が参照する経路を固定する。
+    @Test("ラインスコアの上段は常に先攻の得点")
+    func lineScoreTopHalfIsAlwaysBattingFirst() throws {
+        let (games, teams) = try makeRepositories()
+        let team = try teams.createMyTeam(name: "A")
+        let game = try games.createGame(
+            date: Date(), myTeamId: team.id, awayTeamName: "相手",
+            innings: 3, isMyTeamHome: false
+        )
+        try games.replaceInningScores(gameId: game.id, home: [1, 1, 0], away: [2, 0, 3])
+
+        let stored = try #require(try games.game(id: game.id))
+        let topHalf = try games.inningScores(gameId: game.id)
+            .filter { !$0.isHome }.sorted { $0.inning < $1.inning }.map(\.runs)
+
+        // 自チームが先攻なので、上段に自チームの得点が並ぶ。
+        #expect(topHalf == [2, 0, 3])
+        #expect(topHalf.reduce(0, +) == stored.myTeamScore)
+    }
+}
